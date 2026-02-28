@@ -1,0 +1,162 @@
+/* Typography
+ * Global typography rules using design tokens.
+ * All visual values reference CSS custom properties from tokens.css.
+ */
+
+html {
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: var(--leading-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  scroll-padding-top: var(--header-height);
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  line-height: var(--leading-heading);
+  color: var(--color-text-heading);
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-sm);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--fs-2xl);
+}
+
+h2 {
+  font-size: var(--fs-xl);
+}
+
+h3 {
+  font-size: var(--fs-lg);
+}
+
+h4 {
+  font-size: var(--fs-md);
+}
+
+h5 {
+  font-size: var(--fs-base);
+  font-weight: 600;
+}
+
+h6 {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Block elements */
+p,
+ul,
+ol,
+blockquote,
+pre {
+  margin-bottom: var(--space-md);
+}
+
+blockquote {
+  border-left: 3px solid var(--color-border);
+  padding-left: var(--space-md);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* Code */
+code,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+}
+
+code {
+  background: var(--color-code-bg);
+  padding: 0.15em 0.3em;
+  border-radius: 3px;
+}
+
+pre {
+  background: var(--color-code-bg);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Links */
+a {
+  color: var(--color-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+/* Prose container -- narrower for comfortable reading */
+.prose {
+  max-width: var(--prose-width);
+  margin: 0 auto;
+  padding: 0 var(--side-padding);
+  font-size: clamp(1.125rem, 0.2vi + 1.06rem, 1.25rem);
+}
+
+/* Listing container -- wider for index/listing pages */
+.listing-container {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 var(--side-padding);
+}
+
+/* === SHIKI SYNTAX HIGHLIGHTING (dual theme, class-based dark mode) === */
+html:not(.dark) .astro-code,
+html:not(.dark) .astro-code span {
+  color: var(--shiki-light) !important;
+  background-color: var(--shiki-light-bg) !important;
+  font-style: var(--shiki-light-font-style) !important;
+  font-weight: var(--shiki-light-font-weight) !important;
+  text-decoration: var(--shiki-light-text-decoration) !important;
+}
+
+html.dark .astro-code,
+html.dark .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+/* Code block language label */
+.astro-code {
+  position: relative;
+}
+
+.astro-code[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.15em 0.5em;
+  font-family: var(--font-heading);
+  font-size: 0.7em;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  text-transform: lowercase;
+}

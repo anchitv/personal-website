@@ -1,0 +1,22 @@
+/* Layout
+ * Page-level layout structure and content width utilities.
+ * References design tokens from tokens.css.
+ */
+
+/* Page layout: flex column so footer sticks to bottom */
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page-layout main {
+  flex: 1;
+}
+
+/* Content container: centered content blocks */
+.content-container {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding-inline: var(--side-padding);
+}

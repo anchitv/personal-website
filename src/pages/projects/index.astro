@@ -1,0 +1,248 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+
+const allProjects = await getCollection('projects', ({ data }) => !data.draft);
+
+const byDateDesc = (a: typeof allProjects[number], b: typeof allProjects[number]) =>
+  b.data.date.valueOf() - a.data.date.valueOf();
+
+const activeProjects = allProjects.filter((p) => p.data.status === 'active').sort(byDateDesc);
+const ideaProjects = allProjects.filter((p) => p.data.status === 'idea').sort(byDateDesc);
+const archivedProjects = allProjects.filter((p) => p.data.status === 'archived').sort(byDateDesc);
+
+const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort();
+---
+
+<BaseLayout title="Projects | Anchit Verma" description="Things I've built or am currently working on.">
+  <div class="listing-layout accent-projects">
+    <aside class="filter-panel reveal" style="--delay: 100ms" data-filter-panel>
+      <div class="filter-panel-section">
+        <label class="filter-panel-label" for="projects-search">Search</label>
+        <input type="text" id="projects-search" class="filter-search" placeholder="Search projects..." data-filter-search />
+      </div>
+
+      {allTags.length > 0 && (
+        <div class="filter-panel-section">
+          <span class="filter-panel-label">Tags</span>
+          <div class="filter-tags" data-filter-tags>
+            {allTags.map((tag) => (
+              <button type="button" class="filter-tag" data-tag={tag}>{tag}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class="filter-panel-section">
+        <span class="filter-panel-label">Status</span>
+        <div class="filter-radios" data-filter-status>
+          <label class="filter-radio">
+            <input type="radio" name="status" value="" checked /> All
+          </label>
+          <label class="filter-radio">
+            <input type="radio" name="status" value="active" /> Active
+          </label>
+          <label class="filter-radio">
+            <input type="radio" name="status" value="archived" /> Archived
+          </label>
+          <label class="filter-radio">
+            <input type="radio" name="status" value="idea" /> Ideas
+          </label>
+        </div>
+      </div>
+
+      <button type="button" class="filter-clear" data-filter-clear>Clear filters</button>
+      <div class="filter-result-count" data-filter-count></div>
+    </aside>
+
+    <section class="projects-index listing-container">
+      <div class="page-header reveal" style="--delay: 0ms">
+        <h1>Projects</h1>
+        <p class="projects-intro">Things I've built or am currently working on.</p>
+        <div class="header-rule header-rule--accent" aria-hidden="true">
+          <span class="rule-line"></span>
+          <span class="rule-diamond"></span>
+          <span class="rule-line"></span>
+        </div>
+      </div>
+
+      {activeProjects.length === 0 && ideaProjects.length === 0 && archivedProjects.length === 0 ? (
+        <div class="empty-state reveal" style="--delay: 150ms">
+          <span class="empty-dash" aria-hidden="true">&mdash;</span>
+          <p>No projects yet. Check back soon.</p>
+        </div>
+      ) : (
+        <div class="project-list" data-list>
+          {activeProjects.length > 0 && (
+            <div class="project-grid" data-section="active">
+              {activeProjects.map((project, i) => (
+                <div
+                  class="project-item"
+                  data-reveal
+                  style={`--delay: ${15 * i}ms`}
+                  data-tags={(project.data.tags || []).join(',')}
+                  data-title={project.data.title}
+                  data-description={project.data.description || ''}
+                  data-status="active"
+                  data-date={project.data.date.toISOString().slice(0, 10)}
+                >
+                  <ProjectCard project={project} />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {ideaProjects.length > 0 && (
+            <div class="idea-section" data-idea-section>
+              <h2>Ideas</h2>
+              <div class="project-grid" data-section="idea">
+                {ideaProjects.map((project, i) => (
+                  <div
+                    class="project-item"
+                    data-reveal
+                    style={`--delay: ${15 * i}ms`}
+                    data-tags={(project.data.tags || []).join(',')}
+                    data-title={project.data.title}
+                    data-description={project.data.description || ''}
+                    data-status="idea"
+                    data-date={project.data.date.toISOString().slice(0, 10)}
+                  >
+                    <ProjectCard project={project} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {archivedProjects.length > 0 && (
+            <div class="archived-section" data-archived-section>
+              <h2>Past projects</h2>
+              <div class="project-grid" data-section="archived">
+                {archivedProjects.map((project, i) => (
+                  <div
+                    class="project-item"
+                    data-reveal
+                    style={`--delay: ${15 * i}ms`}
+                    data-tags={(project.data.tags || []).join(',')}
+                    data-title={project.data.title}
+                    data-description={project.data.description || ''}
+                    data-status="archived"
+                    data-date={project.data.date.toISOString().slice(0, 10)}
+                  >
+                    <ProjectCard project={project} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <nav class="pagination" data-pagination aria-label="Pagination"></nav>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import { initFilters } from '../../scripts/initFilters';
+
+  function init() {
+    const statusRadios = Array.from(document.querySelectorAll<HTMLInputElement>('[data-filter-status] input'));
+    const ideaSection = document.querySelector('[data-idea-section]') as HTMLElement | null;
+    const archivedSection = document.querySelector('[data-archived-section]') as HTMLElement | null;
+
+    function getStatusFilter() {
+      return statusRadios.find((r) => r.checked)?.value || '';
+    }
+
+    const result = initFilters({
+      itemsPerPage: 12,
+      itemLabel: 'projects',
+      itemSelector: '.project-item',
+      hasDescription: true,
+      customFilter(el) {
+        const status = getStatusFilter();
+        return !status || el.dataset.status === status;
+      },
+      onClear() {
+        const allRadio = statusRadios.find((r) => r.value === '');
+        if (allRadio) allRadio.checked = true;
+      },
+      onRender(_filtered, visible) {
+        let hasActive = false, hasIdea = false, hasArchived = false;
+        for (const item of visible) {
+          const el = item as HTMLElement;
+          el.classList.add('is-visible');
+          const card = el.querySelector('[data-reveal]');
+          if (card) card.classList.add('is-visible');
+          if (el.dataset.status === 'active') hasActive = true;
+          if (el.dataset.status === 'idea') hasIdea = true;
+          if (el.dataset.status === 'archived') hasArchived = true;
+        }
+        const activeGrid = document.querySelector('[data-section="active"]') as HTMLElement | null;
+        if (activeGrid) activeGrid.style.display = hasActive ? '' : 'none';
+        if (ideaSection) ideaSection.style.display = hasIdea ? '' : 'none';
+        if (archivedSection) archivedSection.style.display = hasArchived ? '' : 'none';
+      },
+    });
+
+    statusRadios.forEach((radio) => {
+      radio.addEventListener('change', () => {
+        result?.render();
+      });
+    });
+  }
+  init();
+  document.addEventListener('astro:after-swap', init);
+</script>
+
+<style>
+  .projects-index {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-2xl);
+  }
+
+  .page-header {
+    margin-bottom: var(--space-xl);
+  }
+
+  .page-header h1 {
+    margin-top: 0;
+    color: var(--color-accent);
+  }
+
+  .projects-intro {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr));
+
+    gap: var(--space-lg);
+  }
+
+  .idea-section {
+    margin-top: var(--space-2xl);
+  }
+
+  .idea-section h2 {
+    font-family: var(--font-heading);
+    font-size: var(--fs-md);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-lg);
+  }
+
+  .archived-section {
+    margin-top: var(--space-2xl);
+  }
+
+  .archived-section h2 {
+    font-family: var(--font-heading);
+    font-size: var(--fs-md);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-lg);
+  }
+</style>

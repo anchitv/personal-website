@@ -1,0 +1,151 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+// Determine active nav link
+const pathname = Astro.url.pathname;
+
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/notes', label: 'Notes' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/about', label: 'About' },
+];
+---
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="/" class="site-name">Anchit Verma</a>
+    <div class="header-right">
+      <nav id="main-nav" class="main-nav" aria-label="Main navigation">
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            class:list={[{ active: link.href === '/' ? pathname === '/' : pathname.startsWith(link.href) }]}
+            aria-current={link.href === '/' ? (pathname === '/' ? 'page' : undefined) : (pathname.startsWith(link.href) ? 'page' : undefined)}
+          >
+            {link.label}
+          </a>
+        ))}
+      </nav>
+      <button
+        class="nav-toggle"
+        aria-expanded="false"
+        aria-controls="main-nav"
+        aria-label="Toggle navigation"
+        type="button"
+      >
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+      <a href="/search" class="search-toggle" aria-label="Search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </a>
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<script>
+  let _navCleanup: (() => void) | null = null;
+
+  function initMobileNav() {
+    _navCleanup?.();
+
+    const toggle = document.querySelector('.nav-toggle') as HTMLButtonElement | null;
+    const nav = document.querySelector('#main-nav') as HTMLElement | null;
+    if (!toggle || !nav) return;
+
+    const onToggleClick = () => {
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!isOpen));
+      nav.classList.toggle('is-open', !isOpen);
+    };
+
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        toggle.setAttribute('aria-expanded', 'false');
+        nav.classList.remove('is-open');
+        toggle.focus();
+      }
+    };
+
+    const onClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        toggle.getAttribute('aria-expanded') === 'true' &&
+        !nav.contains(target) &&
+        !toggle.contains(target)
+      ) {
+        toggle.setAttribute('aria-expanded', 'false');
+        nav.classList.remove('is-open');
+      }
+    };
+
+    const onNavKeydown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || toggle.getAttribute('aria-expanded') !== 'true') return;
+      const focusable = [toggle, ...Array.from(nav.querySelectorAll<HTMLElement>('a, button'))];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    const onResize = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        toggle.setAttribute('aria-expanded', 'false');
+        nav.classList.remove('is-open');
+      }
+    };
+
+    toggle.addEventListener('click', onToggleClick);
+    document.addEventListener('keydown', onEscape);
+    document.addEventListener('click', onClickOutside);
+    nav.addEventListener('keydown', onNavKeydown);
+    const mql = window.matchMedia('(min-width: 768px)');
+    mql.addEventListener('change', onResize);
+
+    _navCleanup = () => {
+      toggle.removeEventListener('click', onToggleClick);
+      document.removeEventListener('keydown', onEscape);
+      document.removeEventListener('click', onClickOutside);
+      nav.removeEventListener('keydown', onNavKeydown);
+      mql.removeEventListener('change', onResize);
+    };
+  }
+
+  function handleSearchShortcut(e: KeyboardEvent) {
+    if (
+      e.key === '/' &&
+      !e.ctrlKey &&
+      !e.metaKey &&
+      !(document.activeElement instanceof HTMLInputElement) &&
+      !(document.activeElement instanceof HTMLTextAreaElement)
+    ) {
+      const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
+      if (searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+      } else {
+        e.preventDefault();
+        window.location.href = '/search';
+      }
+    }
+  }
+
+  initMobileNav();
+  document.addEventListener('keydown', handleSearchShortcut);
+
+  document.addEventListener('astro:after-swap', () => {
+    initMobileNav();
+  });
+</script>

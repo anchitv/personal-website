@@ -1,0 +1,33 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+<div class:list={['divider', className]} aria-hidden="true">
+  <span class="divider-line"></span>
+  <span class="divider-diamond"></span>
+  <span class="divider-line"></span>
+</div>
+
+<style>
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-border) 20%, var(--color-border) 80%, transparent);
+  }
+
+  .divider-diamond {
+    width: 5px;
+    height: 5px;
+    background: var(--color-border);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+</style>

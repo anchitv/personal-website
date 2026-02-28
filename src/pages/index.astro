@@ -1,0 +1,557 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Divider from '../components/Divider.astro';
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const latestPosts = allPosts
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const allNotes = await getCollection('notes', ({ data }) => !data.draft);
+const latestNotes = allNotes
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const allProjects = await getCollection('projects', ({ data }) => !data.draft);
+const latestProjects = allProjects
+  .filter((p) => p.data.status === 'active')
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout title="Anchit Verma" description="Personal website of Anchit Verma -- writing, notes, and projects.">
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <h1 class="hero-name reveal" style="--delay: 0ms">Anchit Verma</h1>
+        <p class="hero-tagline reveal" style="--delay: 80ms">Writing about software, ideas, and the things I'm building.</p>
+      </div>
+      <!-- Monoline portrait -->
+      <div class="hero-avatar reveal" style="--delay: 160ms" aria-hidden="true">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="hero-svg">
+          <circle cx="100" cy="100" r="96" fill="var(--color-bg-alt)" />
+          <!-- Single continuous-weight line portrait -->
+          <g fill="none" stroke="var(--avatar-line)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Shoulders -->
+            <path d="M48 186 Q48 160 78 155 L122 155 Q152 160 152 186" />
+            <!-- Neck -->
+            <path d="M84 155 L84 142" />
+            <path d="M116 155 L116 142" />
+            <!-- Head outline -->
+            <path d="M56 108 Q56 52 100 48 Q144 52 144 108 Q144 148 100 155 Q56 148 56 108 Z" />
+            <!-- Hair -->
+            <path d="M56 98 Q56 55 100 50 Q144 55 144 98" />
+            <path d="M56 98 Q60 75 72 64 Q86 54 100 52 Q114 54 128 64 Q140 75 144 98" />
+            <!-- Glasses -->
+            <rect x="68" y="92" width="26" height="18" rx="9" />
+            <rect x="106" y="92" width="26" height="18" rx="9" />
+            <path d="M94 100 Q100 96 106 100" />
+            <path d="M68 98 L58 96" />
+            <path d="M132 98 L142 96" />
+            <!-- Eyes -->
+            <circle cx="81" cy="101" r="2.5" fill="var(--avatar-line)" />
+            <circle cx="119" cy="101" r="2.5" fill="var(--avatar-line)" />
+            <!-- Nose -->
+            <path d="M99 105 Q97 114 102 113" />
+            <!-- Smile -->
+            <path d="M90 122 Q100 130 110 122" />
+          </g>
+        </svg>
+      </div>
+    </div>
+    <!-- Decorative diamond divider -->
+    <Divider class="hero-divider" />
+  </section>
+
+  <div class="home-content">
+    <div class="sections-grid">
+      <!-- Writing (Blog) section -->
+      <section class="home-section reveal" style="--delay: 100ms">
+        <div class="section-top">
+          <span class="section-emoji" aria-hidden="true">&#9997;&#65039;</span>
+          <a href="/blog" class="view-all">View all &rarr;</a>
+        </div>
+        <div class="section-header">
+          <h2>Blog</h2>
+        </div>
+        <p class="section-desc">Long-form thoughts on software, technology, and craft.</p>
+        <ul class="preview-list">
+          {latestPosts.length === 0 ? (
+            <li class="preview-item empty-preview">
+              <span class="empty-dash" aria-hidden="true">&mdash;</span>
+              <span class="preview-title">No blogs yet</span>
+            </li>
+          ) : (
+            latestPosts.map((post) => (
+              <li class="preview-item">
+                <a href={`/blog/${post.id}/`} class="preview-link">
+                  <span class="preview-title">{post.data.title}</span>
+                  <span class="preview-meta">
+                    {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </span>
+                </a>
+              </li>
+            ))
+          )}
+        </ul>
+      </section>
+
+      <!-- Notes section -->
+      <section class="home-section reveal" style="--delay: 200ms">
+        <div class="section-top">
+          <span class="section-emoji" aria-hidden="true">&#128221;</span>
+          <a href="/notes" class="view-all">View all &rarr;</a>
+        </div>
+        <div class="section-header">
+          <h2>Notes</h2>
+        </div>
+        <p class="section-desc">Quick thoughts, things I learned, and things worth remembering.</p>
+        <ul class="preview-list">
+          {latestNotes.length === 0 ? (
+            <li class="preview-item empty-preview">
+              <span class="empty-dash" aria-hidden="true">&mdash;</span>
+              <span class="preview-title">No notes yet</span>
+            </li>
+          ) : (
+            latestNotes.map((note) => (
+              <li class="preview-item">
+                <a href={`/notes/${note.id}/`} class="preview-link">
+                  <span class="preview-title">{note.data.title}</span>
+                  <span class="preview-meta">
+                    {note.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </span>
+                </a>
+              </li>
+            ))
+          )}
+        </ul>
+      </section>
+
+      <!-- Projects section -->
+      <section class="home-section reveal" style="--delay: 300ms">
+        <div class="section-top">
+          <span class="section-emoji" aria-hidden="true">&#128736;&#65039;</span>
+          <a href="/projects" class="view-all">View all &rarr;</a>
+        </div>
+        <div class="section-header">
+          <h2>Projects</h2>
+        </div>
+        <p class="section-desc">Things I've built or am currently working on.</p>
+        <ul class="preview-list">
+          {latestProjects.length === 0 ? (
+            <li class="preview-item empty-preview">
+              <span class="empty-dash" aria-hidden="true">&mdash;</span>
+              <span class="preview-title">No projects yet</span>
+            </li>
+          ) : (
+            latestProjects.map((project) => (
+              <li class="preview-item">
+                <a href={`/projects/${project.id}/`} class="preview-link">
+                  <span class="preview-title">{project.data.title}</span>
+                  <span class="preview-meta">{project.data.description}</span>
+                </a>
+              </li>
+            ))
+          )}
+        </ul>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  /* === HERO === */
+  .hero {
+    padding-block: var(--space-xl) var(--space-md);
+    position: relative;
+  }
+
+  /* Decorative diamond divider */
+  .hero-divider {
+    max-width: var(--content-width);
+    margin: var(--space-lg) auto 0;
+    padding-inline: var(--side-padding);
+  }
+
+  .hero-inner {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding-inline: var(--side-padding);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+  }
+
+  .hero-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hero-name {
+    font-family: 'Satisfy', cursive;
+    font-size: var(--fs-3xl);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--color-text-heading);
+    margin: 0;
+    letter-spacing: 0;
+  }
+
+  .hero-tagline {
+    font-family: var(--font-body);
+    font-size: var(--fs-md);
+    color: var(--color-text-muted);
+    margin-top: var(--space-xs);
+    margin-bottom: 0;
+    max-width: 42ch;
+    line-height: var(--leading-body);
+  }
+
+  /* Memoji avatar */
+  .hero-avatar {
+    flex-shrink: 0;
+    width: clamp(100px, 12vw, 160px);
+    height: clamp(100px, 12vw, 160px);
+  }
+
+  .hero-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+    animation: float 4s ease-in-out infinite;
+  }
+
+  /* === HOME CONTENT === */
+  .home-content {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding-inline: var(--side-padding);
+    padding-block: var(--space-xl) var(--space-2xl);
+  }
+
+  /* === SECTIONS GRID === */
+  .sections-grid {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  /* === SECTIONS === */
+  .home-section {
+    --section-accent: var(--color-accent);
+    padding: var(--space-lg);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--section-accent);
+    border-radius: 8px;
+    position: relative;
+    background: var(--color-bg);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.06),
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  /* Blog — warm amber */
+  .home-section:nth-child(1) { --section-accent: var(--color-blog); }
+  /* Notes — sage green */
+  .home-section:nth-child(2) { --section-accent: var(--color-notes); }
+  /* Projects — slate blue */
+  .home-section:nth-child(3) { --section-accent: var(--color-projects); }
+
+  .home-section:hover:not(:has(.view-all:hover)) {
+    border-color: color-mix(in srgb, var(--section-accent) 25%, var(--color-bg));
+    background-color: color-mix(in srgb, var(--section-accent) 8%, var(--color-bg));
+    transform: translateY(-4px);
+    box-shadow:
+      0 4px 8px rgba(0, 0, 0, 0.08),
+      0 8px 24px rgba(0, 0, 0, 0.1),
+      0 16px 48px rgba(0, 0, 0, 0.06);
+  }
+
+  :global(html.dark) .home-section {
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.2),
+      0 2px 4px rgba(0, 0, 0, 0.15),
+      0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) {
+    background-color: color-mix(in srgb, var(--section-accent) 6%, var(--color-bg));
+    border-color: color-mix(in srgb, var(--section-accent) 15%, var(--color-bg));
+    box-shadow:
+      0 0 12px rgba(255, 255, 255, 0.08),
+      0 4px 16px rgba(255, 255, 255, 0.06),
+      0 8px 32px rgba(255, 255, 255, 0.04);
+  }
+
+  .section-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs);
+  }
+
+  .section-emoji {
+    display: block;
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .section-header h2 {
+    font-family: var(--font-heading);
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    color: var(--color-text-heading);
+    margin: 0;
+    transition: color 0.2s ease;
+  }
+
+  .home-section:hover:not(:has(.view-all:hover)) .section-header h2 {
+    color: var(--section-accent);
+  }
+
+  .home-section:hover:not(:has(.view-all:hover)) .view-all {
+    color: color-mix(in srgb, var(--section-accent) 80%, var(--color-text));
+    border-color: color-mix(in srgb, var(--section-accent) 80%, var(--color-text));
+    background-color: var(--color-bg);
+  }
+
+  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .view-all {
+    color: color-mix(in srgb, var(--section-accent) 80%, var(--color-text));
+    border-color: color-mix(in srgb, var(--section-accent) 80%, var(--color-text));
+  }
+
+  .home-section:hover:not(:has(.view-all:hover)) .preview-link:hover .preview-title {
+    color: var(--section-accent);
+  }
+
+  .home-section:hover:not(:has(.view-all:hover)) .preview-item {
+    background-image: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+  }
+
+  .home-section:hover:not(:has(.view-all:hover)) .preview-item:first-child {
+    background-image: none;
+  }
+
+  .home-section:hover:not(:has(.view-all:hover)) .preview-item:hover {
+    background-color: color-mix(in srgb, var(--section-accent) 15%, var(--color-bg));
+  }
+
+  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .preview-item {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .preview-item:hover {
+    background-color: color-mix(in srgb, var(--section-accent) 15%, var(--color-bg));
+  }
+
+  .home-section:hover:not(:has(.view-all:hover)) .section-desc::after {
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .section-desc::after {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .home-section:hover:not(:has(.view-all:hover)) .empty-preview {
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+
+  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .empty-preview {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .view-all {
+    font-family: var(--font-heading);
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    letter-spacing: 0.02em;
+    padding: 0.2em 0.7em;
+    border: 1px solid var(--color-border);
+    border-radius: 99px;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .view-all:hover {
+    color: var(--color-bg);
+    background-color: var(--section-accent);
+    border-color: var(--section-accent);
+  }
+
+  :global(html.dark) .view-all:hover {
+    color: var(--color-bg);
+    background-color: color-mix(in srgb, var(--section-accent) 70%, var(--color-bg));
+    border-color: color-mix(in srgb, var(--section-accent) 70%, var(--color-bg));
+  }
+
+  .section-desc {
+    color: var(--color-text-muted);
+    font-size: var(--fs-base);
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-md);
+    transition: color 0.2s ease;
+  }
+
+  /* Subtle separator between description and list */
+  .section-desc::after {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background: var(--color-border);
+    margin-top: var(--space-md);
+  }
+
+  /* === PREVIEW LIST === */
+  .preview-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .preview-item {
+    margin: 0;
+    padding: var(--space-sm) 0;
+    border-radius: 6px;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-border) 15%,
+      var(--color-border) 95%,
+      transparent
+    );
+    background-size: 100% 1px;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    transition: background-color 0.2s ease, padding-left 0.2s ease;
+  }
+
+  .preview-item:first-child {
+    background-image:
+      linear-gradient(90deg, transparent, var(--color-border) 15%, var(--color-border) 95%, transparent),
+      linear-gradient(90deg, transparent, var(--color-border) 15%, var(--color-border) 95%, transparent);
+    background-size: 100% 1px, 100% 1px;
+    background-position: top, bottom;
+  }
+
+  .preview-item:hover {
+    background-color: color-mix(in srgb, var(--section-accent) 10%, var(--color-bg));
+    padding-left: var(--space-md);
+  }
+
+  .preview-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+    text-decoration: none;
+    color: inherit;
+    padding-left: var(--space-sm);
+  }
+
+  .preview-link:hover .preview-title {
+    color: var(--section-accent);
+  }
+
+  .preview-title {
+    font-family: var(--font-heading);
+    font-size: var(--fs-base);
+    font-weight: 500;
+    color: var(--color-text-heading);
+    transition: color 0.15s ease;
+  }
+
+  .preview-meta {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
+  }
+
+  /* === EMPTY STATES === */
+  .empty-preview {
+    padding: var(--space-md);
+    border: 1px dashed var(--color-border);
+    border-radius: 6px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3em;
+  }
+
+  .empty-dash {
+    font-size: var(--fs-lg);
+    color: var(--color-border);
+    line-height: 1;
+  }
+
+  .empty-preview .preview-title {
+    color: var(--color-text-muted);
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  /* === RESPONSIVE === */
+
+  /* Tablet: 2-column grid */
+  @media (min-width: 768px) {
+    .hero {
+      padding-block: var(--space-xl) var(--space-lg);
+    }
+
+    .sections-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sections-grid .home-section:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Desktop: 3-column grid */
+  @media (min-width: 1080px) {
+    .hero {
+      padding-block: var(--space-2xl) var(--space-xl);
+    }
+
+    .hero-name {
+      letter-spacing: -0.035em;
+    }
+
+    .sections-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .sections-grid .home-section:last-child:nth-child(odd) {
+      grid-column: auto;
+    }
+  }
+
+  /* Ultrawide: 3-column stays but content uses full width */
+  @media (min-width: 2000px) {
+    .hero-name {
+      font-size: var(--fs-3xl);
+    }
+
+    .hero-avatar {
+      width: 180px;
+      height: 180px;
+    }
+  }
+</style>

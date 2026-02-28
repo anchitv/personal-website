@@ -1,0 +1,172 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const [blogEntries, noteEntries, projectEntries] = await Promise.all([
+    getCollection('blog', ({ data }) => !data.draft),
+    getCollection('notes', ({ data }) => !data.draft),
+    getCollection('projects', ({ data }) => !data.draft),
+  ]);
+
+  const tagMap = new Map<string, {
+    posts: typeof blogEntries;
+    notes: typeof noteEntries;
+    projects: typeof projectEntries;
+  }>();
+
+  for (const post of blogEntries) {
+    for (const tag of post.data.tags) {
+      if (!tagMap.has(tag)) tagMap.set(tag, { posts: [], notes: [], projects: [] });
+      tagMap.get(tag)!.posts.push(post);
+    }
+  }
+
+  for (const note of noteEntries) {
+    for (const tag of note.data.tags) {
+      if (!tagMap.has(tag)) tagMap.set(tag, { posts: [], notes: [], projects: [] });
+      tagMap.get(tag)!.notes.push(note);
+    }
+  }
+
+  for (const project of projectEntries) {
+    for (const tag of project.data.tags) {
+      if (!tagMap.has(tag)) tagMap.set(tag, { posts: [], notes: [], projects: [] });
+      tagMap.get(tag)!.projects.push(project);
+    }
+  }
+
+  return Array.from(tagMap.entries()).map(([tag, content]) => ({
+    params: { tag },
+    props: { tag, ...content },
+  }));
+}
+
+const { tag, posts, notes, projects } = Astro.props;
+
+// Sort posts and notes by date (reverse chronological)
+const sortedPosts = [...posts].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const sortedNotes = [...notes].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BaseLayout title={`#${tag} | Anchit Verma`} description={`Content tagged with '${tag}'`}>
+  <section class="tag-page listing-container">
+    <div class="page-header reveal" style="--delay: 0ms">
+      <h1>#{tag}</h1>
+      <div class="header-rule" aria-hidden="true">
+        <span class="rule-line"></span>
+        <span class="rule-diamond"></span>
+        <span class="rule-line"></span>
+      </div>
+    </div>
+
+    {sortedPosts.length > 0 && (
+      <div class="tag-section tag-section--blog" data-reveal>
+        <h2>Blog</h2>
+        <ul class="post-list">
+          {sortedPosts.map((post, i) => {
+            const formattedDate = post.data.date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            });
+            return (
+              <li class="post-list-item" data-reveal style={`--delay: ${15 * i}ms`}>
+                <a href={`/blog/${post.id}/`} class="post-link">
+                  <span class="post-title">{post.data.title}</span>
+                  <time datetime={post.data.date.toISOString()} class="post-date">{formattedDate}</time>
+                </a>
+                {post.data.description && (
+                  <p class="post-excerpt">{post.data.description}</p>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    )}
+
+    {sortedNotes.length > 0 && (
+      <div class="tag-section tag-section--notes" data-reveal>
+        <h2>Notes</h2>
+        <ul class="post-list">
+          {sortedNotes.map((note, i) => {
+            const shortDate = note.data.date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            });
+            return (
+              <li class="post-list-item" data-reveal style={`--delay: ${15 * i}ms`}>
+                <a href={`/notes/${note.id}/`} class="post-link">
+                  <span class="post-title">{note.data.title}</span>
+                  <time datetime={note.data.date.toISOString()} class="post-date">{shortDate}</time>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    )}
+
+    {projects.length > 0 && (
+      <div class="tag-section tag-section--projects" data-reveal>
+        <h2>Projects</h2>
+        <ul class="post-list">
+          {[...projects].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).map((project, i) => {
+            const projectDate = project.data.date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            });
+            return (
+              <li class="post-list-item" data-reveal style={`--delay: ${15 * i}ms`}>
+                <a href={`/projects/${project.id}/`} class="post-link">
+                  <span class="post-title">{project.data.title}</span>
+                  <time datetime={project.data.date.toISOString()} class="post-date">{projectDate}</time>
+                </a>
+                <p class="post-excerpt">{project.data.description}</p>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .tag-page {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-2xl);
+  }
+
+  .page-header {
+    margin-bottom: var(--space-xl);
+  }
+
+  .page-header h1 {
+    margin-top: 0;
+    color: var(--color-text-heading);
+  }
+
+  .header-rule {
+    margin-top: var(--space-sm);
+  }
+
+  .tag-section {
+    margin-top: var(--space-lg);
+    --color-accent: var(--color-notes);
+  }
+
+  .tag-section--blog { --color-accent: var(--color-blog); }
+  .tag-section--notes { --color-accent: var(--color-notes); }
+  .tag-section--projects { --color-accent: var(--color-projects); }
+
+  .tag-section h2 {
+    font-size: var(--fs-lg);
+    margin-top: 0;
+    margin-bottom: var(--space-sm);
+    color: var(--color-accent);
+  }
+</style>

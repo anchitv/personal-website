@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    text { fill: #1a1a1a; }
+    @media (prefers-color-scheme: dark) {
+      text { fill: #f0ede5; }
+    }
+  </style>
+  <text x="32" y="44" text-anchor="middle"
+    font-family="'DM Sans Variable', system-ui, sans-serif"
+    font-size="32" font-weight="700"
+    letter-spacing="-0.03em">AV</text>
+</svg>

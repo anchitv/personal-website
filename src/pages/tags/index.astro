@@ -1,0 +1,99 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const [blogEntries, noteEntries, projectEntries] = await Promise.all([
+  getCollection('blog', ({ data }) => !data.draft),
+  getCollection('notes', ({ data }) => !data.draft),
+  getCollection('projects', ({ data }) => !data.draft),
+]);
+
+// Count how many times each tag is used across all collections
+const tagCounts = new Map<string, number>();
+
+for (const entry of [...blogEntries, ...noteEntries, ...projectEntries]) {
+  for (const tag of entry.data.tags || []) {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+  }
+}
+
+const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+---
+
+<BaseLayout title="Tags | Anchit Verma" description="Browse all tags across blog posts, notes, and projects.">
+  <section class="tags-page prose" style="--color-accent: var(--color-tag);">
+    <div class="page-header reveal" style="--delay: 0ms">
+      <h1>Tags</h1>
+      <div class="header-rule header-rule--accent" aria-hidden="true">
+        <span class="rule-line"></span>
+        <span class="rule-diamond"></span>
+        <span class="rule-line"></span>
+      </div>
+    </div>
+
+    <div class="tags-grid reveal" style="--delay: 100ms">
+      {sortedTags.map(([tag, count]) => (
+        <a href={`/tags/${tag}/`} class="tag-link">
+          <span class="tag-name">{tag}</span>
+          <span class="tag-count">{count}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tags-page {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-2xl);
+  }
+
+  .page-header {
+    margin-bottom: var(--space-xl);
+  }
+
+  .page-header h1 {
+    margin-top: 0;
+    color: var(--color-tag);
+  }
+
+  .header-rule {
+    margin-top: var(--space-sm);
+  }
+
+  .tags-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .tag-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-family: var(--font-heading);
+    font-size: var(--fs-base);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    padding: 0.35em 0.8em;
+    background: var(--color-bg-alt);
+    border-radius: 6px;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .tag-link:hover {
+    background: var(--color-tag);
+    color: var(--color-tag-text);
+  }
+
+  :global(html.dark) .tag-link:hover {
+    background: var(--color-tag-dark-bg);
+  }
+
+  .tag-count {
+    font-size: 0.75em;
+    opacity: 0.6;
+  }
+</style>

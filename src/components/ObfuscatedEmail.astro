@@ -1,0 +1,35 @@
+---
+interface Props {
+  label?: string;
+  class?: string;
+}
+
+const { label, class: className } = Astro.props;
+const email = 'contact@anchitverma.com';
+// XOR each char with a fixed key, then base64-encode the result
+const key = 137;
+const xored = Array.from(email).map((c) => c.charCodeAt(0) ^ key);
+const encoded = Buffer.from(xored).toString('base64');
+---
+
+<span class:list={['contact-link', className]} data-e={encoded} data-label={label}>
+  <noscript>Enable JavaScript to see contact info</noscript>
+</span>
+
+<script>
+  function decodeEmails() {
+    const key = 137;
+    document.querySelectorAll('.contact-link[data-e]').forEach((el) => {
+      const encoded = el.getAttribute('data-e');
+      if (!encoded) return;
+      const bytes = Uint8Array.from(atob(encoded), (c) => c.charCodeAt(0));
+      const decoded = Array.from(bytes, (b) => String.fromCharCode(b ^ key)).join('');
+      const link = document.createElement('a');
+      link.href = `mailto:${decoded}`;
+      link.textContent = el.getAttribute('data-label') || decoded;
+      el.replaceWith(link);
+    });
+  }
+  decodeEmails();
+  document.addEventListener('astro:after-swap', decodeEmails);
+</script>

@@ -1,0 +1,167 @@
+<button
+  class="theme-toggle"
+  type="button"
+  aria-label="Toggle theme"
+>
+  <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="5"></circle>
+    <line x1="12" y1="1" x2="12" y2="3"></line>
+    <line x1="12" y1="21" x2="12" y2="23"></line>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+    <line x1="1" y1="12" x2="3" y2="12"></line>
+    <line x1="21" y1="12" x2="23" y2="12"></line>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  </svg>
+  <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+  <svg class="system-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+    <line x1="8" y1="21" x2="16" y2="21"></line>
+    <line x1="12" y1="17" x2="12" y2="21"></line>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text);
+    padding: var(--space-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: color 0.15s ease, transform 0.15s ease;
+  }
+
+  .theme-toggle:hover {
+    color: var(--color-accent);
+    transform: scale(1.1);
+  }
+
+  .theme-toggle svg {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .theme-toggle:active svg {
+    transform: rotate(180deg);
+  }
+
+  /* Hide all icons by default, show based on data-theme-mode */
+  .sun-icon,
+  .moon-icon,
+  .system-icon {
+    display: none;
+  }
+
+  /* Light mode: show moon icon (click to go dark) */
+  :global(html[data-theme-mode="light"]) .moon-icon {
+    display: block;
+  }
+
+  /* Dark mode: show sun icon (as before), but now cycles to system */
+  :global(html[data-theme-mode="dark"]) .sun-icon {
+    display: block;
+  }
+
+  /* System mode: show monitor icon */
+  :global(html[data-theme-mode="system"]) .system-icon {
+    display: block;
+  }
+
+  /* Fallback: if no data-theme-mode set yet, use dark class to decide */
+  :global(html:not([data-theme-mode]).dark) .sun-icon {
+    display: block;
+  }
+
+  :global(html:not([data-theme-mode]):not(.dark)) .moon-icon {
+    display: block;
+  }
+</style>
+
+<script>
+  let _themeCleanup: (() => void) | null = null;
+
+  function getThemeMode(): 'light' | 'dark' | 'system' {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'light') return 'light';
+    if (stored === 'dark') return 'dark';
+    return 'system';
+  }
+
+  function applyThemeMode(mode: 'light' | 'dark' | 'system') {
+    document.documentElement.setAttribute('data-theme-mode', mode);
+    if (mode === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.classList.toggle('dark', prefersDark);
+    } else {
+      document.documentElement.classList.toggle('dark', mode === 'dark');
+    }
+  }
+
+  function initThemeToggle() {
+    _themeCleanup?.();
+
+    const button = document.querySelector('.theme-toggle');
+    if (!button) return;
+
+    // Set initial mode attribute
+    applyThemeMode(getThemeMode());
+
+    const onClick = () => {
+      const current = getThemeMode();
+      let next: 'light' | 'dark' | 'system';
+
+      // Cycle: light → dark → system → light
+      if (current === 'light') next = 'dark';
+      else if (current === 'dark') next = 'system';
+      else next = 'light';
+
+      if (next === 'system') {
+        localStorage.removeItem('theme');
+      } else {
+        localStorage.setItem('theme', next);
+      }
+
+      applyThemeMode(next);
+      button.setAttribute('aria-label',
+        next === 'light' ? 'Switch to dark theme' :
+        next === 'dark' ? 'Switch to system theme' :
+        'Switch to light theme'
+      );
+    };
+
+    // Update aria-label for initial state
+    const initial = getThemeMode();
+    button.setAttribute('aria-label',
+      initial === 'light' ? 'Switch to dark theme' :
+      initial === 'dark' ? 'Switch to system theme' :
+      'Switch to light theme'
+    );
+
+    // Listen for system preference changes (only applies in system mode)
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    const onPrefChange = (e: MediaQueryListEvent) => {
+      if (getThemeMode() !== 'system') return;
+      document.documentElement.classList.toggle('dark', e.matches);
+    };
+
+    button.addEventListener('click', onClick);
+    mql.addEventListener('change', onPrefChange);
+
+    _themeCleanup = () => {
+      button.removeEventListener('click', onClick);
+      mql.removeEventListener('change', onPrefChange);
+    };
+  }
+
+  // Run on initial load
+  initThemeToggle();
+
+  // Re-run after Astro page transitions (View Transitions)
+  document.addEventListener('astro:after-swap', initThemeToggle);
+</script>

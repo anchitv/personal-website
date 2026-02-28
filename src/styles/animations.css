@@ -1,0 +1,70 @@
+/* Animations
+ * Page entrance animations, scroll reveal, and shared motion utilities.
+ * All animations respect prefers-reduced-motion.
+ */
+
+/* === PAGE ENTRANCE: fade + rise === */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  animation: reveal 0.2s ease-out forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+/* === SCROLL REVEAL === */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease-out,
+              transform 0.2s ease-out;
+  transition-delay: var(--delay, 0ms);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* === FLOATING ANIMATION (avatar) === */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* === SLOW ROTATE (404 rings) === */
+@keyframes slow-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* === ACCESSIBILITY: disable all motion === */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    animation: none;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

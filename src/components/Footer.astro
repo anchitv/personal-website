@@ -1,0 +1,105 @@
+---
+import Divider from './Divider.astro';
+const currentYear = new Date().getFullYear();
+
+const footerLinks = [
+  { href: '/blog', label: 'Blog' },
+  { href: '/notes', label: 'Notes' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/tags', label: 'Tags' },
+  { href: '/about', label: 'About' },
+];
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <!-- Decorative top divider -->
+    <Divider class="footer-divider" />
+
+    <div class="footer-content">
+      <!-- Small AV monogram -->
+      <div class="footer-monogram" aria-hidden="true">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="40" height="40">
+          <text x="24" y="33" text-anchor="middle" font-family="'DM Sans Variable', system-ui, sans-serif" font-size="26" font-weight="700" fill="currentColor" letter-spacing="-0.02em" opacity="0.2">AV</text>
+        </svg>
+      </div>
+
+      <nav class="footer-nav" aria-label="Footer navigation">
+        {footerLinks.map((link) => (
+          <a href={link.href}>{link.label}</a>
+        ))}
+      </nav>
+
+      <p class="footer-copy">&copy; {currentYear} Anchit Verma. Built with <span class="care-swap"><span class="care-word">care.</span><span class="ai-word" aria-hidden="true">AI.</span></span></p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-divider {
+    margin-bottom: var(--space-md);
+  }
+
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .footer-monogram {
+    color: var(--color-text-heading);
+  }
+
+  .footer-nav {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .footer-nav a {
+    font-family: var(--font-heading);
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .footer-nav a:hover {
+    color: var(--color-accent);
+  }
+
+  .footer-copy {
+    margin: var(--space-sm) 0 0;
+  }
+
+  .care-swap {
+    position: relative;
+    display: inline-block;
+    cursor: default;
+  }
+
+  .care-word,
+  .ai-word {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .ai-word {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  .care-swap:hover .care-word {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  .care-swap:hover .ai-word {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>

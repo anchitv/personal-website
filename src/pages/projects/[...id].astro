@@ -1,0 +1,164 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagPill from '../../components/TagPill.astro';
+import GitHubIcon from '../../components/GitHubIcon.astro';
+import ExternalLinkIcon from '../../components/ExternalLinkIcon.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', ({ data }) => !data.draft);
+  return projects.map((project) => ({
+    params: { id: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { title, description, date, status, tags, repo, url } = project.data;
+
+const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+const formattedDate = date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout title={`${title} | Anchit Verma`} description={description}>
+  <article class="prose">
+    <header class="project-header">
+      <h1>{title}</h1>
+      <p class="project-description">{description}</p>
+      <div class="project-meta">
+        <time datetime={date.toISOString()} class="project-date">{formattedDate}</time>
+        <span class="meta-separator">&middot;</span>
+        <span class={`status-badge status-${status}`}>{statusLabel}</span>
+        {tags.length > 0 && (
+          <div class="project-tags">
+            {tags.map((tag) => (
+              <TagPill tag={tag} />
+            ))}
+          </div>
+        )}
+      </div>
+      {(repo || url) && (
+        <div class="project-links">
+          {repo && (
+            <a href={repo} class="link-pill" target="_blank" rel="noopener noreferrer">
+              <GitHubIcon />
+              Source
+            </a>
+          )}
+          {url && (
+            <a href={url} class="link-pill" target="_blank" rel="noopener noreferrer">
+              <ExternalLinkIcon />
+              Live
+            </a>
+          )}
+        </div>
+      )}
+    </header>
+    <Content />
+  </article>
+</BaseLayout>
+
+<style>
+  :global(article.prose) {
+    --color-accent: var(--color-projects);
+    --color-accent-hover: var(--color-projects-hover);
+  }
+
+  .project-header {
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .project-header h1 {
+    margin-top: var(--space-xl);
+    margin-bottom: 0;
+  }
+
+  .project-description {
+    color: var(--color-text-muted);
+    font-size: var(--fs-base);
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-sm);
+  }
+
+  .project-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-bottom: var(--space-sm);
+    font-family: var(--font-heading);
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+  }
+
+  .project-date {
+    color: var(--color-text-muted);
+  }
+
+  .meta-separator {
+    opacity: 0.4;
+  }
+
+  .status-badge {
+    font-family: var(--font-heading);
+    font-size: 0.8em;
+    padding: 0.15em 0.6em;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+
+  .status-active {
+    background: var(--color-status-active-bg);
+    color: var(--color-status-active-text);
+  }
+
+  .status-archived {
+    background: var(--color-bg-alt);
+    color: var(--color-text-muted);
+  }
+
+  .status-idea {
+    background: var(--color-status-idea-bg);
+    color: var(--color-status-idea-text);
+  }
+
+  .project-tags {
+    display: flex;
+    gap: 0.35em;
+    flex-wrap: wrap;
+  }
+
+  .project-links {
+    display: flex;
+    gap: 0.5em;
+    flex-wrap: wrap;
+    margin-top: var(--space-xs);
+  }
+
+  .link-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-family: var(--font-heading);
+    font-size: var(--fs-sm);
+    padding: 0.25em 0.7em;
+    border-radius: 999px;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    text-decoration: none;
+    transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .link-pill:hover {
+    color: var(--color-text-heading);
+    border-color: var(--color-text-heading);
+    background-color: color-mix(in srgb, var(--color-text-heading) 10%, var(--color-bg));
+  }
+</style>

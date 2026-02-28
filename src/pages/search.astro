@@ -1,0 +1,319 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Search | Anchit Verma" description="Search across blog posts, notes, and projects.">
+  <section class="search-page listing-container">
+    <div class="page-header reveal" style="--delay: 0ms">
+      <h1>Search</h1>
+      <div class="search-box">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="search"
+          id="search-input"
+          aria-label="Search posts, notes, and projects"
+          placeholder="Search posts, notes, projects..."
+          autocomplete="off"
+          autofocus
+        />
+        <kbd class="search-kbd" aria-hidden="true">/</kbd>
+      </div>
+      <div class="header-rule" aria-hidden="true">
+        <span class="rule-line"></span>
+        <span class="rule-diamond"></span>
+        <span class="rule-line"></span>
+      </div>
+    </div>
+
+    <div id="search-results"></div>
+
+    <div id="search-empty" class="empty-state" style="display:none;">
+      <span class="empty-dash" aria-hidden="true">&mdash;</span>
+      <p>No results found.</p>
+    </div>
+
+    <div id="search-initial" class="initial-state reveal" style="--delay: 100ms">
+      <p>Start typing to search across all content.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  interface SearchEntry {
+    type: 'blog' | 'note' | 'project';
+    title: string;
+    description?: string;
+    date?: string;
+    tags: string[];
+    url: string;
+  }
+
+  const typeLabels: Record<string, string> = {
+    blog: 'Blog',
+    note: 'Notes',
+    project: 'Projects',
+  };
+
+  const typeOrder = ['blog', 'note', 'project'];
+
+  let entries: SearchEntry[] = [];
+  let _searchCleanup: (() => void) | null = null;
+
+  function formatDate(iso: string): string {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      timeZone: 'UTC',
+    });
+  }
+
+  function renderResults(filtered: SearchEntry[]) {
+    const resultsEl = document.getElementById('search-results')!;
+    const emptyEl = document.getElementById('search-empty')!;
+    const initialEl = document.getElementById('search-initial')!;
+
+    initialEl.style.display = 'none';
+
+    if (filtered.length === 0) {
+      resultsEl.innerHTML = '';
+      emptyEl.style.display = '';
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+
+    // Group by type
+    const grouped: Record<string, SearchEntry[]> = {};
+    for (const entry of filtered) {
+      (grouped[entry.type] ??= []).push(entry);
+    }
+
+    resultsEl.innerHTML = '';
+
+    for (const type of typeOrder) {
+      const items = grouped[type];
+      if (!items) continue;
+
+      const section = document.createElement('div');
+      section.className = `tag-section tag-section--${type}`;
+      section.setAttribute('data-reveal', '');
+
+      const h2 = document.createElement('h2');
+      h2.textContent = typeLabels[type];
+      section.appendChild(h2);
+
+      const ul = document.createElement('ul');
+      ul.className = 'post-list';
+
+      items.forEach((item, i) => {
+        const li = document.createElement('li');
+        li.className = 'post-list-item';
+        li.setAttribute('data-reveal', '');
+        li.style.setProperty('--delay', `${100 * i}ms`);
+
+        const link = document.createElement('a');
+        link.href = item.url;
+        link.className = 'post-link';
+
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'post-title';
+        titleSpan.textContent = item.title;
+        link.appendChild(titleSpan);
+
+        if (item.date) {
+          const dateSpan = document.createElement('span');
+          dateSpan.className = 'post-date';
+          dateSpan.textContent = formatDate(item.date);
+          link.appendChild(dateSpan);
+        }
+
+        li.appendChild(link);
+
+        if (item.description) {
+          const desc = document.createElement('p');
+          desc.className = 'post-excerpt';
+          desc.textContent = item.description;
+          li.appendChild(desc);
+        }
+
+        ul.appendChild(li);
+      });
+
+      section.appendChild(ul);
+      resultsEl.appendChild(section);
+    }
+
+    // Re-trigger reveal for new elements (rAF lets the browser paint the
+    // initial state before we add the class, so the CSS transition fires)
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      requestAnimationFrame(() => {
+        resultsEl.querySelectorAll('[data-reveal]').forEach((el) => {
+          el.classList.add('is-visible');
+        });
+      });
+    }
+  }
+
+  function search(query: string) {
+    if (!query.trim()) {
+      document.getElementById('search-results')!.innerHTML = '';
+      document.getElementById('search-empty')!.style.display = 'none';
+      document.getElementById('search-initial')!.style.display = '';
+      return;
+    }
+
+    const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    const filtered = entries.filter((entry) => {
+      const haystack = [
+        entry.title,
+        entry.description ?? '',
+        ...entry.tags,
+        entry.type,
+      ]
+        .join(' ')
+        .toLowerCase();
+      return terms.every((term) => haystack.includes(term));
+    });
+
+    renderResults(filtered);
+  }
+
+  async function init() {
+    _searchCleanup?.();
+
+    try {
+      const res = await fetch('/search.json');
+      entries = await res.json();
+    } catch {
+      // search will gracefully show no results
+    }
+
+    const input = document.getElementById('search-input') as HTMLInputElement;
+    const onInput = () => search(input.value);
+    input.addEventListener('input', onInput);
+
+    _searchCleanup = () => {
+      input.removeEventListener('input', onInput);
+    };
+
+    // Handle pre-filled query (e.g., from URL)
+    if (input.value) search(input.value);
+  }
+
+  init();
+  document.addEventListener('astro:after-swap', init);
+</script>
+
+<style>
+  .search-page {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-2xl);
+  }
+
+  .page-header {
+    margin-bottom: var(--space-xl);
+  }
+
+  .page-header h1 {
+    margin-top: 0;
+    color: var(--color-text-heading);
+  }
+
+  .search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--space-md);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: var(--space-sm);
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  #search-input {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    padding-left: calc(var(--space-sm) + 18px + var(--space-xs));
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    color: var(--color-text);
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  #search-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 15%, transparent);
+  }
+
+  #search-input::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.7;
+  }
+
+  .search-kbd {
+    position: absolute;
+    right: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.1em 0.45em;
+    line-height: 1.4;
+    pointer-events: none;
+  }
+
+  #search-input:focus ~ .search-kbd {
+    display: none;
+  }
+
+  /* === RESULTS (matches tags page, :global for dynamic DOM) === */
+  /* Search results use global post-list classes from components.css */
+  #search-results :global(.tag-section) {
+    margin-top: var(--space-lg);
+    --color-accent: var(--color-notes);
+  }
+
+  #search-results :global(.tag-section--blog) { --color-accent: var(--color-blog); }
+  #search-results :global(.tag-section--note) { --color-accent: var(--color-notes); }
+  #search-results :global(.tag-section--project) { --color-accent: var(--color-projects); }
+
+  #search-results :global(.tag-section h2) {
+    font-size: var(--fs-lg);
+    margin-top: 0;
+    margin-bottom: var(--space-sm);
+    color: var(--color-accent);
+  }
+
+  /* empty-state uses global styles from components.css */
+  .initial-state {
+    color: var(--color-text-muted);
+    font-style: italic;
+    padding: var(--space-lg);
+    border: 1px dashed var(--color-border);
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3em;
+  }
+
+  .initial-state p {
+    margin: 0;
+  }
+
+</style>

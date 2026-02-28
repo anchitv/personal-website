@@ -1,0 +1,120 @@
+/* Design Tokens
+ * All visual values as CSS custom properties.
+ * Every component references these tokens -- no hardcoded values elsewhere.
+ */
+
+:root {
+  /* === FONTS === */
+  --font-body: 'Crimson Pro Variable', Georgia, 'Times New Roman', serif;
+  --font-heading: 'DM Sans Variable', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
+
+  /* === TYPE SCALE (fluid, Major Third ~1.25) ===
+   * Base: 16px @ 320px → 18px @ 1280px
+   */
+  --fs-xs: clamp(0.7rem, 0.1vi + 0.67rem, 0.75rem);
+  --fs-sm: clamp(0.8rem, 0.13vi + 0.76rem, 0.875rem);
+  --fs-base: clamp(1rem, 0.16vi + 0.95rem, 1.125rem);
+  --fs-md: clamp(1.25rem, 0.26vi + 1.17rem, 1.438rem);
+  --fs-lg: clamp(1.5rem, 0.42vi + 1.37rem, 1.688rem);
+  --fs-xl: clamp(1.75rem, 0.63vi + 1.55rem, 2rem);
+  --fs-2xl: clamp(2.125rem, 0.94vi + 1.83rem, 2.5rem);
+  --fs-3xl: clamp(2.5rem, 1.46vi + 2.04rem, 3rem);
+
+  /* === LINE HEIGHT === */
+  --leading-body: 1.65;
+  --leading-heading: 1.2;
+
+  /* === SPACING (rhythm-based, derived from line-height) === */
+  --space-unit: calc(var(--fs-base) * var(--leading-body));
+  --space-xs: calc(var(--space-unit) * 0.25);
+  --space-sm: calc(var(--space-unit) * 0.5);
+  --space-md: var(--space-unit);
+  --space-lg: calc(var(--space-unit) * 1.5);
+  --space-xl: calc(var(--space-unit) * 2);
+  --space-2xl: calc(var(--space-unit) * 3);
+
+  /* === LAYOUT === */
+  --content-width: 96rem;
+  --prose-width: 48rem;
+  --side-padding: clamp(1rem, 5vw, 4rem);
+  --header-height: 4rem;
+
+  /* === COLORS (light mode default — Stone & Copper) === */
+  --color-bg: #faf9f5;
+  --color-bg-alt: #f0efe9;
+  --color-text: #2c2a25;
+  --color-text-muted: #5e5950;
+  --color-text-heading: #1f1e1a;
+  --color-accent: #8b6040;
+  --color-accent-hover: #6e4c32;
+  --color-border: #d5d1c8;
+  --color-code-bg: #eeedea;
+
+  /* === CONTENT-TYPE ACCENT COLORS === */
+  --color-blog: #a07520;
+  --color-blog-hover: #855a15;
+  --color-notes: #2e8045;
+  --color-notes-hover: #25703b;
+  --color-projects: #2a6298;
+  --color-projects-hover: #225888;
+  --color-tag: #a04868;
+  --color-tag-hover: #843858;
+  --color-tag-text: #faf9f5;
+  --color-tag-dark-bg: #6b2d48;
+
+  /* === STATUS BADGE COLORS === */
+  --color-status-active-bg: #e8f5e9;
+  --color-status-active-text: #2e7d32;
+  --color-status-idea-bg: #fff3e0;
+  --color-status-idea-text: #e65100;
+
+  /* === AVATAR COLORS === */
+  --avatar-line: #3a3730;
+  --avatar-skin: #f0c9a6;
+  --avatar-skin-shadow: #d4a574;
+  --avatar-hair: #2c1810;
+  --avatar-eye: #2c1810;
+  --avatar-glasses: #3a3730;
+  --avatar-mouth: #c0705a;
+}
+
+/* === DARK MODE COLORS — Stone & Copper === */
+html.dark {
+  --color-bg: #0f0e0d;
+  --color-bg-alt: #1a1816;
+  --color-text: #e0ddd4;
+  --color-text-muted: #a39d91;
+  --color-text-heading: #f0ede5;
+  --color-accent: #c49a78;
+  --color-accent-hover: #d4b496;
+  --color-border: #2e2923;
+  --color-code-bg: #1a1816;
+
+  /* === CONTENT-TYPE ACCENT COLORS === */
+  --color-blog: #d4a84b;
+  --color-blog-hover: #e0be70;
+  --color-notes: #9ab899;
+  --color-notes-hover: #b0ccaf;
+  --color-projects: #7aacdb;
+  --color-projects-hover: #9cc4e8;
+  --color-tag: #c498a8;
+  --color-tag-hover: #d8b4c0;
+  --color-tag-text: #faf9f5;
+  --color-tag-dark-bg: #6b2d48;
+
+  /* === STATUS BADGE COLORS === */
+  --color-status-active-bg: #1b3a1b;
+  --color-status-active-text: #81c784;
+  --color-status-idea-bg: #3e2723;
+  --color-status-idea-text: #ffb74d;
+
+  /* === AVATAR COLORS === */
+  --avatar-line: #cdc8bc;
+  --avatar-skin: #d4a97a;
+  --avatar-skin-shadow: #b8885a;
+  --avatar-hair: #1a1008;
+  --avatar-eye: #1a1008;
+  --avatar-glasses: #ccc;
+  --avatar-mouth: #b0604a;
+}
