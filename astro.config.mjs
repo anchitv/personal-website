@@ -24,5 +24,9 @@ export default defineConfig({
         resolvePath: (id) => new URL(`./node_modules${id}`, import.meta.url),
       }),
     ],
+    ssr: {
+      // Native addon; must not be bundled by Vite
+      external: ['@resvg/resvg-js'],
+    },
   },
 });
