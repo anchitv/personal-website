@@ -32,7 +32,7 @@ export async function GET(context: APIContext) {
   const noteItems = notes.map((note) => ({
     title: note.data.title,
     pubDate: note.data.date,
-    description: note.data.title,
+    description: note.data.description ?? note.data.title,
     link: `/notes/${note.id}/`,
     content: sanitizeHtml(parser.render(stripFrontmatter(note.body ?? '')), {
       allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),

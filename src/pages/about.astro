@@ -2,11 +2,24 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ObfuscatedEmail from "../components/ObfuscatedEmail.astro";
 import Divider from "../components/Divider.astro";
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  mainEntity: {
+    '@type': 'Person',
+    '@id': 'https://anchit.me/#person',
+    name: 'Anchit Verma',
+    url: 'https://anchit.me/',
+    description: 'Software engineer, tinkerer, and occasional writer.',
+  },
+};
 ---
 
 <BaseLayout
   title="About | Anchit Verma"
   description="About Anchit Verma -- software engineer, tinkerer, and occasional writer."
+  structuredData={structuredData}
 >
   <section class="about-page prose">
     <div class="about-header reveal" style="--delay: 0ms">
@@ -202,7 +215,7 @@ import Divider from "../components/Divider.astro";
   .about-svg {
     width: 100%;
     height: 100%;
-    filter: drop-shadow(var(--shadow-avatar));
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
   }
 
   .contact-divider {

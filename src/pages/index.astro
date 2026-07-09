@@ -19,9 +19,29 @@ const latestProjects = allProjects
   .filter((p) => p.data.status === 'active')
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': 'https://anchit.me/#website',
+      url: 'https://anchit.me/',
+      name: 'Anchit Verma',
+      description: 'Personal website of Anchit Verma — writing, notes, and projects.',
+      publisher: { '@id': 'https://anchit.me/#person' },
+    },
+    {
+      '@type': 'Person',
+      '@id': 'https://anchit.me/#person',
+      name: 'Anchit Verma',
+      url: 'https://anchit.me/',
+    },
+  ],
+};
 ---
 
-<BaseLayout title="Anchit Verma" description="Personal website of Anchit Verma -- writing, notes, and projects.">
+<BaseLayout title="Anchit Verma" description="Personal website of Anchit Verma -- writing, notes, and projects." structuredData={structuredData}>
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-text">

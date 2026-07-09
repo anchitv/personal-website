@@ -22,7 +22,12 @@ const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
 const formattedDate = formatDate(date);
 ---
 
-<BaseLayout title={`${title} | Anchit Verma`} description={description}>
+<BaseLayout
+  title={`${title} | Anchit Verma`}
+  description={description}
+  ogImage={`/og/projects/${project.id}.png`}
+  ogImageAlt={`"${title}" — project by Anchit Verma`}
+>
   <article class="prose accent-projects">
     <header class="entry-header">
       <h1>{title}</h1>
