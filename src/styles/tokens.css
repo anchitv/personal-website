@@ -8,6 +8,22 @@
   --font-body: 'Crimson Pro Variable', Georgia, 'Times New Roman', serif;
   --font-heading: 'DM Sans Variable', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
+  --font-display: 'Satisfy', cursive;
+
+  /* === RADII === */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-full: 999px;
+
+  /* === MOTION === */
+  --duration-150: 0.15s;
+  --duration-200: 0.2s;
+  --duration-250: 0.25s;
+  --duration-300: 0.3s;
+  --duration-400: 0.4s;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* === TYPE SCALE (fluid, Major Third ~1.25) ===
    * Base: 16px @ 320px → 18px @ 1280px
@@ -77,6 +93,28 @@
   --avatar-eye: #2c1810;
   --avatar-glasses: #3a3730;
   --avatar-mouth: #c0705a;
+
+  /* === MISC === */
+  --color-text-on-accent: #fff;
+
+  /* === SHADOWS === */
+  --shadow-card:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 8px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.03);
+  --shadow-card-hover:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 8px 16px rgba(0, 0, 0, 0.06),
+    0 16px 36px rgba(0, 0, 0, 0.05);
+  --shadow-panel:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.03);
+  --shadow-panel-hover:
+    0 4px 8px rgba(0, 0, 0, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    0 16px 48px rgba(0, 0, 0, 0.06);
+  --shadow-avatar: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* === DARK MODE COLORS — Stone & Copper === */
@@ -117,4 +155,22 @@ html.dark {
   --avatar-eye: #1a1008;
   --avatar-glasses: #ccc;
   --avatar-mouth: #b0604a;
+
+  /* === SHADOWS === */
+  --shadow-card:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-card-hover:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.18),
+    0 16px 36px rgba(0, 0, 0, 0.15);
+  --shadow-panel:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-panel-hover:
+    0 0 12px rgba(255, 255, 255, 0.08),
+    0 4px 16px rgba(255, 255, 255, 0.06),
+    0 8px 32px rgba(255, 255, 255, 0.04);
 }

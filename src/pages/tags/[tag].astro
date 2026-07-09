@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../lib/formatDate';
 
 export async function getStaticPaths() {
   const [blogEntries, noteEntries, projectEntries] = await Promise.all([
@@ -65,11 +66,7 @@ const sortedNotes = [...notes].sort((a, b) => b.data.date.valueOf() - a.data.dat
         <h2>Blog</h2>
         <ul class="post-list">
           {sortedPosts.map((post, i) => {
-            const formattedDate = post.data.date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            });
+            const formattedDate = formatDate(post.data.date, 'short');
             return (
               <li class="post-list-item" data-reveal style={`--delay: ${15 * i}ms`}>
                 <a href={`/blog/${post.id}/`} class="post-link">
@@ -91,11 +88,7 @@ const sortedNotes = [...notes].sort((a, b) => b.data.date.valueOf() - a.data.dat
         <h2>Notes</h2>
         <ul class="post-list">
           {sortedNotes.map((note, i) => {
-            const shortDate = note.data.date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            });
+            const shortDate = formatDate(note.data.date, 'short');
             return (
               <li class="post-list-item" data-reveal style={`--delay: ${15 * i}ms`}>
                 <a href={`/notes/${note.id}/`} class="post-link">
@@ -114,11 +107,7 @@ const sortedNotes = [...notes].sort((a, b) => b.data.date.valueOf() - a.data.dat
         <h2>Projects</h2>
         <ul class="post-list">
           {[...projects].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).map((project, i) => {
-            const projectDate = project.data.date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            });
+            const projectDate = formatDate(project.data.date, 'short');
             return (
               <li class="post-list-item" data-reveal style={`--delay: ${15 * i}ms`}>
                 <a href={`/projects/${project.id}/`} class="post-link">

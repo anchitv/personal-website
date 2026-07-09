@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../lib/formatDate';
 
 const allNotes = await getCollection('notes', ({ data }) => !data.draft);
 const notes = allNotes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -63,11 +64,7 @@ const allYears = [...new Set(notes.map((n) => n.data.date.getFullYear()))].sort(
       ) : (
         <ul class="post-list" data-list>
           {notes.map((note, i) => {
-            const formattedDate = note.data.date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            });
+            const formattedDate = formatDate(note.data.date, 'short');
             return (
               <li
                 class="post-list-item note-list-item reveal"

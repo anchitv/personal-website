@@ -16,10 +16,10 @@ const { tag } = Astro.props;
     letter-spacing: 0.02em;
     padding: 0.2em 0.6em;
     background: var(--color-bg-alt);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     color: var(--color-text-muted);
     text-decoration: none;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background var(--duration-150) ease, color var(--duration-150) ease;
   }
 
   .tag-pill:hover {

@@ -42,6 +42,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
+  import { formatDate } from '../lib/formatDate';
+
   interface SearchEntry {
     type: 'blog' | 'note' | 'project';
     title: string;
@@ -61,16 +63,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   let entries: SearchEntry[] = [];
   let _searchCleanup: (() => void) | null = null;
-
-  function formatDate(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      timeZone: 'UTC',
-    });
-  }
 
   function renderResults(filtered: SearchEntry[]) {
     const resultsEl = document.getElementById('search-results')!;
@@ -128,7 +120,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         if (item.date) {
           const dateSpan = document.createElement('span');
           dateSpan.className = 'post-date';
-          dateSpan.textContent = formatDate(item.date);
+          dateSpan.textContent = formatDate(item.date, 'short');
           link.appendChild(dateSpan);
         }
 
@@ -247,9 +239,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     color: var(--color-text);
     background: var(--color-bg-alt);
     border: 1px solid var(--color-border);
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color var(--duration-200) ease, box-shadow var(--duration-200) ease;
   }
 
   #search-input:focus {
@@ -270,7 +262,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     color: var(--color-text-muted);
     background: var(--color-bg);
     border: 1px solid var(--color-border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     padding: 0.1em 0.45em;
     line-height: 1.4;
     pointer-events: none;
@@ -304,7 +296,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-style: italic;
     padding: var(--space-lg);
     border: 1px dashed var(--color-border);
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     text-align: center;
     display: flex;
     flex-direction: column;

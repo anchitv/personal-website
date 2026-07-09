@@ -8,17 +8,17 @@
     z-index: 200;
     padding: var(--space-xs) var(--space-sm);
     background: var(--color-accent);
-    color: #fff;
+    color: var(--color-text-on-accent);
     font-family: var(--font-heading);
     font-size: var(--fs-sm);
     font-weight: 600;
     text-decoration: none;
-    border-radius: 0 0 4px 4px;
-    transition: top 0.15s ease;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    transition: top var(--duration-150) ease;
   }
 
   .skip-link:focus {
     top: 0;
-    color: #fff;
+    color: var(--color-text-on-accent);
   }
 </style>

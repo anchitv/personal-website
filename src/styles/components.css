@@ -24,12 +24,12 @@
 }
 
 .site-name {
-  font-family: 'Satisfy', cursive;
+  font-family: var(--font-display);
   font-size: var(--fs-lg);
   font-weight: 400;
   color: var(--color-text-heading);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--duration-150) ease;
 }
 
 .site-name:hover {
@@ -53,7 +53,7 @@
   font-size: var(--fs-base);
   color: var(--color-text-muted);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--duration-150) ease;
   position: relative;
 }
 
@@ -68,7 +68,7 @@
   border-radius: 1px;
   transform: scaleX(0);
   transform-origin: center;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--duration-250) var(--ease-out-expo);
 }
 
 .main-nav a:hover {
@@ -111,7 +111,7 @@
   width: 2rem;
   height: 2rem;
   color: var(--color-text-muted);
-  transition: color 0.15s ease;
+  transition: color var(--duration-150) ease;
 }
 
 .search-toggle:hover {
@@ -138,7 +138,7 @@
   height: 2px;
   background: var(--color-text);
   border-radius: 1px;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform var(--duration-200) ease, opacity var(--duration-200) ease;
 }
 
 /* Animate hamburger to X when open */
@@ -272,9 +272,9 @@
   color: var(--color-text);
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-150) ease;
 }
 
 .filter-search::placeholder {
@@ -299,9 +299,9 @@
   color: var(--color-text-muted);
   background: var(--color-bg-alt);
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background var(--duration-150) ease, color var(--duration-150) ease, border-color var(--duration-150) ease;
   user-select: none;
 }
 
@@ -324,10 +324,10 @@
   color: var(--color-text);
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-150) ease;
 }
 
 .filter-select:focus {
@@ -348,7 +348,7 @@
   font-size: var(--fs-sm);
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color var(--duration-150) ease;
 }
 
 .filter-radio:hover {
@@ -366,9 +366,9 @@
   color: var(--color-text-muted);
   background: none;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--duration-150) ease, border-color var(--duration-150) ease;
 }
 
 .filter-clear:hover {
@@ -397,9 +397,9 @@
   color: var(--color-text-muted);
   background: none;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background var(--duration-150) ease, color var(--duration-150) ease, border-color var(--duration-150) ease;
   text-decoration: none;
 }
 
@@ -493,7 +493,7 @@
   font-style: italic;
   padding: var(--space-lg);
   border: 1px dashed var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -521,7 +521,7 @@
 
 .post-list-item {
   padding: var(--space-sm);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background-image: linear-gradient(
     90deg,
     transparent,
@@ -532,7 +532,7 @@
   background-size: 100% 1px;
   background-repeat: no-repeat;
   background-position: bottom;
-  transition: background-color 0.2s ease, padding-left 0.2s ease;
+  transition: background-color var(--duration-200) ease, padding-left var(--duration-200) ease;
 }
 
 .post-list-item:first-child {
@@ -562,7 +562,7 @@
   font-size: var(--fs-base);
   font-weight: 500;
   color: var(--color-text-heading);
-  transition: color 0.15s ease;
+  transition: color var(--duration-150) ease;
 }
 
 .post-link:hover .post-title {
@@ -582,7 +582,6 @@
   margin: var(--space-xs) 0 0;
   line-height: var(--leading-body);
 }
-
 @media (max-width: 480px) {
   .post-link {
     flex-direction: column;

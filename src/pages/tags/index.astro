@@ -77,10 +77,10 @@ const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCom
     letter-spacing: 0.02em;
     padding: 0.35em 0.8em;
     background: var(--color-bg-alt);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     color: var(--color-text-muted);
     text-decoration: none;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background var(--duration-150) ease, color var(--duration-150) ease;
   }
 
   .tag-link:hover {
