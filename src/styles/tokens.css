@@ -82,11 +82,17 @@
   --color-tag-text: #faf9f5;
   --color-tag-dark-bg: #6b2d48;
 
-  /* === STATUS BADGE COLORS === */
+  /* Darkened variants for body-size text on --color-bg (≥4.5:1);
+     used for active nav links, where the base accents fall short */
+  --color-blog-strong: #855a15;
+  --color-notes-strong: #25703b;
+  --color-projects-strong: #2a6298;
+
+  /* === STATUS BADGE COLORS (text ≥4.5:1 on badge bg) === */
   --color-status-active-bg: #e8f5e9;
-  --color-status-active-text: #2e7d32;
+  --color-status-active-text: #256029;
   --color-status-idea-bg: #fff3e0;
-  --color-status-idea-text: #e65100;
+  --color-status-idea-text: #a04000;
 
   /* === AVATAR COLORS === */
   --avatar-line: #3a3730;
@@ -145,6 +151,11 @@ html.dark {
   --color-tag-hover: #d8b4c0;
   --color-tag-text: #faf9f5;
   --color-tag-dark-bg: #6b2d48;
+
+  /* Dark-mode accents already pass at body size */
+  --color-blog-strong: var(--color-blog);
+  --color-notes-strong: var(--color-notes);
+  --color-projects-strong: var(--color-projects);
 
   /* === STATUS BADGE COLORS === */
   --color-status-active-bg: #1b3a1b;

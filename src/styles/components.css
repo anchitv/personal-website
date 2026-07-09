@@ -97,11 +97,11 @@
 .main-nav a[href="/projects/"]::after { background: var(--color-projects); }
 
 .main-nav a[href="/blog/"].active,
-.main-nav a[href="/blog/"][aria-current="page"] { color: var(--color-blog); }
+.main-nav a[href="/blog/"][aria-current="page"] { color: var(--color-blog-strong); }
 .main-nav a[href="/notes/"].active,
-.main-nav a[href="/notes/"][aria-current="page"] { color: var(--color-notes); }
+.main-nav a[href="/notes/"][aria-current="page"] { color: var(--color-notes-strong); }
 .main-nav a[href="/projects/"].active,
-.main-nav a[href="/projects/"][aria-current="page"] { color: var(--color-projects); }
+.main-nav a[href="/projects/"][aria-current="page"] { color: var(--color-projects-strong); }
 
 /* === SEARCH TOGGLE === */
 .search-toggle {
@@ -329,7 +329,6 @@
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  outline: none;
   transition: border-color var(--duration-150) ease;
 }
 
@@ -382,7 +381,6 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   cursor: pointer;
-  outline: none;
   transition: border-color var(--duration-150) ease;
 }
 
