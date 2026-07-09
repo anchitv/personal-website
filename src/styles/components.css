@@ -92,16 +92,16 @@
 }
 
 /* Content-type accent colors for nav links */
-.main-nav a[href="/blog"]::after { background: var(--color-blog); }
-.main-nav a[href="/notes"]::after { background: var(--color-notes); }
-.main-nav a[href="/projects"]::after { background: var(--color-projects); }
+.main-nav a[href="/blog/"]::after { background: var(--color-blog); }
+.main-nav a[href="/notes/"]::after { background: var(--color-notes); }
+.main-nav a[href="/projects/"]::after { background: var(--color-projects); }
 
-.main-nav a[href="/blog"].active,
-.main-nav a[href="/blog"][aria-current="page"] { color: var(--color-blog); }
-.main-nav a[href="/notes"].active,
-.main-nav a[href="/notes"][aria-current="page"] { color: var(--color-notes); }
-.main-nav a[href="/projects"].active,
-.main-nav a[href="/projects"][aria-current="page"] { color: var(--color-projects); }
+.main-nav a[href="/blog/"].active,
+.main-nav a[href="/blog/"][aria-current="page"] { color: var(--color-blog); }
+.main-nav a[href="/notes/"].active,
+.main-nav a[href="/notes/"][aria-current="page"] { color: var(--color-notes); }
+.main-nav a[href="/projects/"].active,
+.main-nav a[href="/projects/"][aria-current="page"] { color: var(--color-projects); }
 
 /* === SEARCH TOGGLE === */
 .search-toggle {
