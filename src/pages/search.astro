@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import HeaderRule from '../components/HeaderRule.astro';
 ---
 
 <BaseLayout title="Search | Anchit Verma" description="Search across blog posts, notes, and projects.">
@@ -21,11 +22,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         />
         <kbd class="search-kbd" aria-hidden="true">/</kbd>
       </div>
-      <div class="header-rule" aria-hidden="true">
-        <span class="rule-line"></span>
-        <span class="rule-diamond"></span>
-        <span class="rule-line"></span>
-      </div>
+      <HeaderRule />
     </div>
 
     <div id="search-results"></div>
@@ -35,7 +32,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <p>No results found.</p>
     </div>
 
-    <div id="search-initial" class="initial-state reveal" style="--delay: 100ms">
+    <div id="search-initial" class="empty-state reveal" style="--delay: 100ms">
       <p>Start typing to search across all content.</p>
     </div>
   </section>
@@ -60,6 +57,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   };
 
   const typeOrder = ['blog', 'note', 'project'];
+
+  // JSON `type` values are singular (data contract with search.json);
+  // section modifier classes are plural (shared .tag-section-- classes)
+  const typeToSection: Record<string, string> = {
+    blog: 'blog',
+    note: 'notes',
+    project: 'projects',
+  };
 
   let entries: SearchEntry[] = [];
   let _searchCleanup: (() => void) | null = null;
@@ -92,7 +97,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (!items) continue;
 
       const section = document.createElement('div');
-      section.className = `tag-section tag-section--${type}`;
+      section.className = `tag-section tag-section--${typeToSection[type]}`;
       section.setAttribute('data-reveal', '');
 
       const h2 = document.createElement('h2');
@@ -207,12 +212,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     padding-bottom: var(--space-2xl);
   }
 
-  .page-header {
-    margin-bottom: var(--space-xl);
-  }
-
   .page-header h1 {
-    margin-top: 0;
     color: var(--color-text-heading);
   }
 
@@ -272,40 +272,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     display: none;
   }
 
-  /* === RESULTS (matches tags page, :global for dynamic DOM) === */
-  /* Search results use global post-list classes from components.css */
-  #search-results :global(.tag-section) {
-    margin-top: var(--space-lg);
-    --color-accent: var(--color-notes);
-  }
-
-  #search-results :global(.tag-section--blog) { --color-accent: var(--color-blog); }
-  #search-results :global(.tag-section--note) { --color-accent: var(--color-notes); }
-  #search-results :global(.tag-section--project) { --color-accent: var(--color-projects); }
-
-  #search-results :global(.tag-section h2) {
-    font-size: var(--fs-lg);
-    margin-top: 0;
-    margin-bottom: var(--space-sm);
-    color: var(--color-accent);
-  }
-
-  /* empty-state uses global styles from components.css */
-  .initial-state {
-    color: var(--color-text-muted);
-    font-style: italic;
-    padding: var(--space-lg);
-    border: 1px dashed var(--color-border);
-    border-radius: var(--radius-lg);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.3em;
-  }
-
-  .initial-state p {
-    margin: 0;
-  }
-
+  /* Results and empty/initial states use the global .tag-section,
+     .post-list, and .empty-state styles from components.css */
 </style>

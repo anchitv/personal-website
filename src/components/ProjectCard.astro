@@ -25,13 +25,13 @@ const shortDate = formatDate(date, 'month-year');
   <div class="card-footer">
     <div class="card-links">
       {repo && (
-        <a href={repo} class="card-link-pill" aria-label="View source on GitHub" target="_blank" rel="noopener noreferrer">
+        <a href={repo} class="link-pill link-pill--sm" aria-label="View source on GitHub" target="_blank" rel="noopener noreferrer">
           <GitHubIcon />
           Source
         </a>
       )}
       {url && (
-        <a href={url} class="card-link-pill" aria-label="Visit live site" target="_blank" rel="noopener noreferrer">
+        <a href={url} class="link-pill link-pill--sm" aria-label="Visit live site" target="_blank" rel="noopener noreferrer">
           <ExternalLinkIcon />
           Live
         </a>
@@ -151,26 +151,6 @@ const shortDate = formatDate(date, 'month-year');
     flex-wrap: wrap;
     margin-bottom: var(--space-sm);
     min-height: 1.5em;
-  }
-
-  .card-link-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3em;
-    font-size: var(--fs-xs);
-    padding: 0.2em 0.65em;
-    border-radius: var(--radius-full);
-    background: transparent;
-    color: var(--color-text-muted);
-    border: 1px solid var(--color-border);
-    text-decoration: none;
-    transition: color var(--duration-150) ease, border-color var(--duration-150) ease, background-color var(--duration-150) ease;
-  }
-
-  .card-link-pill:hover {
-    color: var(--color-text-heading);
-    border-color: var(--color-text-heading);
-    background-color: color-mix(in srgb, var(--color-text-heading) 10%, var(--color-bg));
   }
 
   .card-tags {

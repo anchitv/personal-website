@@ -23,8 +23,8 @@ const formattedDate = formatDate(date);
 ---
 
 <BaseLayout title={`${title} | Anchit Verma`} description={description}>
-  <article class="prose">
-    <header class="project-header">
+  <article class="prose accent-projects">
+    <header class="entry-header">
       <h1>{title}</h1>
       <p class="project-description">{description}</p>
       <div class="project-meta">
@@ -42,13 +42,13 @@ const formattedDate = formatDate(date);
       {(repo || url) && (
         <div class="project-links">
           {repo && (
-            <a href={repo} class="link-pill" target="_blank" rel="noopener noreferrer">
+            <a href={repo} class="link-pill link-pill--md" target="_blank" rel="noopener noreferrer">
               <GitHubIcon />
               Source
             </a>
           )}
           {url && (
-            <a href={url} class="link-pill" target="_blank" rel="noopener noreferrer">
+            <a href={url} class="link-pill link-pill--md" target="_blank" rel="noopener noreferrer">
               <ExternalLinkIcon />
               Live
             </a>
@@ -61,22 +61,6 @@ const formattedDate = formatDate(date);
 </BaseLayout>
 
 <style>
-  :global(article.prose) {
-    --color-accent: var(--color-projects);
-    --color-accent-hover: var(--color-projects-hover);
-  }
-
-  .project-header {
-    margin-bottom: var(--space-xl);
-    padding-bottom: var(--space-md);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .project-header h1 {
-    margin-top: var(--space-xl);
-    margin-bottom: 0;
-  }
-
   .project-description {
     color: var(--color-text-muted);
     font-size: var(--fs-base);
@@ -137,25 +121,5 @@ const formattedDate = formatDate(date);
     gap: 0.5em;
     flex-wrap: wrap;
     margin-top: var(--space-xs);
-  }
-
-  .link-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3em;
-    font-family: var(--font-heading);
-    font-size: var(--fs-sm);
-    padding: 0.25em 0.7em;
-    border-radius: var(--radius-full);
-    color: var(--color-text-muted);
-    border: 1px solid var(--color-border);
-    text-decoration: none;
-    transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
-  }
-
-  .link-pill:hover {
-    color: var(--color-text-heading);
-    border-color: var(--color-text-heading);
-    background-color: color-mix(in srgb, var(--color-text-heading) 10%, var(--color-bg));
   }
 </style>

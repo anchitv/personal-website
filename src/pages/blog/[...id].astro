@@ -16,8 +16,8 @@ const { Content, remarkPluginFrontmatter } = await render(post);
 ---
 
 <BaseLayout title={`${post.data.title} | Anchit Verma`} description={post.data.description}>
-  <article class="prose">
-    <header class="post-header">
+  <article class="prose accent-blog">
+    <header class="entry-header">
       <h1>{post.data.title}</h1>
       <PostMeta
         date={post.data.date}
@@ -28,21 +28,3 @@ const { Content, remarkPluginFrontmatter } = await render(post);
     <Content />
   </article>
 </BaseLayout>
-
-<style>
-  :global(article.prose) {
-    --color-accent: var(--color-blog);
-    --color-accent-hover: var(--color-blog-hover);
-  }
-
-  .post-header {
-    margin-bottom: var(--space-xl);
-    padding-bottom: var(--space-md);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .post-header h1 {
-    margin-top: var(--space-xl);
-    margin-bottom: 0;
-  }
-</style>

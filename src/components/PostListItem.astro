@@ -1,0 +1,44 @@
+---
+import { formatDate } from '../lib/formatDate';
+
+interface Props {
+  href: string;
+  title: string;
+  date?: Date;
+  dateStyle?: 'long' | 'short';
+  description?: string;
+  /** Make the whole list item the click target */
+  stretched?: boolean;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  href,
+  title,
+  date,
+  dateStyle = 'short',
+  description,
+  stretched = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+// Drop Astro's internal scope-cascade props so they don't render as attributes
+const attrs = Object.fromEntries(
+  Object.entries(rest).filter(([key]) => !key.startsWith('data-astro-cid'))
+);
+---
+
+<li
+  class:list={['post-list-item', stretched && 'post-list-item--stretched', className]}
+  {...attrs}
+>
+  <a href={href} class:list={['post-link', stretched && 'post-link--stretched']}>
+    <span class="post-title">{title}</span>
+    {date && (
+      <time datetime={date.toISOString()} class="post-date">{formatDate(date, dateStyle)}</time>
+    )}
+  </a>
+  {description && <p class="post-excerpt">{description}</p>}
+</li>

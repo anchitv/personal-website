@@ -1,144 +1,24 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatDate } from '../../lib/formatDate';
+import FilterableListing from '../../components/FilterableListing.astro';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 const posts = allPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-
-const allTags = [...new Set(posts.flatMap((p) => p.data.tags || []))].sort();
-const allYears = [...new Set(posts.map((p) => p.data.date.getFullYear()))].sort((a, b) => b - a);
 ---
 
 <BaseLayout title="Blog | Anchit Verma" description="Long-form thoughts on software, technology, and craft.">
-  <div class="listing-layout accent-blog">
-    <aside class="filter-panel reveal" style="--delay: 100ms" data-filter-panel>
-      <div class="filter-panel-section">
-        <label class="filter-panel-label" for="blog-search">Search</label>
-        <input type="text" id="blog-search" class="filter-search" placeholder="Search posts..." data-filter-search />
-      </div>
-
-      {allTags.length > 0 && (
-        <div class="filter-panel-section">
-          <span class="filter-panel-label">Tags</span>
-          <div class="filter-tags" data-filter-tags>
-            {allTags.map((tag) => (
-              <button type="button" class="filter-tag" data-tag={tag}>{tag}</button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {allYears.length > 0 && (
-        <div class="filter-panel-section">
-          <label class="filter-panel-label" for="blog-year">Year</label>
-          <select id="blog-year" class="filter-select" data-filter-year>
-            <option value="">All years</option>
-            {allYears.map((year) => (
-              <option value={String(year)}>{year}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      <button type="button" class="filter-clear" data-filter-clear>Clear filters</button>
-      <div class="filter-result-count" data-filter-count></div>
-    </aside>
-
-    <section class="blog-index listing-container">
-      <div class="page-header reveal" style="--delay: 0ms">
-        <h1>Blog</h1>
-        <p class="blog-intro">Long-form thoughts on software, technology, and craft.</p>
-        <div class="header-rule header-rule--accent" aria-hidden="true">
-          <span class="rule-line"></span>
-          <span class="rule-diamond"></span>
-          <span class="rule-line"></span>
-        </div>
-      </div>
-
-      {posts.length === 0 ? (
-        <div class="empty-state reveal" style="--delay: 150ms">
-          <span class="empty-dash" aria-hidden="true">&mdash;</span>
-          <p>No blogs yet. Check back soon.</p>
-        </div>
-      ) : (
-        <ul class="post-list" data-list>
-          {posts.map((post, i) => {
-            const formattedDate = formatDate(post.data.date);
-            return (
-              <li
-                class="post-list-item reveal"
-                style={`--delay: ${15 * i}ms`}
-                data-tags={(post.data.tags || []).join(',')}
-                data-date={post.data.date.toISOString().slice(0, 10)}
-                data-title={post.data.title}
-                data-description={post.data.description || ''}
-              >
-                <a href={`/blog/${post.id}/`} class="post-link">
-                  <span class="post-title">{post.data.title}</span>
-                  <time datetime={post.data.date.toISOString()} class="post-date">{formattedDate}</time>
-                </a>
-                {post.data.description && (
-                  <p class="post-excerpt">{post.data.description}</p>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      <nav class="pagination" data-pagination aria-label="Pagination"></nav>
-    </section>
-  </div>
+  <FilterableListing
+    heading="Blog"
+    intro="Long-form thoughts on software, technology, and craft."
+    accent="blog"
+    basePath="/blog"
+    searchPlaceholder="Search posts..."
+    emptyMessage="No blogs yet. Check back soon."
+    entries={posts}
+    itemsPerPage={10}
+    itemLabel="posts"
+    dateStyle="long"
+    showDescriptions
+  />
 </BaseLayout>
-
-<script>
-  import { initFilters } from '../../scripts/initFilters';
-
-  function init() {
-    initFilters({ itemsPerPage: 10, itemLabel: 'posts', hasDescription: true });
-  }
-  init();
-  document.addEventListener('astro:after-swap', init);
-</script>
-
-<style>
-  .blog-index {
-    padding-top: var(--space-xl);
-    padding-bottom: var(--space-2xl);
-  }
-
-  .page-header {
-    margin-bottom: var(--space-xl);
-  }
-
-  .page-header h1 {
-    margin-top: 0;
-    color: var(--color-accent);
-  }
-
-  .blog-intro {
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-md);
-  }
-
-  /* Blog-specific overrides */
-  .post-list-item {
-    padding: var(--space-md) var(--space-sm);
-    position: relative;
-  }
-
-  .post-link::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-  }
-
-  .post-title {
-    font-size: var(--fs-md);
-  }
-
-  .post-excerpt {
-    margin-bottom: 0;
-  }
-</style>

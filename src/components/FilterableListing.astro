@@ -1,0 +1,118 @@
+---
+import FilterPanel from './FilterPanel.astro';
+import HeaderRule from './HeaderRule.astro';
+import PostListItem from './PostListItem.astro';
+
+interface Entry {
+  id: string;
+  data: {
+    title: string;
+    date: Date;
+    description?: string;
+    tags: string[];
+  };
+}
+
+interface Props {
+  heading: string;
+  intro: string;
+  accent: 'blog' | 'notes';
+  /** Base path for item links, e.g. '/blog' */
+  basePath: string;
+  searchPlaceholder: string;
+  emptyMessage: string;
+  /** Pre-sorted (newest first), draft-filtered entries */
+  entries: Entry[];
+  itemsPerPage: number;
+  itemLabel: string;
+  dateStyle: 'long' | 'short';
+  /** Show descriptions as excerpts and include them in search */
+  showDescriptions?: boolean;
+}
+
+const {
+  heading,
+  intro,
+  accent,
+  basePath,
+  searchPlaceholder,
+  emptyMessage,
+  entries,
+  itemsPerPage,
+  itemLabel,
+  dateStyle,
+  showDescriptions = false,
+} = Astro.props;
+
+const allTags = [...new Set(entries.flatMap((e) => e.data.tags || []))].sort();
+const allYears = [...new Set(entries.map((e) => e.data.date.getFullYear()))].sort((a, b) => b - a);
+---
+
+<div
+  class={`listing-layout accent-${accent}`}
+  data-filterable-listing
+  data-items-per-page={String(itemsPerPage)}
+  data-item-label={itemLabel}
+  data-has-description={showDescriptions ? 'true' : undefined}
+>
+  <FilterPanel idPrefix={accent} searchPlaceholder={searchPlaceholder} tags={allTags} years={allYears} />
+
+  <section class="listing-section listing-container">
+    <div class="page-header reveal" style="--delay: 0ms">
+      <h1>{heading}</h1>
+      <p class="page-intro">{intro}</p>
+      <HeaderRule accent />
+    </div>
+
+    {entries.length === 0 ? (
+      <div class="empty-state reveal" style="--delay: 150ms">
+        <span class="empty-dash" aria-hidden="true">&mdash;</span>
+        <p>{emptyMessage}</p>
+      </div>
+    ) : (
+      <ul class:list={['post-list', showDescriptions && 'post-list--lg']} data-list>
+        {entries.map((entry, i) => (
+          <PostListItem
+            href={`${basePath}/${entry.id}/`}
+            title={entry.data.title}
+            date={entry.data.date}
+            dateStyle={dateStyle}
+            description={showDescriptions ? entry.data.description : undefined}
+            stretched
+            class="reveal"
+            style={`--delay: ${15 * i}ms`}
+            data-tags={(entry.data.tags || []).join(',')}
+            data-date={entry.data.date.toISOString().slice(0, 10)}
+            data-title={entry.data.title}
+            data-description={showDescriptions ? entry.data.description || '' : undefined}
+          />
+        ))}
+      </ul>
+    )}
+
+    <nav class="pagination" data-pagination aria-label="Pagination"></nav>
+  </section>
+</div>
+
+<script>
+  import { initFilters } from '../scripts/initFilters';
+
+  function init() {
+    const root = document.querySelector<HTMLElement>('[data-filterable-listing]');
+    if (!root) return;
+    initFilters({
+      itemsPerPage: Number(root.dataset.itemsPerPage) || 10,
+      itemLabel: root.dataset.itemLabel || 'posts',
+      hasDescription: root.dataset.hasDescription === 'true',
+    });
+  }
+  init();
+  document.addEventListener('astro:after-swap', init);
+</script>
+
+<style>
+  .listing-section {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-2xl);
+  }
+</style>

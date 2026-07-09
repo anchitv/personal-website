@@ -17,8 +17,8 @@ const description = `${note.data.title} — a note by Anchit Verma`;
 ---
 
 <BaseLayout title={`${note.data.title} | Anchit Verma`} description={description}>
-  <article class="prose">
-    <header class="note-header">
+  <article class="prose accent-notes">
+    <header class="entry-header">
       <h1>{note.data.title}</h1>
       <PostMeta
         date={note.data.date}
@@ -28,21 +28,3 @@ const description = `${note.data.title} — a note by Anchit Verma`;
     <Content />
   </article>
 </BaseLayout>
-
-<style>
-  :global(article.prose) {
-    --color-accent: var(--color-notes);
-    --color-accent-hover: var(--color-notes-hover);
-  }
-
-  .note-header {
-    margin-bottom: var(--space-xl);
-    padding-bottom: var(--space-md);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .note-header h1 {
-    margin-top: var(--space-xl);
-    margin-bottom: 0;
-  }
-</style>
