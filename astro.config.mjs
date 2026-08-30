@@ -4,8 +4,9 @@ import { FontaineTransform } from 'fontaine';
 import { remarkReadingTime } from './src/remark-reading-time.mjs';
 
 export default defineConfig({
-  site: 'https://anchit.me',
-  integrations: [sitemap()],
+  site: 'https://anchitverma.com',
+  trailingSlash: 'always',
+  integrations: [sitemap({ filter: (page) => !page.includes('/search/') })],
   markdown: {
     shikiConfig: {
       themes: {
@@ -23,5 +24,9 @@ export default defineConfig({
         resolvePath: (id) => new URL(`./node_modules${id}`, import.meta.url),
       }),
     ],
+    ssr: {
+      // Native addon; must not be bundled by Vite
+      external: ['@resvg/resvg-js'],
+    },
   },
 });

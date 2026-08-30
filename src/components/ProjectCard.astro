@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import TagPill from './TagPill.astro';
 import GitHubIcon from './GitHubIcon.astro';
 import ExternalLinkIcon from './ExternalLinkIcon.astro';
+import { formatDate } from '../lib/formatDate';
 
 interface Props {
   project: CollectionEntry<'projects'>;
@@ -10,10 +11,7 @@ interface Props {
 
 const { project } = Astro.props;
 const { title, description, date, tags, repo, url } = project.data;
-const shortDate = date.toLocaleDateString('en-US', {
-  year: 'numeric',
-  month: 'short',
-});
+const shortDate = formatDate(date, 'month-year');
 ---
 
 <div class={`project-card ${project.data.status === 'archived' ? 'is-archived' : ''}`} data-reveal>
@@ -27,13 +25,13 @@ const shortDate = date.toLocaleDateString('en-US', {
   <div class="card-footer">
     <div class="card-links">
       {repo && (
-        <a href={repo} class="card-link-pill" aria-label="View source on GitHub" target="_blank" rel="noopener noreferrer">
+        <a href={repo} class="link-pill link-pill--sm" aria-label="View source on GitHub" target="_blank" rel="noopener noreferrer">
           <GitHubIcon />
           Source
         </a>
       )}
       {url && (
-        <a href={url} class="card-link-pill" aria-label="Visit live site" target="_blank" rel="noopener noreferrer">
+        <a href={url} class="link-pill link-pill--sm" aria-label="Visit live site" target="_blank" rel="noopener noreferrer">
           <ExternalLinkIcon />
           Live
         </a>
@@ -56,14 +54,11 @@ const shortDate = date.toLocaleDateString('en-US', {
     justify-content: space-between;
     height: 100%;
     border: 1px solid var(--color-border);
-    border-radius: 10px;
+    border-radius: var(--radius-xl);
     padding: var(--space-md);
     background: var(--color-bg);
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.04),
-      0 4px 8px rgba(0, 0, 0, 0.04),
-      0 8px 24px rgba(0, 0, 0, 0.03);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    box-shadow: var(--shadow-card);
+    transition: transform var(--duration-200) ease, box-shadow var(--duration-200) ease, border-color var(--duration-200) ease, background-color var(--duration-200) ease;
     position: relative;
     overflow: hidden;
   }
@@ -78,7 +73,7 @@ const shortDate = date.toLocaleDateString('en-US', {
     background: linear-gradient(90deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 30%, transparent));
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform var(--duration-300) var(--ease-out-expo);
   }
 
   .project-card:hover::before {
@@ -89,10 +84,7 @@ const shortDate = date.toLocaleDateString('en-US', {
     border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
     background-color: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg));
     transform: translateY(-3px);
-    box-shadow:
-      0 2px 4px rgba(0, 0, 0, 0.04),
-      0 8px 16px rgba(0, 0, 0, 0.06),
-      0 16px 36px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-card-hover);
   }
 
   .project-card.is-archived {
@@ -103,19 +95,8 @@ const shortDate = date.toLocaleDateString('en-US', {
     opacity: 1;
   }
 
-  :global(html.dark) .project-card {
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.15),
-      0 4px 8px rgba(0, 0, 0, 0.12),
-      0 8px 24px rgba(0, 0, 0, 0.1);
-  }
-
   :global(html.dark) .project-card:hover {
     background-color: color-mix(in srgb, var(--color-accent) 4%, var(--color-bg));
-    box-shadow:
-      0 2px 4px rgba(0, 0, 0, 0.2),
-      0 8px 16px rgba(0, 0, 0, 0.18),
-      0 16px 36px rgba(0, 0, 0, 0.15);
   }
 
   .card-body {
@@ -133,7 +114,7 @@ const shortDate = date.toLocaleDateString('en-US', {
   .card-title a {
     color: var(--color-text-heading);
     text-decoration: none;
-    transition: color 0.15s ease;
+    transition: color var(--duration-150) ease;
   }
 
   .card-title a:hover {
@@ -170,26 +151,6 @@ const shortDate = date.toLocaleDateString('en-US', {
     flex-wrap: wrap;
     margin-bottom: var(--space-sm);
     min-height: 1.5em;
-  }
-
-  .card-link-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3em;
-    font-size: var(--fs-xs);
-    padding: 0.2em 0.65em;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--color-text-muted);
-    border: 1px solid var(--color-border);
-    text-decoration: none;
-    transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
-  }
-
-  .card-link-pill:hover {
-    color: var(--color-text-heading);
-    border-color: var(--color-text-heading);
-    background-color: color-mix(in srgb, var(--color-text-heading) 10%, var(--color-bg));
   }
 
   .card-tags {

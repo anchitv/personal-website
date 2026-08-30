@@ -1,0 +1,53 @@
+---
+interface Props {
+  /** Prefix for input ids, e.g. 'blog' -> #blog-search */
+  idPrefix: string;
+  searchPlaceholder: string;
+  tags: string[];
+  /** Omit to hide the Year select */
+  years?: number[];
+}
+
+const { idPrefix, searchPlaceholder, tags, years } = Astro.props;
+---
+
+<aside class="filter-panel reveal" style="--delay: 100ms" data-filter-panel>
+  <div class="filter-panel-section">
+    <label class="filter-panel-label" for={`${idPrefix}-search`}>Search</label>
+    <input
+      type="text"
+      id={`${idPrefix}-search`}
+      class="filter-search"
+      placeholder={searchPlaceholder}
+      data-filter-search
+    />
+  </div>
+
+  {tags.length > 0 && (
+    <div class="filter-panel-section">
+      <span class="filter-panel-label">Tags</span>
+      <div class="filter-tags" data-filter-tags>
+        {tags.map((tag) => (
+          <button type="button" class="filter-tag" data-tag={tag}>{tag}</button>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {years && years.length > 0 && (
+    <div class="filter-panel-section">
+      <label class="filter-panel-label" for={`${idPrefix}-year`}>Year</label>
+      <select id={`${idPrefix}-year`} class="filter-select" data-filter-year>
+        <option value="">All years</option>
+        {years.map((year) => (
+          <option value={String(year)}>{year}</option>
+        ))}
+      </select>
+    </div>
+  )}
+
+  <slot name="extra" />
+
+  <button type="button" class="filter-clear" data-filter-clear>Clear filters</button>
+  <div class="filter-result-count" data-filter-count></div>
+</aside>

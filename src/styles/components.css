@@ -24,12 +24,12 @@
 }
 
 .site-name {
-  font-family: 'Satisfy', cursive;
+  font-family: var(--font-display);
   font-size: var(--fs-lg);
   font-weight: 400;
   color: var(--color-text-heading);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--duration-150) ease;
 }
 
 .site-name:hover {
@@ -53,7 +53,7 @@
   font-size: var(--fs-base);
   color: var(--color-text-muted);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--duration-150) ease;
   position: relative;
 }
 
@@ -68,7 +68,7 @@
   border-radius: 1px;
   transform: scaleX(0);
   transform-origin: center;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--duration-250) var(--ease-out-expo);
 }
 
 .main-nav a:hover {
@@ -92,16 +92,16 @@
 }
 
 /* Content-type accent colors for nav links */
-.main-nav a[href="/blog"]::after { background: var(--color-blog); }
-.main-nav a[href="/notes"]::after { background: var(--color-notes); }
-.main-nav a[href="/projects"]::after { background: var(--color-projects); }
+.main-nav a[href="/blog/"]::after { background: var(--color-blog); }
+.main-nav a[href="/notes/"]::after { background: var(--color-notes); }
+.main-nav a[href="/projects/"]::after { background: var(--color-projects); }
 
-.main-nav a[href="/blog"].active,
-.main-nav a[href="/blog"][aria-current="page"] { color: var(--color-blog); }
-.main-nav a[href="/notes"].active,
-.main-nav a[href="/notes"][aria-current="page"] { color: var(--color-notes); }
-.main-nav a[href="/projects"].active,
-.main-nav a[href="/projects"][aria-current="page"] { color: var(--color-projects); }
+.main-nav a[href="/blog/"].active,
+.main-nav a[href="/blog/"][aria-current="page"] { color: var(--color-blog-strong); }
+.main-nav a[href="/notes/"].active,
+.main-nav a[href="/notes/"][aria-current="page"] { color: var(--color-notes-strong); }
+.main-nav a[href="/projects/"].active,
+.main-nav a[href="/projects/"][aria-current="page"] { color: var(--color-projects-strong); }
 
 /* === SEARCH TOGGLE === */
 .search-toggle {
@@ -111,7 +111,7 @@
   width: 2rem;
   height: 2rem;
   color: var(--color-text-muted);
-  transition: color 0.15s ease;
+  transition: color var(--duration-150) ease;
 }
 
 .search-toggle:hover {
@@ -138,7 +138,7 @@
   height: 2px;
   background: var(--color-text);
   border-radius: 1px;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform var(--duration-200) ease, opacity var(--duration-200) ease;
 }
 
 /* Animate hamburger to X when open */
@@ -220,6 +220,62 @@
   --color-accent-hover: var(--color-projects-hover);
 }
 
+/* === SHARED PAGE HEADER (listing/utility pages) === */
+.page-header {
+  margin-bottom: var(--space-xl);
+}
+
+.page-header h1 {
+  margin-top: 0;
+  color: var(--color-accent);
+}
+
+.page-intro {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-md);
+}
+
+/* === SHARED ENTRY HEADER (detail pages) === */
+.entry-header {
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.entry-header h1 {
+  margin-top: var(--space-xl);
+  margin-bottom: 0;
+}
+
+/* === LINK PILLS (repo/live links) === */
+.link-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  transition: color var(--duration-150) ease, border-color var(--duration-150) ease, background-color var(--duration-150) ease;
+}
+
+.link-pill:hover {
+  color: var(--color-text-heading);
+  border-color: var(--color-text-heading);
+  background-color: color-mix(in srgb, var(--color-text-heading) 10%, var(--color-bg));
+}
+
+.link-pill--md {
+  font-family: var(--font-heading);
+  font-size: var(--fs-sm);
+  padding: 0.25em 0.7em;
+}
+
+.link-pill--sm {
+  font-size: var(--fs-xs);
+  padding: 0.2em 0.65em;
+}
+
 /* === LISTING LAYOUT (filter sidebar + content) === */
 .listing-layout {
   max-width: var(--content-width);
@@ -272,9 +328,8 @@
   color: var(--color-text);
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  outline: none;
-  transition: border-color 0.15s ease;
+  border-radius: var(--radius-md);
+  transition: border-color var(--duration-150) ease;
 }
 
 .filter-search::placeholder {
@@ -299,9 +354,9 @@
   color: var(--color-text-muted);
   background: var(--color-bg-alt);
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background var(--duration-150) ease, color var(--duration-150) ease, border-color var(--duration-150) ease;
   user-select: none;
 }
 
@@ -324,10 +379,9 @@
   color: var(--color-text);
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-150) ease;
 }
 
 .filter-select:focus {
@@ -348,7 +402,7 @@
   font-size: var(--fs-sm);
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color var(--duration-150) ease;
 }
 
 .filter-radio:hover {
@@ -366,9 +420,9 @@
   color: var(--color-text-muted);
   background: none;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--duration-150) ease, border-color var(--duration-150) ease;
 }
 
 .filter-clear:hover {
@@ -397,9 +451,9 @@
   color: var(--color-text-muted);
   background: none;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background var(--duration-150) ease, color var(--duration-150) ease, border-color var(--duration-150) ease;
   text-decoration: none;
 }
 
@@ -493,7 +547,7 @@
   font-style: italic;
   padding: var(--space-lg);
   border: 1px dashed var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -521,7 +575,7 @@
 
 .post-list-item {
   padding: var(--space-sm);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background-image: linear-gradient(
     90deg,
     transparent,
@@ -532,7 +586,7 @@
   background-size: 100% 1px;
   background-repeat: no-repeat;
   background-position: bottom;
-  transition: background-color 0.2s ease, padding-left 0.2s ease;
+  transition: background-color var(--duration-200) ease, padding-left var(--duration-200) ease;
 }
 
 .post-list-item:first-child {
@@ -562,7 +616,7 @@
   font-size: var(--fs-base);
   font-weight: 500;
   color: var(--color-text-heading);
-  transition: color 0.15s ease;
+  transition: color var(--duration-150) ease;
 }
 
 .post-link:hover .post-title {
@@ -581,6 +635,43 @@
   font-size: var(--fs-sm);
   margin: var(--space-xs) 0 0;
   line-height: var(--leading-body);
+}
+
+/* Stretched variant: whole list item is the click target */
+.post-list-item--stretched {
+  position: relative;
+}
+
+.post-link--stretched::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+/* Large variant: roomier items with bigger titles (blog listing) */
+.post-list--lg .post-list-item {
+  padding: var(--space-md) var(--space-sm);
+}
+
+.post-list--lg .post-title {
+  font-size: var(--fs-md);
+}
+
+/* === TAG/TYPE SECTIONS (tag pages + search results) === */
+.tag-section {
+  margin-top: var(--space-lg);
+  --color-accent: var(--color-notes);
+}
+
+.tag-section--blog { --color-accent: var(--color-blog); }
+.tag-section--notes { --color-accent: var(--color-notes); }
+.tag-section--projects { --color-accent: var(--color-projects); }
+
+.tag-section h2 {
+  font-size: var(--fs-lg);
+  margin-top: 0;
+  margin-bottom: var(--space-sm);
+  color: var(--color-accent);
 }
 
 @media (max-width: 480px) {

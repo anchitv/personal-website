@@ -23,9 +23,14 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
+    "@fontsource/crimson-pro": "^5.2.8",
+    "@fontsource/dm-sans": "^5.2.8",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/markdown-it": "^14.0.0",
     "@types/sanitize-html": "^2.13.0",
     "fontaine": "^0.8.0",
+    "png-to-ico": "^3.0.2",
+    "satori": "^0.26.0",
     "typescript": "^5.9.3"
   }
 }

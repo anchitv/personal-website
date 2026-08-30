@@ -1,0 +1,13 @@
+---
+interface Props {
+  accent?: boolean;
+}
+
+const { accent = false } = Astro.props;
+---
+
+<div class:list={['header-rule', accent && 'header-rule--accent']} aria-hidden="true">
+  <span class="rule-line"></span>
+  <span class="rule-diamond"></span>
+  <span class="rule-line"></span>
+</div>

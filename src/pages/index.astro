@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Divider from '../components/Divider.astro';
+import { formatDate } from '../lib/formatDate';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 const latestPosts = allPosts
@@ -18,9 +19,29 @@ const latestProjects = allProjects
   .filter((p) => p.data.status === 'active')
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': 'https://anchitverma.com/#website',
+      url: 'https://anchitverma.com/',
+      name: 'Anchit Verma',
+      description: 'Personal website of Anchit Verma — writing, notes, and projects.',
+      publisher: { '@id': 'https://anchitverma.com/#person' },
+    },
+    {
+      '@type': 'Person',
+      '@id': 'https://anchitverma.com/#person',
+      name: 'Anchit Verma',
+      url: 'https://anchitverma.com/',
+    },
+  ],
+};
 ---
 
-<BaseLayout title="Anchit Verma" description="Personal website of Anchit Verma -- writing, notes, and projects.">
+<BaseLayout title="Anchit Verma" description="Personal website of Anchit Verma -- writing, notes, and projects." structuredData={structuredData}>
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-text">
@@ -70,7 +91,7 @@ const latestProjects = allProjects
       <section class="home-section reveal" style="--delay: 100ms">
         <div class="section-top">
           <span class="section-emoji" aria-hidden="true">&#9997;&#65039;</span>
-          <a href="/blog" class="view-all">View all &rarr;</a>
+          <a href="/blog/" class="view-all">View all &rarr;</a>
         </div>
         <div class="section-header">
           <h2>Blog</h2>
@@ -88,7 +109,7 @@ const latestProjects = allProjects
                 <a href={`/blog/${post.id}/`} class="preview-link">
                   <span class="preview-title">{post.data.title}</span>
                   <span class="preview-meta">
-                    {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    {formatDate(post.data.date)}
                   </span>
                 </a>
               </li>
@@ -101,7 +122,7 @@ const latestProjects = allProjects
       <section class="home-section reveal" style="--delay: 200ms">
         <div class="section-top">
           <span class="section-emoji" aria-hidden="true">&#128221;</span>
-          <a href="/notes" class="view-all">View all &rarr;</a>
+          <a href="/notes/" class="view-all">View all &rarr;</a>
         </div>
         <div class="section-header">
           <h2>Notes</h2>
@@ -119,7 +140,7 @@ const latestProjects = allProjects
                 <a href={`/notes/${note.id}/`} class="preview-link">
                   <span class="preview-title">{note.data.title}</span>
                   <span class="preview-meta">
-                    {note.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    {formatDate(note.data.date)}
                   </span>
                 </a>
               </li>
@@ -132,7 +153,7 @@ const latestProjects = allProjects
       <section class="home-section reveal" style="--delay: 300ms">
         <div class="section-top">
           <span class="section-emoji" aria-hidden="true">&#128736;&#65039;</span>
-          <a href="/projects" class="view-all">View all &rarr;</a>
+          <a href="/projects/" class="view-all">View all &rarr;</a>
         </div>
         <div class="section-header">
           <h2>Projects</h2>
@@ -190,7 +211,7 @@ const latestProjects = allProjects
   }
 
   .hero-name {
-    font-family: 'Satisfy', cursive;
+    font-family: var(--font-display);
     font-size: var(--fs-3xl);
     font-weight: 400;
     line-height: 1.1;
@@ -219,7 +240,7 @@ const latestProjects = allProjects
   .hero-svg {
     width: 100%;
     height: 100%;
-    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+    filter: drop-shadow(var(--shadow-avatar));
     animation: float 4s ease-in-out infinite;
   }
 
@@ -243,14 +264,11 @@ const latestProjects = allProjects
     padding: var(--space-lg);
     border: 1px solid var(--color-border);
     border-top: 3px solid var(--section-accent);
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     position: relative;
     background: var(--color-bg);
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.06),
-      0 2px 4px rgba(0, 0, 0, 0.04),
-      0 4px 12px rgba(0, 0, 0, 0.03);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    box-shadow: var(--shadow-panel);
+    transition: transform var(--duration-200) ease, box-shadow var(--duration-200) ease, border-color var(--duration-200) ease, background-color var(--duration-200) ease;
   }
 
   /* Blog — warm amber */
@@ -264,26 +282,12 @@ const latestProjects = allProjects
     border-color: color-mix(in srgb, var(--section-accent) 25%, var(--color-bg));
     background-color: color-mix(in srgb, var(--section-accent) 8%, var(--color-bg));
     transform: translateY(-4px);
-    box-shadow:
-      0 4px 8px rgba(0, 0, 0, 0.08),
-      0 8px 24px rgba(0, 0, 0, 0.1),
-      0 16px 48px rgba(0, 0, 0, 0.06);
-  }
-
-  :global(html.dark) .home-section {
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.2),
-      0 2px 4px rgba(0, 0, 0, 0.15),
-      0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-panel-hover);
   }
 
   :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) {
     background-color: color-mix(in srgb, var(--section-accent) 6%, var(--color-bg));
     border-color: color-mix(in srgb, var(--section-accent) 15%, var(--color-bg));
-    box-shadow:
-      0 0 12px rgba(255, 255, 255, 0.08),
-      0 4px 16px rgba(255, 255, 255, 0.06),
-      0 8px 32px rgba(255, 255, 255, 0.04);
   }
 
   .section-top {
@@ -313,7 +317,7 @@ const latestProjects = allProjects
     font-weight: 600;
     color: var(--color-text-heading);
     margin: 0;
-    transition: color 0.2s ease;
+    transition: color var(--duration-200) ease;
   }
 
   .home-section:hover:not(:has(.view-all:hover)) .section-header h2 {
@@ -385,8 +389,8 @@ const latestProjects = allProjects
     letter-spacing: 0.02em;
     padding: 0.2em 0.7em;
     border: 1px solid var(--color-border);
-    border-radius: 99px;
-    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    border-radius: var(--radius-full);
+    transition: color var(--duration-200) ease, background-color var(--duration-200) ease, border-color var(--duration-200) ease;
   }
 
   .view-all:hover {
@@ -406,7 +410,7 @@ const latestProjects = allProjects
     font-size: var(--fs-base);
     margin-top: var(--space-xs);
     margin-bottom: var(--space-md);
-    transition: color 0.2s ease;
+    transition: color var(--duration-200) ease;
   }
 
   /* Subtle separator between description and list */
@@ -429,7 +433,7 @@ const latestProjects = allProjects
   .preview-item {
     margin: 0;
     padding: var(--space-sm) 0;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     background-image: linear-gradient(
       90deg,
       transparent,
@@ -440,7 +444,7 @@ const latestProjects = allProjects
     background-size: 100% 1px;
     background-repeat: no-repeat;
     background-position: bottom;
-    transition: background-color 0.2s ease, padding-left 0.2s ease;
+    transition: background-color var(--duration-200) ease, padding-left var(--duration-200) ease;
   }
 
   .preview-item:first-child {
@@ -474,20 +478,20 @@ const latestProjects = allProjects
     font-size: var(--fs-base);
     font-weight: 500;
     color: var(--color-text-heading);
-    transition: color 0.15s ease;
+    transition: color var(--duration-150) ease;
   }
 
   .preview-meta {
     font-size: var(--fs-sm);
     color: var(--color-text-muted);
-    transition: color 0.2s ease;
+    transition: color var(--duration-200) ease;
   }
 
   /* === EMPTY STATES === */
   .empty-preview {
     padding: var(--space-md);
     border: 1px dashed var(--color-border);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     text-align: center;
     display: flex;
     flex-direction: column;

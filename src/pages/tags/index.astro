@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import HeaderRule from '../../components/HeaderRule.astro';
 
 const [blogEntries, noteEntries, projectEntries] = await Promise.all([
   getCollection('blog', ({ data }) => !data.draft),
@@ -24,11 +25,7 @@ const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCom
   <section class="tags-page prose" style="--color-accent: var(--color-tag);">
     <div class="page-header reveal" style="--delay: 0ms">
       <h1>Tags</h1>
-      <div class="header-rule header-rule--accent" aria-hidden="true">
-        <span class="rule-line"></span>
-        <span class="rule-diamond"></span>
-        <span class="rule-line"></span>
-      </div>
+      <HeaderRule accent />
     </div>
 
     <div class="tags-grid reveal" style="--delay: 100ms">
@@ -48,16 +45,7 @@ const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCom
     padding-bottom: var(--space-2xl);
   }
 
-  .page-header {
-    margin-bottom: var(--space-xl);
-  }
-
-  .page-header h1 {
-    margin-top: 0;
-    color: var(--color-tag);
-  }
-
-  .header-rule {
+  .page-header :global(.header-rule) {
     margin-top: var(--space-sm);
   }
 
@@ -77,10 +65,10 @@ const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCom
     letter-spacing: 0.02em;
     padding: 0.35em 0.8em;
     background: var(--color-bg-alt);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     color: var(--color-text-muted);
     text-decoration: none;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background var(--duration-150) ease, color var(--duration-150) ease;
   }
 
   .tag-link:hover {

@@ -29,9 +29,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <p class="nav-suggestion">Here are some places to start:</p>
         <ul class="nav-links">
           <li><a href="/">Home</a></li>
-          <li><a href="/blog">Blog</a></li>
-          <li><a href="/notes">Notes</a></li>
-          <li><a href="/projects">Projects</a></li>
+          <li><a href="/blog/">Blog</a></li>
+          <li><a href="/notes/">Notes</a></li>
+          <li><a href="/projects/">Projects</a></li>
         </ul>
       </nav>
     </div>
@@ -122,8 +122,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     text-decoration: none;
     padding: var(--space-xs) var(--space-sm);
     border: 1px solid var(--color-border);
-    border-radius: 6px;
-    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+    border-radius: var(--radius-md);
+    transition: border-color var(--duration-200) ease, color var(--duration-200) ease, background-color var(--duration-200) ease;
   }
 
   .nav-links a:hover {

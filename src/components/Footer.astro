@@ -3,11 +3,11 @@ import Divider from './Divider.astro';
 const currentYear = new Date().getFullYear();
 
 const footerLinks = [
-  { href: '/blog', label: 'Blog' },
-  { href: '/notes', label: 'Notes' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/tags', label: 'Tags' },
-  { href: '/about', label: 'About' },
+  { href: '/blog/', label: 'Blog' },
+  { href: '/notes/', label: 'Notes' },
+  { href: '/projects/', label: 'Projects' },
+  { href: '/tags/', label: 'Tags' },
+  { href: '/about/', label: 'About' },
 ];
 ---
 
@@ -63,7 +63,7 @@ const footerLinks = [
     font-size: var(--fs-sm);
     color: var(--color-text-muted);
     text-decoration: none;
-    transition: color 0.15s ease;
+    transition: color var(--duration-150) ease;
   }
 
   .footer-nav a:hover {
@@ -82,7 +82,7 @@ const footerLinks = [
 
   .care-word,
   .ai-word {
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    transition: opacity var(--duration-250) ease, transform var(--duration-250) ease;
   }
 
   .ai-word {

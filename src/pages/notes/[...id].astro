@@ -13,12 +13,39 @@ export async function getStaticPaths() {
 
 const { note } = Astro.props;
 const { Content } = await render(note);
-const description = `${note.data.title} — a note by Anchit Verma`;
+const description = note.data.description ?? `${note.data.title} — a note by Anchit Verma`;
+
+const ogImage = `/og/notes/${note.id}.png`;
+const canonical = new URL(`/notes/${note.id}/`, Astro.site).href;
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: note.data.title,
+  description,
+  datePublished: note.data.date.toISOString(),
+  url: canonical,
+  mainEntityOfPage: canonical,
+  image: new URL(ogImage, Astro.site).href,
+  ...(note.data.tags.length > 0 && { keywords: note.data.tags.join(', ') }),
+  author: {
+    '@type': 'Person',
+    '@id': 'https://anchitverma.com/#person',
+    name: 'Anchit Verma',
+    url: 'https://anchitverma.com/',
+  },
+};
 ---
 
-<BaseLayout title={`${note.data.title} | Anchit Verma`} description={description}>
-  <article class="prose">
-    <header class="note-header">
+<BaseLayout
+  title={`${note.data.title} | Anchit Verma`}
+  description={description}
+  ogImage={ogImage}
+  ogImageAlt={`"${note.data.title}" — note by Anchit Verma`}
+  ogType="article"
+  structuredData={structuredData}
+>
+  <article class="prose accent-notes">
+    <header class="entry-header">
       <h1>{note.data.title}</h1>
       <PostMeta
         date={note.data.date}
@@ -28,21 +55,3 @@ const description = `${note.data.title} — a note by Anchit Verma`;
     <Content />
   </article>
 </BaseLayout>
-
-<style>
-  :global(article.prose) {
-    --color-accent: var(--color-notes);
-    --color-accent-hover: var(--color-notes-hover);
-  }
-
-  .note-header {
-    margin-bottom: var(--space-xl);
-    padding-bottom: var(--space-md);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .note-header h1 {
-    margin-top: var(--space-xl);
-    margin-bottom: 0;
-  }
-</style>

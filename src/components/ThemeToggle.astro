@@ -34,8 +34,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    transition: color 0.15s ease, transform 0.15s ease;
+    border-radius: var(--radius-sm);
+    transition: color var(--duration-150) ease, transform var(--duration-150) ease;
   }
 
   .theme-toggle:hover {
@@ -44,7 +44,7 @@
   }
 
   .theme-toggle svg {
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform var(--duration-400) var(--ease-out-expo);
   }
 
   .theme-toggle:active svg {
@@ -93,14 +93,18 @@
     return 'system';
   }
 
+  function syncThemeColor(isDark: boolean) {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', isDark ? '#0f0e0d' : '#faf9f5');
+  }
+
   function applyThemeMode(mode: 'light' | 'dark' | 'system') {
     document.documentElement.setAttribute('data-theme-mode', mode);
-    if (mode === 'system') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.classList.toggle('dark', prefersDark);
-    } else {
-      document.documentElement.classList.toggle('dark', mode === 'dark');
-    }
+    const isDark = mode === 'system'
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches
+      : mode === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    syncThemeColor(isDark);
   }
 
   function initThemeToggle() {
@@ -148,6 +152,7 @@
     const onPrefChange = (e: MediaQueryListEvent) => {
       if (getThemeMode() !== 'system') return;
       document.documentElement.classList.toggle('dark', e.matches);
+      syncThemeColor(e.matches);
     };
 
     button.addEventListener('click', onClick);

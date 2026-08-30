@@ -13,11 +13,38 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content, remarkPluginFrontmatter } = await render(post);
+
+const ogImage = `/og/blog/${post.id}.png`;
+const canonical = new URL(`/blog/${post.id}/`, Astro.site).href;
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.date.toISOString(),
+  url: canonical,
+  mainEntityOfPage: canonical,
+  image: new URL(ogImage, Astro.site).href,
+  ...(post.data.tags.length > 0 && { keywords: post.data.tags.join(', ') }),
+  author: {
+    '@type': 'Person',
+    '@id': 'https://anchitverma.com/#person',
+    name: 'Anchit Verma',
+    url: 'https://anchitverma.com/',
+  },
+};
 ---
 
-<BaseLayout title={`${post.data.title} | Anchit Verma`} description={post.data.description}>
-  <article class="prose">
-    <header class="post-header">
+<BaseLayout
+  title={`${post.data.title} | Anchit Verma`}
+  description={post.data.description}
+  ogImage={ogImage}
+  ogImageAlt={`"${post.data.title}" — blog post by Anchit Verma`}
+  ogType="article"
+  structuredData={structuredData}
+>
+  <article class="prose accent-blog">
+    <header class="entry-header">
       <h1>{post.data.title}</h1>
       <PostMeta
         date={post.data.date}
@@ -28,21 +55,3 @@ const { Content, remarkPluginFrontmatter } = await render(post);
     <Content />
   </article>
 </BaseLayout>
-
-<style>
-  :global(article.prose) {
-    --color-accent: var(--color-blog);
-    --color-accent-hover: var(--color-blog-hover);
-  }
-
-  .post-header {
-    margin-bottom: var(--space-xl);
-    padding-bottom: var(--space-md);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .post-header h1 {
-    margin-top: var(--space-xl);
-    margin-bottom: 0;
-  }
-</style>

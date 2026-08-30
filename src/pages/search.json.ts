@@ -20,6 +20,7 @@ export const GET: APIRoute = async () => {
     ...notes.map((note) => ({
       type: 'note' as const,
       title: note.data.title,
+      description: note.data.description,
       date: note.data.date.toISOString(),
       tags: note.data.tags,
       url: `/notes/${note.id}/`,

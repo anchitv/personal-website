@@ -1,134 +1,23 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilterableListing from '../../components/FilterableListing.astro';
 
 const allNotes = await getCollection('notes', ({ data }) => !data.draft);
 const notes = allNotes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-
-const allTags = [...new Set(notes.flatMap((n) => n.data.tags || []))].sort();
-const allYears = [...new Set(notes.map((n) => n.data.date.getFullYear()))].sort((a, b) => b - a);
 ---
 
 <BaseLayout title="Notes | Anchit Verma" description="Quick thoughts, things I learned, and things worth remembering.">
-  <div class="listing-layout accent-notes">
-    <aside class="filter-panel reveal" style="--delay: 100ms" data-filter-panel>
-      <div class="filter-panel-section">
-        <label class="filter-panel-label" for="notes-search">Search</label>
-        <input type="text" id="notes-search" class="filter-search" placeholder="Search notes..." data-filter-search />
-      </div>
-
-      {allTags.length > 0 && (
-        <div class="filter-panel-section">
-          <span class="filter-panel-label">Tags</span>
-          <div class="filter-tags" data-filter-tags>
-            {allTags.map((tag) => (
-              <button type="button" class="filter-tag" data-tag={tag}>{tag}</button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {allYears.length > 0 && (
-        <div class="filter-panel-section">
-          <label class="filter-panel-label" for="notes-year">Year</label>
-          <select id="notes-year" class="filter-select" data-filter-year>
-            <option value="">All years</option>
-            {allYears.map((year) => (
-              <option value={String(year)}>{year}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      <button type="button" class="filter-clear" data-filter-clear>Clear filters</button>
-      <div class="filter-result-count" data-filter-count></div>
-    </aside>
-
-    <section class="notes-index listing-container">
-      <div class="page-header reveal" style="--delay: 0ms">
-        <h1>Notes</h1>
-        <p class="notes-intro">Quick thoughts, things I learned, and things worth remembering.</p>
-        <div class="header-rule header-rule--accent" aria-hidden="true">
-          <span class="rule-line"></span>
-          <span class="rule-diamond"></span>
-          <span class="rule-line"></span>
-        </div>
-      </div>
-
-      {notes.length === 0 ? (
-        <div class="empty-state reveal" style="--delay: 150ms">
-          <span class="empty-dash" aria-hidden="true">&mdash;</span>
-          <p>No notes yet. Check back soon.</p>
-        </div>
-      ) : (
-        <ul class="post-list" data-list>
-          {notes.map((note, i) => {
-            const formattedDate = note.data.date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            });
-            return (
-              <li
-                class="post-list-item note-list-item reveal"
-                style={`--delay: ${15 * i}ms`}
-                data-tags={(note.data.tags || []).join(',')}
-                data-date={note.data.date.toISOString().slice(0, 10)}
-                data-title={note.data.title}
-              >
-                <a href={`/notes/${note.id}/`} class="post-link note-link">
-                  <span class="post-title">{note.data.title}</span>
-                  <time datetime={note.data.date.toISOString()} class="post-date">{formattedDate}</time>
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      <nav class="pagination" data-pagination aria-label="Pagination"></nav>
-    </section>
-  </div>
+  <FilterableListing
+    heading="Notes"
+    intro="Quick thoughts, things I learned, and things worth remembering."
+    accent="notes"
+    basePath="/notes"
+    searchPlaceholder="Search notes..."
+    emptyMessage="No notes yet. Check back soon."
+    entries={notes}
+    itemsPerPage={12}
+    itemLabel="notes"
+    dateStyle="short"
+  />
 </BaseLayout>
-
-<script>
-  import { initFilters } from '../../scripts/initFilters';
-
-  function init() {
-    initFilters({ itemsPerPage: 12, itemLabel: 'notes' });
-  }
-  init();
-  document.addEventListener('astro:after-swap', init);
-</script>
-
-<style>
-  .notes-index {
-    padding-top: var(--space-xl);
-    padding-bottom: var(--space-2xl);
-  }
-
-  .page-header {
-    margin-bottom: var(--space-lg);
-  }
-
-  .page-header h1 {
-    margin-top: 0;
-    color: var(--color-accent);
-  }
-
-  .notes-intro {
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-md);
-  }
-
-  /* Notes uses shared post-list classes via note-* aliases */
-  .note-list-item {
-    position: relative;
-  }
-
-  .note-link::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-  }
-</style>

@@ -2,11 +2,24 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ObfuscatedEmail from "../components/ObfuscatedEmail.astro";
 import Divider from "../components/Divider.astro";
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  mainEntity: {
+    '@type': 'Person',
+    '@id': 'https://anchitverma.com/#person',
+    name: 'Anchit Verma',
+    url: 'https://anchitverma.com/',
+    description: 'Software engineer, tinkerer, and occasional writer.',
+  },
+};
 ---
 
 <BaseLayout
   title="About | Anchit Verma"
   description="About Anchit Verma -- software engineer, tinkerer, and occasional writer."
+  structuredData={structuredData}
 >
   <section class="about-page prose">
     <div class="about-header reveal" style="--delay: 0ms">
@@ -144,8 +157,6 @@ import Divider from "../components/Divider.astro";
     </div>
 
     <div class="bio reveal" style="--delay: 100ms">
-      <p>Hi 👋</p>
-      <p>I'm Anchit, as you probably would have guessed.</p>
       <p>
         I am a software engineer who likes to tinker. I write Clojure for work,
         have a few self-hosted servers humming away at home, and tend to spend

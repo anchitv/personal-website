@@ -2,6 +2,8 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
+import FilterPanel from '../../components/FilterPanel.astro';
+import HeaderRule from '../../components/HeaderRule.astro';
 
 const allProjects = await getCollection('projects', ({ data }) => !data.draft);
 
@@ -17,24 +19,8 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
 
 <BaseLayout title="Projects | Anchit Verma" description="Things I've built or am currently working on.">
   <div class="listing-layout accent-projects">
-    <aside class="filter-panel reveal" style="--delay: 100ms" data-filter-panel>
-      <div class="filter-panel-section">
-        <label class="filter-panel-label" for="projects-search">Search</label>
-        <input type="text" id="projects-search" class="filter-search" placeholder="Search projects..." data-filter-search />
-      </div>
-
-      {allTags.length > 0 && (
-        <div class="filter-panel-section">
-          <span class="filter-panel-label">Tags</span>
-          <div class="filter-tags" data-filter-tags>
-            {allTags.map((tag) => (
-              <button type="button" class="filter-tag" data-tag={tag}>{tag}</button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div class="filter-panel-section">
+    <FilterPanel idPrefix="projects" searchPlaceholder="Search projects..." tags={allTags}>
+      <div class="filter-panel-section" slot="extra">
         <span class="filter-panel-label">Status</span>
         <div class="filter-radios" data-filter-status>
           <label class="filter-radio">
@@ -51,20 +37,13 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
           </label>
         </div>
       </div>
-
-      <button type="button" class="filter-clear" data-filter-clear>Clear filters</button>
-      <div class="filter-result-count" data-filter-count></div>
-    </aside>
+    </FilterPanel>
 
     <section class="projects-index listing-container">
       <div class="page-header reveal" style="--delay: 0ms">
         <h1>Projects</h1>
-        <p class="projects-intro">Things I've built or am currently working on.</p>
-        <div class="header-rule header-rule--accent" aria-hidden="true">
-          <span class="rule-line"></span>
-          <span class="rule-diamond"></span>
-          <span class="rule-line"></span>
-        </div>
+        <p class="page-intro">Things I've built or am currently working on.</p>
+        <HeaderRule accent />
       </div>
 
       {activeProjects.length === 0 && ideaProjects.length === 0 && archivedProjects.length === 0 ? (
@@ -201,20 +180,6 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
   .projects-index {
     padding-top: var(--space-xl);
     padding-bottom: var(--space-2xl);
-  }
-
-  .page-header {
-    margin-bottom: var(--space-xl);
-  }
-
-  .page-header h1 {
-    margin-top: 0;
-    color: var(--color-accent);
-  }
-
-  .projects-intro {
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-md);
   }
 
   .project-grid {
