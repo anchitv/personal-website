@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://anchit.me/sitemap-index.xml
+Sitemap: https://anchitverma.com/sitemap-index.xml

@@ -132,7 +132,7 @@ export function ogTemplate({ title, description, kind }: OgProps): VNode {
                           fontSize: '28px',
                           color: '#5e5950',
                         },
-                        children: 'anchit.me',
+                        children: 'anchitverma.com',
                       },
                     },
                   ],
