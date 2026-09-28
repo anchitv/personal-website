@@ -6,7 +6,7 @@ import { remarkReadingTime } from './src/remark-reading-time.mjs';
 export default defineConfig({
   site: 'https://anchitverma.com',
   trailingSlash: 'always',
-  integrations: [sitemap({ filter: (page) => !page.includes('/search/') })],
+  integrations: [sitemap({ filter: (page) => !page.includes('/search/') && !page.includes('/principles/') })],
   markdown: {
     shikiConfig: {
       themes: {
