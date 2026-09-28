@@ -288,8 +288,12 @@ const structuredData = {
 
   :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) {
     background-color: color-mix(in srgb, var(--section-accent) 6%, var(--color-bg));
-    border-color: color-mix(in srgb, var(--section-accent) 15%, var(--color-bg));
+    border-color: color-mix(in srgb, var(--section-accent) 30%, var(--color-bg));
     border-top-color: var(--section-accent);
+    /* Accent halo; lives here because --section-accent is only defined on the card */
+    box-shadow:
+      var(--shadow-panel-hover),
+      0 0 28px -6px color-mix(in srgb, var(--section-accent) 35%, transparent);
   }
 
   .section-top {
@@ -335,6 +339,7 @@ const structuredData = {
   :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .view-all {
     color: color-mix(in srgb, var(--section-accent) 80%, var(--color-text));
     border-color: color-mix(in srgb, var(--section-accent) 80%, var(--color-text));
+    background-color: transparent;
   }
 
   .home-section:hover:not(:has(.view-all:hover)) .preview-link:hover .preview-title {
@@ -401,12 +406,6 @@ const structuredData = {
     border-color: var(--section-accent);
   }
 
-  :global(html.dark) .view-all:hover {
-    color: var(--color-bg);
-    background-color: color-mix(in srgb, var(--section-accent) 70%, var(--color-bg));
-    border-color: color-mix(in srgb, var(--section-accent) 70%, var(--color-bg));
-  }
-
   .section-desc {
     color: var(--color-text-muted);
     font-size: var(--fs-base);
@@ -446,7 +445,7 @@ const structuredData = {
     background-size: 100% 1px;
     background-repeat: no-repeat;
     background-position: bottom;
-    transition: background-color var(--duration-200) ease, padding-left var(--duration-200) ease;
+    transition: background-color var(--duration-200) ease;
   }
 
   .preview-item:first-child {
@@ -459,7 +458,6 @@ const structuredData = {
 
   .preview-item:hover {
     background-color: color-mix(in srgb, var(--section-accent) 10%, var(--color-bg));
-    padding-left: var(--space-md);
   }
 
   .preview-link {

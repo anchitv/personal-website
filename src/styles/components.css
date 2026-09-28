@@ -586,7 +586,7 @@
   background-size: 100% 1px;
   background-repeat: no-repeat;
   background-position: bottom;
-  transition: background-color var(--duration-200) ease, padding-left var(--duration-200) ease;
+  transition: background-color var(--duration-200) ease;
 }
 
 .post-list-item:first-child {
@@ -599,7 +599,6 @@
 
 .post-list-item:hover {
   background-color: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg));
-  padding-left: var(--space-md);
 }
 
 .post-link {
