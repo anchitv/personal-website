@@ -2,9 +2,11 @@
 interface Props {
   class?: string;
 }
-const { class: className } = Astro.props;
+// Spread the rest so the parent's scoped-style attribute reaches the root,
+// letting pages style the divider through the class they pass in
+const { class: className, ...rest } = Astro.props;
 ---
-<div class:list={['divider', className]} aria-hidden="true">
+<div class:list={['divider', className]} aria-hidden="true" {...rest}>
   <span class="divider-line"></span>
   <span class="divider-diamond"></span>
   <span class="divider-line"></span>

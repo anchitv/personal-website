@@ -93,13 +93,38 @@ const footerLinks = [
     transform: translateY(4px);
   }
 
-  .care-swap:hover .care-word {
-    opacity: 0;
-    transform: translateY(-4px);
+  /* Hover on pointer devices; tap toggles .is-swapped on touch screens,
+     where :hover sticks after a tap and can't be undone by tapping again */
+  @media (hover: hover) {
+    .care-swap:hover .care-word {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    .care-swap:hover .ai-word {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
-  .care-swap:hover .ai-word {
-    opacity: 1;
-    transform: translateY(0);
+  @media (hover: none) {
+    .care-swap.is-swapped .care-word {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    .care-swap.is-swapped .ai-word {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 </style>
+
+<script>
+  function initCareSwap() {
+    const swap = document.querySelector('.care-swap');
+    swap?.addEventListener('click', () => swap.classList.toggle('is-swapped'));
+  }
+
+  document.addEventListener('astro:page-load', initCareSwap);
+</script>

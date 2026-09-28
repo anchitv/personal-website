@@ -280,6 +280,7 @@ const structuredData = {
 
   .home-section:hover:not(:has(.view-all:hover)) {
     border-color: color-mix(in srgb, var(--section-accent) 25%, var(--color-bg));
+    border-top-color: var(--section-accent);
     background-color: color-mix(in srgb, var(--section-accent) 8%, var(--color-bg));
     transform: translateY(-4px);
     box-shadow: var(--shadow-panel-hover);
@@ -288,6 +289,7 @@ const structuredData = {
   :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) {
     background-color: color-mix(in srgb, var(--section-accent) 6%, var(--color-bg));
     border-color: color-mix(in srgb, var(--section-accent) 15%, var(--color-bg));
+    border-top-color: var(--section-accent);
   }
 
   .section-top {
