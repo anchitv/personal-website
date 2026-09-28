@@ -1,0 +1,120 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Divider from "../components/Divider.astro";
+
+const principles = [
+  {
+    theme: "Forgiveness",
+    text: "I will not hold any grudges or bad feelings towards anyone.",
+  },
+  {
+    theme: "Kindness",
+    text: "I will not intentionally hurt anyone with my words or actions.",
+  },
+  {
+    theme: "Speech",
+    text: "I will not swear at anyone or speak badly of anyone. Not even in my thoughts.",
+  },
+  {
+    theme: "Availability",
+    text: "I will always be available when my family or close friends need me.",
+  },
+  {
+    theme: "Patience",
+    text: "I will be patient and not be in a hurry. Bad times will pass and so will good times. I will try to cherish every moment and make the most of it.",
+  },
+  {
+    theme: "Growth",
+    text: "I will focus on being better than who I was yesterday and not compare myself to anyone else.",
+  },
+  {
+    theme: "Gratitude",
+    text: "I will always be grateful for the food on my plate, the roof over my head, the comfortable mattress I sleep on and the existence of people in my life who love me.",
+  },
+];
+---
+
+<BaseLayout
+  title="Things I live by | Anchit Verma"
+  description="The principles Anchit Verma lives by."
+  noindex
+>
+  <section class="principle-page prose">
+    <h1 class="principle-title reveal" style="--delay: 0ms">Things I live by</h1>
+
+    <ol class="principle-list">
+      {principles.map((principle, i) => (
+        <li class="principle-item" data-reveal>
+          <Divider class="principle-divider" label={principle.theme} />
+          <div class="principle-row">
+            <span class="principle-number" aria-hidden="true">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <p class="principle-text">{principle.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <p class="principle-signature" data-reveal>&mdash; Anchit</p>
+  </section>
+</BaseLayout>
+
+<style>
+  .principle-page {
+    padding-block: var(--space-xl) var(--space-2xl);
+  }
+
+  .principle-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-3xl);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.1;
+    text-align: center;
+    color: var(--color-text-heading);
+    margin: 0;
+  }
+
+  /* Tighter below so each label reads as the heading of its principle */
+  .principle-divider {
+    margin-block: var(--space-lg) var(--space-sm);
+  }
+
+  .principle-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .principle-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .principle-number {
+    flex-shrink: 0;
+    width: 2ch;
+    font-family: var(--font-body);
+    font-size: var(--fs-2xl);
+    font-variant-numeric: lining-nums tabular-nums;
+    line-height: 1;
+    color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+  }
+
+  .principle-text {
+    font-size: var(--fs-md);
+    line-height: var(--leading-body);
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  .principle-signature {
+    font-family: var(--font-display);
+    font-size: var(--fs-xl);
+    text-align: right;
+    color: var(--color-text-muted);
+    margin: var(--space-xl) 0 0;
+  }
+</style>

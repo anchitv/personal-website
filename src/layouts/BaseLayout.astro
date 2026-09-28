@@ -32,6 +32,7 @@ interface Props {
   ogImageAlt?: string;
   ogType?: string;
   structuredData?: object;
+  noindex?: boolean;
 }
 
 const {
@@ -41,6 +42,7 @@ const {
   ogImageAlt = 'Anchit Verma — personal website',
   ogType = 'website',
   structuredData,
+  noindex = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -55,6 +57,7 @@ const ogImageURL = new URL(ogImage, Astro.site);
     <meta name="theme-color" content="#faf9f5" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
 
     <!-- Font preloads (must match the Fontsource CSS urls; crossorigin is required for fonts) -->
     <link rel="preload" as="font" type="font/woff2" crossorigin href={crimsonProUrl} />

@@ -2,6 +2,11 @@
 import Divider from './Divider.astro';
 const currentYear = new Date().getFullYear();
 
+// Easter egg: the monogram links to /principles/ only on the About page
+const isAbout = Astro.url.pathname === '/about/';
+const Monogram = isAbout ? 'a' : 'div';
+const monogramAttrs = isAbout ? { href: '/principles/', 'aria-label': 'Things I live by' } : { 'aria-hidden': 'true' as const };
+
 const footerLinks = [
   { href: '/blog/', label: 'Blog' },
   { href: '/notes/', label: 'Notes' },
@@ -18,11 +23,11 @@ const footerLinks = [
 
     <div class="footer-content">
       <!-- Small AV monogram -->
-      <div class="footer-monogram" aria-hidden="true">
+      <Monogram class="footer-monogram" {...monogramAttrs}>
         <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="40" height="40">
           <text x="24" y="33" text-anchor="middle" font-family="'DM Sans Variable', system-ui, sans-serif" font-size="26" font-weight="700" fill="currentColor" letter-spacing="-0.02em" opacity="0.2">AV</text>
         </svg>
-      </div>
+      </Monogram>
 
       <nav class="footer-nav" aria-label="Footer navigation">
         {footerLinks.map((link) => (
@@ -49,6 +54,15 @@ const footerLinks = [
 
   .footer-monogram {
     color: var(--color-text-heading);
+  }
+
+  a.footer-monogram {
+    display: block;
+    transition: color var(--duration-150) ease;
+  }
+
+  a.footer-monogram:hover {
+    color: var(--color-accent);
   }
 
   .footer-nav {
