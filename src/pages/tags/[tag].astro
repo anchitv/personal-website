@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import HeaderRule from '../../components/HeaderRule.astro';
 import PostListItem from '../../components/PostListItem.astro';
+import { tagLabel } from '../../lib/tags';
 
 export async function getStaticPaths() {
   const [blogEntries, noteEntries, projectEntries] = await Promise.all([
@@ -45,6 +46,7 @@ export async function getStaticPaths() {
 }
 
 const { tag, posts, notes, projects } = Astro.props;
+const label = tagLabel(tag);
 
 // Sort posts and notes by date (reverse chronological)
 const sortedPosts = [...posts].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -52,10 +54,10 @@ const sortedNotes = [...notes].sort((a, b) => b.data.date.valueOf() - a.data.dat
 const sortedProjects = [...projects].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<BaseLayout title={`#${tag} | Anchit Verma`} description={`Content tagged with '${tag}'`}>
+<BaseLayout title={`#${label} | Anchit Verma`} description={`Content tagged with '${label}'`}>
   <section class="tag-page listing-container">
     <div class="page-header reveal" style="--delay: 0ms">
-      <h1>#{tag}</h1>
+      <h1>#{label}</h1>
       <HeaderRule />
     </div>
 

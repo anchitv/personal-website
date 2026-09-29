@@ -1,4 +1,6 @@
 ---
+import { tagLabel, sortTags } from '../lib/tags';
+
 interface Props {
   /** Prefix for input ids, e.g. 'blog' -> #blog-search */
   idPrefix: string;
@@ -27,8 +29,8 @@ const { idPrefix, searchPlaceholder, tags, years } = Astro.props;
     <div class="filter-panel-section">
       <span class="filter-panel-label">Tags</span>
       <div class="filter-tags" data-filter-tags>
-        {tags.map((tag) => (
-          <button type="button" class="filter-tag" data-tag={tag}>{tag}</button>
+        {sortTags(tags).map((tag) => (
+          <button type="button" class="filter-tag" data-tag={tag}>{tagLabel(tag)}</button>
         ))}
       </div>
     </div>

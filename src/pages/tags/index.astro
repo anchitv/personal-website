@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import HeaderRule from '../../components/HeaderRule.astro';
+import { tagLabel, sortTags } from '../../lib/tags';
 
 const [blogEntries, noteEntries, projectEntries] = await Promise.all([
   getCollection('blog', ({ data }) => !data.draft),
@@ -18,7 +19,7 @@ for (const entry of [...blogEntries, ...noteEntries, ...projectEntries]) {
   }
 }
 
-const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+const sortedTags = sortTags([...tagCounts.keys()]).map((tag) => [tag, tagCounts.get(tag)!] as const);
 ---
 
 <BaseLayout title="Tags | Anchit Verma" description="Browse all tags across blog posts, notes, and projects.">
@@ -31,7 +32,7 @@ const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCom
     <div class="tags-grid reveal" style="--delay: 100ms">
       {sortedTags.map(([tag, count]) => (
         <a href={`/tags/${tag}/`} class="tag-link">
-          <span class="tag-name">{tag}</span>
+          <span class="tag-name">{tagLabel(tag)}</span>
           <span class="tag-count">{count}</span>
         </a>
       ))}

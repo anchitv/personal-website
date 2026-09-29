@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostMeta from '../../components/PostMeta.astro';
+import { tagLabel } from '../../lib/tags';
 
 export async function getStaticPaths() {
   const notes = await getCollection('notes', ({ data }) => !data.draft);
@@ -26,7 +27,7 @@ const structuredData = {
   url: canonical,
   mainEntityOfPage: canonical,
   image: new URL(ogImage, Astro.site).href,
-  ...(note.data.tags.length > 0 && { keywords: note.data.tags.join(', ') }),
+  ...(note.data.tags.length > 0 && { keywords: note.data.tags.map(tagLabel).join(', ') }),
   author: {
     '@type': 'Person',
     '@id': 'https://anchitverma.com/#person',
