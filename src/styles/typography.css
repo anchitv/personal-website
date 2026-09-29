@@ -3,6 +3,24 @@
  * All visual values reference CSS custom properties from tokens.css.
  */
 
+/* Android's serif is Noto Serif, and it has neither of Fontaine's Crimson
+ * Pro fallbacks (Georgia, Times New Roman). local() matches a font's full or
+ * PostScript name, and newer Noto builds are "Noto Serif Regular", so this
+ * face is written by hand to list every name; Fontaine only emits
+ * local("Noto Serif"). The overrides are Fontaine's output for Noto Serif
+ * against Crimson Pro's Latin file. Declared after Fontaine's faces, it's
+ * tried first; where Noto Serif is missing, Chrome falls back to those. */
+@font-face {
+  font-family: 'Crimson Pro Variable fallback';
+  src: local('Noto Serif'), local('Noto Serif Regular'), local('NotoSerif-Regular');
+  size-adjust: 83.2413%;
+  ascent-override: 107.697%;
+  descent-override: 25.8098%;
+  line-gap-override: 0%;
+  font-style: normal;
+  font-weight: 200 900;
+}
+
 html {
   font-family: var(--font-body);
   font-size: var(--fs-base);
