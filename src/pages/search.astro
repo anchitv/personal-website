@@ -182,6 +182,10 @@ import HeaderRule from '../components/HeaderRule.astro';
   async function init() {
     _searchCleanup?.();
 
+    // The after-swap listener outlives this page; skip everywhere else
+    const input = document.getElementById('search-input') as HTMLInputElement | null;
+    if (!input) return;
+
     try {
       const res = await fetch('/search.json');
       entries = await res.json();
@@ -189,7 +193,6 @@ import HeaderRule from '../components/HeaderRule.astro';
       // search will gracefully show no results
     }
 
-    const input = document.getElementById('search-input') as HTMLInputElement;
     const onInput = () => search(input.value);
     input.addEventListener('input', onInput);
 
