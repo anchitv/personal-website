@@ -107,37 +107,38 @@ const footerLinks = [
     transform: translateY(4px);
   }
 
-  /* Hover on pointer devices; tap toggles .is-swapped on touch screens,
-     where :hover sticks after a tap and can't be undone by tapping again */
-  @media (hover: hover) {
-    .care-swap:hover .care-word {
-      opacity: 0;
-      transform: translateY(-4px);
-    }
-
-    .care-swap:hover .ai-word {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  /* Set by the script below: while a mouse hovers, or toggled by a tap */
+  .care-swap.is-swapped .care-word {
+    opacity: 0;
+    transform: translateY(-4px);
   }
 
-  @media (hover: none) {
-    .care-swap.is-swapped .care-word {
-      opacity: 0;
-      transform: translateY(-4px);
-    }
-
-    .care-swap.is-swapped .ai-word {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .care-swap.is-swapped .ai-word {
+    opacity: 1;
+    transform: translateY(0);
   }
 </style>
 
 <script>
+  // Goes by each event's pointerType, not the (hover) media query: touch
+  // browsers such as Samsung Internet can report hover: hover, so taps never
+  // matched the old hover: none styles. Mouse hover swaps; taps toggle.
   function initCareSwap() {
-    const swap = document.querySelector('.care-swap');
-    swap?.addEventListener('click', () => swap.classList.toggle('is-swapped'));
+    const swap = document.querySelector('.care-swap') as HTMLElement | null;
+    if (!swap) return;
+    let pointerType = 'mouse';
+    swap.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'mouse') swap.classList.add('is-swapped');
+    });
+    swap.addEventListener('pointerleave', (e) => {
+      if (e.pointerType === 'mouse') swap.classList.remove('is-swapped');
+    });
+    swap.addEventListener('pointerdown', (e) => {
+      pointerType = e.pointerType;
+    });
+    swap.addEventListener('click', () => {
+      if (pointerType !== 'mouse') swap.classList.toggle('is-swapped');
+    });
   }
 
   document.addEventListener('astro:page-load', initCareSwap);
