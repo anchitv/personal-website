@@ -94,15 +94,6 @@
   --color-status-idea-bg: #fff3e0;
   --color-status-idea-text: #a04000;
 
-  /* === AVATAR COLORS === */
-  --avatar-line: #3a3730;
-  --avatar-skin: #f0c9a6;
-  --avatar-skin-shadow: #d4a574;
-  --avatar-hair: #2c1810;
-  --avatar-eye: #2c1810;
-  --avatar-glasses: #3a3730;
-  --avatar-mouth: #c0705a;
-
   /* === MISC === */
   --color-text-on-accent: #fff;
 
@@ -162,15 +153,6 @@ html.dark {
   --color-status-active-text: #81c784;
   --color-status-idea-bg: #3e2723;
   --color-status-idea-text: #ffb74d;
-
-  /* === AVATAR COLORS === */
-  --avatar-line: #cdc8bc;
-  --avatar-skin: #d4a97a;
-  --avatar-skin-shadow: #b8885a;
-  --avatar-hair: #1a1008;
-  --avatar-eye: #1a1008;
-  --avatar-glasses: #ccc;
-  --avatar-mouth: #b0604a;
 
   /* === SHADOWS === */
   --shadow-card:

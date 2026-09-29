@@ -1,0 +1,29 @@
+---
+import { Image } from 'astro:assets';
+import portrait from '../assets/portrait.webp';
+
+interface Props {
+  /** Largest rendered size in CSS pixels; a 2x variant is generated too */
+  size: number;
+  class?: string;
+}
+// Spread the rest so the parent's scoped-style attribute reaches the image
+const { size, class: className, ...rest } = Astro.props;
+---
+<!-- Eager: the portrait sits at the top of every page that uses it -->
+<Image src={portrait} alt="" width={size} height={size} densities={[1, 2]} loading="eager" class:list={['avatar', className]} {...rest} />
+
+<style>
+  .avatar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    filter: drop-shadow(var(--shadow-avatar));
+  }
+
+  /* Ink-on-paper sketch: dim the paper so it doesn't glare on the dark page */
+  :global(html.dark) .avatar {
+    filter: drop-shadow(var(--shadow-avatar)) brightness(0.85);
+  }
+</style>
