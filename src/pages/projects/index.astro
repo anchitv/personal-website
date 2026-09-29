@@ -127,6 +127,10 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
   import { initFilters } from '../../scripts/initFilters';
 
   function init() {
+    // The after-swap listener outlives this page; don't take over the
+    // blog/notes listings, which share the filter markup
+    if (!document.querySelector('[data-filter-status]')) return;
+
     const statusRadios = Array.from(document.querySelectorAll<HTMLInputElement>('[data-filter-status] input'));
     const ideaSection = document.querySelector('[data-idea-section]') as HTMLElement | null;
     const archivedSection = document.querySelector('[data-archived-section]') as HTMLElement | null;
