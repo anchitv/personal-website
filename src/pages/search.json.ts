@@ -33,7 +33,9 @@ export const GET: APIRoute = async () => {
       tags: project.data.tags,
       url: `/projects/${project.id}/`,
     })),
-  ];
+    // Newest first; collection order isn't stable across Astro versions.
+    // ISO date strings sort correctly as plain strings.
+  ].sort((a, b) => b.date.localeCompare(a.date));
 
   return new Response(JSON.stringify(entries), {
     headers: {
