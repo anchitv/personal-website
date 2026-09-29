@@ -48,6 +48,8 @@ export async function GET(context: APIContext) {
     description: 'Writing about software, ideas and the things I\'m building.',
     site: context.site!,
     items: allItems,
-    customData: '<language>en-us</language>',
+    // atom:link rel="self" tells feed readers the feed's own canonical URL
+    xmlns: { atom: 'http://www.w3.org/2005/Atom' },
+    customData: `<language>en-us</language><atom:link href="${new URL('/rss.xml', context.site)}" rel="self" type="application/rss+xml"/>`,
   });
 }
