@@ -24,7 +24,9 @@ export default defineConfig({
   vite: {
     plugins: [
       FontaineTransform.vite({
-        fallbacks: ['Georgia', 'Times New Roman', 'serif'],
+        // Per family: a plain array would give every font these serif metrics.
+        // The rest resolve by category (JetBrains Mono: monospace; else sans-serif).
+        fallbacks: { 'Crimson Pro Variable': ['Georgia', 'Times New Roman'] },
         resolvePath: (id) => new URL(`./node_modules${id}`, import.meta.url),
       }),
     ],
