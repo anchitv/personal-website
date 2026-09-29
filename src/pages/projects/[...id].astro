@@ -127,4 +127,9 @@ const formattedDate = formatDate(date);
     flex-wrap: wrap;
     margin-top: var(--space-xs);
   }
+
+  /* :global because the Markdown body isn't scoped to this component */
+  .prose :global(h2) {
+    font-size: var(--fs-md);
+  }
 </style>
