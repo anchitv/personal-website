@@ -3,6 +3,8 @@ import type { CollectionEntry } from 'astro:content';
 import TagPill from './TagPill.astro';
 import GitHubIcon from './GitHubIcon.astro';
 import ExternalLinkIcon from './ExternalLinkIcon.astro';
+import AppleIcon from './AppleIcon.astro';
+import GooglePlayIcon from './GooglePlayIcon.astro';
 import { formatDate } from '../lib/formatDate';
 
 interface Props {
@@ -10,7 +12,7 @@ interface Props {
 }
 
 const { project } = Astro.props;
-const { title, description, date, tags, repo, url } = project.data;
+const { title, description, date, tags, repo, url, appStore, playStore } = project.data;
 const shortDate = formatDate(date, 'month-year');
 ---
 
@@ -31,9 +33,21 @@ const shortDate = formatDate(date, 'month-year');
         </a>
       )}
       {url && (
-        <a href={url} class="link-pill link-pill--sm" aria-label="Visit live site" target="_blank" rel="noopener noreferrer">
+        <a href={url} class="link-pill link-pill--sm" aria-label="Visit website" target="_blank" rel="noopener noreferrer">
           <ExternalLinkIcon />
-          Live
+          Website
+        </a>
+      )}
+      {appStore && (
+        <a href={appStore} class="link-pill link-pill--sm" aria-label="Download on the App Store" target="_blank" rel="noopener noreferrer">
+          <AppleIcon />
+          App Store
+        </a>
+      )}
+      {playStore && (
+        <a href={playStore} class="link-pill link-pill--sm" aria-label="Get it on Google Play" target="_blank" rel="noopener noreferrer">
+          <GooglePlayIcon />
+          Google Play
         </a>
       )}
     </div>

@@ -42,6 +42,8 @@ const projects = defineCollection({
     status: z.enum(['active', 'archived', 'idea']),
     url: z.url().optional(),
     repo: z.url().optional(),
+    appStore: z.url().optional(),
+    playStore: z.url().optional(),
     tags,
     draft: z.boolean().default(false),
   }),
