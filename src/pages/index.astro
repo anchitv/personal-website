@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Divider from '../components/Divider.astro';
+import Avatar from '../components/Avatar.astro';
 import { formatDate } from '../lib/formatDate';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
@@ -48,37 +49,9 @@ const structuredData = {
         <h1 class="hero-name reveal" style="--delay: 0ms">Anchit Verma</h1>
         <p class="hero-tagline reveal" style="--delay: 80ms">Writing about software, ideas, and the things I'm building.</p>
       </div>
-      <!-- Monoline portrait -->
+      <!-- Ink portrait -->
       <div class="hero-avatar reveal" style="--delay: 160ms" aria-hidden="true">
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="hero-svg">
-          <circle cx="100" cy="100" r="96" fill="var(--color-bg-alt)" />
-          <!-- Single continuous-weight line portrait -->
-          <g fill="none" stroke="var(--avatar-line)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <!-- Shoulders -->
-            <path d="M48 186 Q48 160 78 155 L122 155 Q152 160 152 186" />
-            <!-- Neck -->
-            <path d="M84 155 L84 142" />
-            <path d="M116 155 L116 142" />
-            <!-- Head outline -->
-            <path d="M56 108 Q56 52 100 48 Q144 52 144 108 Q144 148 100 155 Q56 148 56 108 Z" />
-            <!-- Hair -->
-            <path d="M56 98 Q56 55 100 50 Q144 55 144 98" />
-            <path d="M56 98 Q60 75 72 64 Q86 54 100 52 Q114 54 128 64 Q140 75 144 98" />
-            <!-- Glasses -->
-            <rect x="68" y="92" width="26" height="18" rx="9" />
-            <rect x="106" y="92" width="26" height="18" rx="9" />
-            <path d="M94 100 Q100 96 106 100" />
-            <path d="M68 98 L58 96" />
-            <path d="M132 98 L142 96" />
-            <!-- Eyes -->
-            <circle cx="81" cy="101" r="2.5" fill="var(--avatar-line)" />
-            <circle cx="119" cy="101" r="2.5" fill="var(--avatar-line)" />
-            <!-- Nose -->
-            <path d="M99 105 Q97 114 102 113" />
-            <!-- Smile -->
-            <path d="M90 122 Q100 130 110 122" />
-          </g>
-        </svg>
+        <Avatar class="hero-portrait" size={180} />
       </div>
     </div>
     <!-- Decorative diamond divider -->
@@ -230,17 +203,14 @@ const structuredData = {
     line-height: var(--leading-body);
   }
 
-  /* Memoji avatar */
+  /* Portrait */
   .hero-avatar {
     flex-shrink: 0;
     width: clamp(100px, 12vw, 160px);
     height: clamp(100px, 12vw, 160px);
   }
 
-  .hero-svg {
-    width: 100%;
-    height: 100%;
-    filter: drop-shadow(var(--shadow-avatar));
+  .hero-portrait {
     animation: float 4s ease-in-out infinite;
   }
 
