@@ -121,6 +121,20 @@ const shortDate = formatDate(date, 'month-year');
     color: var(--color-accent);
   }
 
+  /* Stretch the title link so the whole card is the click target */
+  .card-title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Keep the source/live and tag links clickable above the stretched link */
+  .card-links a,
+  .card-tags :global(a) {
+    position: relative;
+    z-index: 1;
+  }
+
   .card-date {
     display: block;
     font-family: var(--font-heading);

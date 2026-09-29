@@ -82,6 +82,12 @@ pre {
   margin-bottom: var(--space-md);
 }
 
+/* Sublists sit inside a list item, so they don't need block spacing */
+li > ul,
+li > ol {
+  margin-bottom: 0;
+}
+
 blockquote {
   border-left: 3px solid var(--color-border);
   padding-left: var(--space-md);
