@@ -91,7 +91,6 @@ const structuredData = {
       <section class="home-section reveal" style="--delay: 100ms">
         <div class="section-top">
           <span class="section-emoji" aria-hidden="true">&#9997;&#65039;</span>
-          <a href="/blog/" class="view-all">View all &rarr;</a>
         </div>
         <div class="section-header">
           <h2>Blog</h2>
@@ -101,7 +100,7 @@ const structuredData = {
           {latestPosts.length === 0 ? (
             <li class="preview-item empty-preview">
               <span class="empty-dash" aria-hidden="true">&mdash;</span>
-              <span class="preview-title">No blogs yet</span>
+              <span class="preview-title">First post coming soon</span>
             </li>
           ) : (
             latestPosts.map((post) => (
@@ -116,13 +115,15 @@ const structuredData = {
             ))
           )}
         </ul>
+        <div class="section-footer">
+          <a href="/blog/" class="view-all">View all &rarr;</a>
+        </div>
       </section>
 
       <!-- Notes section -->
       <section class="home-section reveal" style="--delay: 200ms">
         <div class="section-top">
           <span class="section-emoji" aria-hidden="true">&#128221;</span>
-          <a href="/notes/" class="view-all">View all &rarr;</a>
         </div>
         <div class="section-header">
           <h2>Notes</h2>
@@ -132,7 +133,7 @@ const structuredData = {
           {latestNotes.length === 0 ? (
             <li class="preview-item empty-preview">
               <span class="empty-dash" aria-hidden="true">&mdash;</span>
-              <span class="preview-title">No notes yet</span>
+              <span class="preview-title">First note coming soon</span>
             </li>
           ) : (
             latestNotes.map((note) => (
@@ -147,13 +148,15 @@ const structuredData = {
             ))
           )}
         </ul>
+        <div class="section-footer">
+          <a href="/notes/" class="view-all">View all &rarr;</a>
+        </div>
       </section>
 
       <!-- Projects section -->
       <section class="home-section reveal" style="--delay: 300ms">
         <div class="section-top">
           <span class="section-emoji" aria-hidden="true">&#128736;&#65039;</span>
-          <a href="/projects/" class="view-all">View all &rarr;</a>
         </div>
         <div class="section-header">
           <h2>Projects</h2>
@@ -163,7 +166,7 @@ const structuredData = {
           {latestProjects.length === 0 ? (
             <li class="preview-item empty-preview">
               <span class="empty-dash" aria-hidden="true">&mdash;</span>
-              <span class="preview-title">No projects yet</span>
+              <span class="preview-title">First project coming soon</span>
             </li>
           ) : (
             latestProjects.map((project) => (
@@ -176,6 +179,9 @@ const structuredData = {
             ))
           )}
         </ul>
+        <div class="section-footer">
+          <a href="/projects/" class="view-all">View all &rarr;</a>
+        </div>
       </section>
     </div>
   </div>
@@ -316,6 +322,8 @@ const structuredData = {
   /* === SECTIONS === */
   .home-section {
     --section-accent: var(--color-accent);
+    display: flex;
+    flex-direction: column;
     padding: var(--space-lg);
     border: 1px solid var(--color-border);
     border-top: 3px solid var(--section-accent);
@@ -423,20 +431,18 @@ const structuredData = {
     background-color: color-mix(in srgb, var(--section-accent) 15%, var(--color-bg));
   }
 
-  .home-section:hover:not(:has(.view-all:hover)) .section-desc::after {
-    background: rgba(0, 0, 0, 0.15);
-  }
-
-  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .section-desc::after {
-    background: rgba(255, 255, 255, 0.15);
-  }
-
   .home-section:hover:not(:has(.view-all:hover)) .empty-preview {
     border-color: rgba(0, 0, 0, 0.2);
   }
 
   :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .empty-preview {
     border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Pinned to the card bottom so "View all" lines up across a row */
+  .section-footer {
+    margin-top: auto;
+    padding-top: var(--space-md);
   }
 
   .view-all {
@@ -467,16 +473,6 @@ const structuredData = {
     margin-top: var(--space-xs);
     margin-bottom: var(--space-md);
     transition: color var(--duration-200) ease;
-  }
-
-  /* Subtle separator between description and list */
-  .section-desc::after {
-    content: '';
-    display: block;
-    width: 2rem;
-    height: 1px;
-    background: var(--color-border);
-    margin-top: var(--space-md);
   }
 
   /* === PREVIEW LIST === */
