@@ -1,4 +1,5 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 const tagSlug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Tags must be lowercase URL-safe slugs (e.g. "my-tag")');
@@ -32,8 +33,8 @@ const projects = defineCollection({
     description: z.string(),
     date: z.coerce.date(),
     status: z.enum(['active', 'archived', 'idea']),
-    url: z.string().url().optional(),
-    repo: z.string().url().optional(),
+    url: z.url().optional(),
+    repo: z.url().optional(),
     tags: z.array(tagSlug).default([]),
     draft: z.boolean().default(false),
   }),
