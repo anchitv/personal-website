@@ -35,12 +35,6 @@
   transform: translateY(0);
 }
 
-/* === FLOATING ANIMATION (avatar) === */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-
 /* === SLOW ROTATE (404 rings) === */
 @keyframes slow-spin {
   from { transform: rotate(0deg); }
