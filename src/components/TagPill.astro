@@ -1,4 +1,6 @@
 ---
+import { tagLabel } from '../lib/tags';
+
 interface Props {
   tag: string;
 }
@@ -6,7 +8,7 @@ interface Props {
 const { tag } = Astro.props;
 ---
 
-<a href={`/tags/${tag}/`} class="tag-pill">{tag}</a>
+<a href={`/tags/${tag}/`} class="tag-pill">{tagLabel(tag)}</a>
 
 <style>
   .tag-pill {

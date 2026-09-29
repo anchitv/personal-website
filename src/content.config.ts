@@ -1,8 +1,15 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import { isTag, sortTags } from './lib/tags';
 
-const tagSlug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Tags must be lowercase URL-safe slugs (e.g. "my-tag")');
+const tagSlug = z
+  .string()
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Tags must be lowercase URL-safe slugs (e.g. "my-tag")')
+  .refine(isTag, { error: (issue) => `Unknown tag "${issue.input}": add it to src/lib/tags.ts` });
+
+// Sorted by display name so tags appear alphabetically everywhere
+const tags = z.array(tagSlug).default([]).transform(sortTags);
 
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
@@ -10,7 +17,7 @@ const blog = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     description: z.string(),
-    tags: z.array(tagSlug).default([]),
+    tags,
     draft: z.boolean().default(false),
   }),
 });
@@ -21,7 +28,7 @@ const notes = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     description: z.string().optional(),
-    tags: z.array(tagSlug).default([]),
+    tags,
     draft: z.boolean().default(false),
   }),
 });
@@ -35,7 +42,7 @@ const projects = defineCollection({
     status: z.enum(['active', 'archived', 'idea']),
     url: z.url().optional(),
     repo: z.url().optional(),
-    tags: z.array(tagSlug).default([]),
+    tags,
     draft: z.boolean().default(false),
   }),
 });
