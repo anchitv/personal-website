@@ -4,6 +4,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagPill from '../../components/TagPill.astro';
 import GitHubIcon from '../../components/GitHubIcon.astro';
 import ExternalLinkIcon from '../../components/ExternalLinkIcon.astro';
+import AppleIcon from '../../components/AppleIcon.astro';
+import GooglePlayIcon from '../../components/GooglePlayIcon.astro';
 import { formatDate } from '../../lib/formatDate';
 
 export async function getStaticPaths() {
@@ -16,7 +18,7 @@ export async function getStaticPaths() {
 
 const { project } = Astro.props;
 const { Content } = await render(project);
-const { title, description, date, status, tags, repo, url } = project.data;
+const { title, description, date, status, tags, repo, url, appStore, playStore } = project.data;
 
 const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
 const formattedDate = formatDate(date);
@@ -44,7 +46,7 @@ const formattedDate = formatDate(date);
           </div>
         )}
       </div>
-      {(repo || url) && (
+      {(repo || url || appStore || playStore) && (
         <div class="project-links">
           {repo && (
             <a href={repo} class="link-pill link-pill--md" target="_blank" rel="noopener noreferrer">
@@ -55,7 +57,19 @@ const formattedDate = formatDate(date);
           {url && (
             <a href={url} class="link-pill link-pill--md" target="_blank" rel="noopener noreferrer">
               <ExternalLinkIcon />
-              Live
+              Website
+            </a>
+          )}
+          {appStore && (
+            <a href={appStore} class="link-pill link-pill--md" target="_blank" rel="noopener noreferrer">
+              <AppleIcon />
+              App Store
+            </a>
+          )}
+          {playStore && (
+            <a href={playStore} class="link-pill link-pill--md" target="_blank" rel="noopener noreferrer">
+              <GooglePlayIcon />
+              Google Play
             </a>
           )}
         </div>
