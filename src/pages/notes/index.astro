@@ -7,10 +7,10 @@ const allNotes = await getCollection('notes', ({ data }) => !data.draft);
 const notes = allNotes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<BaseLayout title="Notes | Anchit Verma" description="Quick thoughts, things I learned, and things worth remembering.">
+<BaseLayout title="Notes | Anchit Verma" description="Quick thoughts, things I learned and things worth remembering.">
   <FilterableListing
     heading="Notes"
-    intro="Quick thoughts, things I learned, and things worth remembering."
+    intro="Quick thoughts, things I learned and things worth remembering."
     accent="notes"
     basePath="/notes"
     searchPlaceholder="Search notes..."
