@@ -45,7 +45,7 @@ export async function GET(context: APIContext) {
 
   return rss({
     title: 'Anchit Verma',
-    description: 'Writing about software, ideas, and the things I\'m building.',
+    description: 'Writing about software, ideas and the things I\'m building.',
     site: context.site!,
     items: allItems,
     customData: '<language>en-us</language>',

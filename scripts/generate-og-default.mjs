@@ -43,7 +43,7 @@ const svg = await satori(
           type: 'div',
           props: {
             style: { fontFamily: 'DM Sans', fontSize: '28px', color: '#78756c', marginTop: '28px' },
-            children: "Writing about software, ideas, and the things I'm building.",
+            children: "Writing about software, ideas and the things I'm building.",
           },
         },
         {
