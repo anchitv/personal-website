@@ -21,6 +21,26 @@ export function initFilters(config: FilterConfig) {
     onRender,
   } = config;
 
+  // The mobile filters toggle, wired before the list check so it still opens
+  // on an empty listing. CSS owns both end states; this animates the height
+  // between them. Web Animations leave no inline styles behind to fight the
+  // desktop layout
+  const toggleBtn = document.querySelector('[data-filter-toggle]');
+  const collapseEl = document.querySelector<HTMLElement>('[data-filter-collapse]');
+  let toggleAnim: Animation | undefined;
+
+  toggleBtn?.addEventListener('click', () => {
+    const from = collapseEl?.offsetHeight ?? 0;
+    toggleBtn.setAttribute('aria-expanded', String(toggleBtn.getAttribute('aria-expanded') !== 'true'));
+    if (!collapseEl || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    toggleAnim?.cancel();
+    // Matches --duration-300 and --ease-out-expo
+    toggleAnim = collapseEl.animate(
+      [{ height: `${from}px` }, { height: `${collapseEl.offsetHeight}px` }],
+      { duration: 300, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+    );
+  });
+
   const list = document.querySelector(listSelector);
   if (!list) return;
 
@@ -52,8 +72,8 @@ export function initFilters(config: FilterConfig) {
   // Reading order within a series, from its list in src/lib/series.ts
   const seriesOrder = (el: Element) => Number((el as HTMLElement).dataset.seriesOrder);
 
-  function getFiltered() {
-    const query = (searchInput?.value || '').toLowerCase().trim();
+  function getFiltered(includeSearch = true) {
+    const query = includeSearch ? (searchInput?.value || '').toLowerCase().trim() : '';
     const year = yearSelect?.value || '';
 
     return items.filter((item) => {
@@ -114,6 +134,10 @@ export function initFilters(config: FilterConfig) {
     if (countEl) {
       countEl.textContent = `${filtered.length} of ${items.length} ${itemLabel}`;
     }
+
+    // Tints the mobile toggle while the filters folded behind it (not the
+    // always-visible search) hide items, e.g. after arriving via ?series=
+    toggleBtn?.classList.toggle('is-active', getFiltered(false).length < items.length);
 
     if (onRender) {
       onRender(filtered, visibleSet);

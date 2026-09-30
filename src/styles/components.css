@@ -311,6 +311,48 @@ html:not(.dark) .link-pill svg {
   gap: var(--space-md);
 }
 
+.filter-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Shown on mobile only (see the listing layout media query). No hover
+   state, since a tap leaves :hover stuck on touch */
+.filter-toggle {
+  display: none;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) 0.9em;
+  font-family: var(--font-heading);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  /* Mobile browsers flash a square highlight over the pill on tap */
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--duration-150) ease, border-color var(--duration-150) ease, background-color var(--duration-150) ease;
+}
+
+/* Set while the folded filters are hiding items */
+.filter-toggle.is-active {
+  color: var(--color-accent);
+  border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+  background-color: color-mix(in srgb, var(--color-accent) 8%, var(--color-bg));
+}
+
+.filter-toggle-chevron {
+  flex-shrink: 0;
+  transition: transform var(--duration-150) ease;
+}
+
+.filter-toggle[aria-expanded="true"] .filter-toggle-chevron {
+  transform: rotate(180deg);
+}
+
 .filter-panel-section {
   display: flex;
   flex-direction: column;
@@ -498,13 +540,94 @@ html:not(.dark) .link-pill svg {
   .listing-layout {
     flex-direction: column;
     align-items: stretch;
-    gap: var(--space-md);
+    gap: 0;
+    padding-block: var(--space-xl) var(--space-2xl);
   }
 
+  /* Unwrap the content column so its page header can sit above the filters */
+  .listing-layout > .listing-container {
+    display: contents;
+  }
+
+  .listing-layout .page-header {
+    order: -1;
+    margin-bottom: var(--space-lg);
+  }
+
+  /* Search and the toggle share a row; the rest folds away beneath them */
   .filter-panel {
     position: static;
     width: 100%;
-    padding-top: var(--space-lg);
+    padding-top: 0;
+    margin-bottom: var(--space-lg);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 var(--space-sm);
+  }
+
+  /* The placeholder says it; keep the label for screen readers */
+  .filter-panel-search .filter-panel-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .filter-search {
+    border-radius: var(--radius-full);
+    padding-inline: 1em;
+  }
+
+  .filter-toggle {
+    display: flex;
+  }
+
+  /* initFilters animates the height between these two states */
+  .filter-panel-collapse {
+    grid-column: 1 / -1;
+    overflow: hidden;
+  }
+
+  /* visibility also takes the folded filters out of the tab order; its
+     transition keeps them painted while the close animation runs */
+  .filter-toggle[aria-expanded="false"] + .filter-panel-collapse {
+    height: 0;
+    visibility: hidden;
+    transition: visibility var(--duration-300);
+  }
+
+  /* A card under the row, with the count and Clear sharing its last line */
+  .filter-panel-body {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-auto-flow: row dense;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+    padding: var(--space-md);
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-lg);
+  }
+
+  .filter-panel-body > * {
+    grid-column: 1 / -1;
+  }
+
+  .filter-panel-body > .filter-clear {
+    grid-column: 2;
+  }
+
+  .filter-panel-body > .filter-result-count {
+    grid-column: 1;
+    align-self: center;
+    padding-top: 0;
+  }
+
+  .filter-radios {
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: var(--space-md);
   }
 }
 
