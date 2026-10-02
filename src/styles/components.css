@@ -655,6 +655,19 @@ html:not(.dark) .link-pill svg {
   inset: 0;
 }
 
+.post-list-tags {
+  display: flex;
+  gap: 0.4em;
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+}
+
+/* Keep tag links clickable above the stretched link */
+.post-list-item--stretched .post-list-tags a {
+  position: relative;
+  z-index: 1;
+}
+
 /* Large variant: roomier items with bigger titles (blog listing) */
 .post-list--lg .post-list-item {
   padding: var(--space-md) var(--space-sm);
