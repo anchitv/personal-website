@@ -265,6 +265,11 @@
   background-color: color-mix(in srgb, var(--color-text-heading) 10%, var(--color-bg));
 }
 
+/* Thin icon shapes wash out in the muted colour on the light background */
+html:not(.dark) .link-pill svg {
+  color: var(--color-text-heading);
+}
+
 .link-pill--md {
   font-family: var(--font-heading);
   font-size: var(--fs-sm);
@@ -304,6 +309,48 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+}
+
+.filter-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Shown on mobile only (see the listing layout media query). No hover
+   state, since a tap leaves :hover stuck on touch */
+.filter-toggle {
+  display: none;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) 0.9em;
+  font-family: var(--font-heading);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  /* Mobile browsers flash a square highlight over the pill on tap */
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--duration-150) ease, border-color var(--duration-150) ease, background-color var(--duration-150) ease;
+}
+
+/* Set while the folded filters are hiding items */
+.filter-toggle.is-active {
+  color: var(--color-accent);
+  border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+  background-color: color-mix(in srgb, var(--color-accent) 8%, var(--color-bg));
+}
+
+.filter-toggle-chevron {
+  flex-shrink: 0;
+  transition: transform var(--duration-150) ease;
+}
+
+.filter-toggle[aria-expanded="true"] .filter-toggle-chevron {
+  transform: rotate(180deg);
 }
 
 .filter-panel-section {
@@ -350,7 +397,7 @@
   display: inline-block;
   padding: 0.15em 0.55em;
   font-family: var(--font-heading);
-  font-size: calc(var(--fs-sm) * 0.85);
+  font-size: var(--fs-xs);
   color: var(--color-text-muted);
   background: var(--color-bg-alt);
   border: 1px solid var(--color-border);
@@ -493,13 +540,94 @@
   .listing-layout {
     flex-direction: column;
     align-items: stretch;
-    gap: var(--space-md);
+    gap: 0;
+    padding-block: var(--space-xl) var(--space-2xl);
   }
 
+  /* Unwrap the content column so its page header can sit above the filters */
+  .listing-layout > .listing-container {
+    display: contents;
+  }
+
+  .listing-layout .page-header {
+    order: -1;
+    margin-bottom: var(--space-lg);
+  }
+
+  /* Search and the toggle share a row; the rest folds away beneath them */
   .filter-panel {
     position: static;
     width: 100%;
-    padding-top: var(--space-lg);
+    padding-top: 0;
+    margin-bottom: var(--space-lg);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 var(--space-sm);
+  }
+
+  /* The placeholder says it; keep the label for screen readers */
+  .filter-panel-search .filter-panel-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .filter-search {
+    border-radius: var(--radius-full);
+    padding-inline: 1em;
+  }
+
+  .filter-toggle {
+    display: flex;
+  }
+
+  /* initFilters animates the height between these two states */
+  .filter-panel-collapse {
+    grid-column: 1 / -1;
+    overflow: hidden;
+  }
+
+  /* visibility also takes the folded filters out of the tab order; its
+     transition keeps them painted while the close animation runs */
+  .filter-toggle[aria-expanded="false"] + .filter-panel-collapse {
+    height: 0;
+    visibility: hidden;
+    transition: visibility var(--duration-300);
+  }
+
+  /* A card under the row, with the count and Clear sharing its last line */
+  .filter-panel-body {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-auto-flow: row dense;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+    padding: var(--space-md);
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-lg);
+  }
+
+  .filter-panel-body > * {
+    grid-column: 1 / -1;
+  }
+
+  .filter-panel-body > .filter-clear {
+    grid-column: 2;
+  }
+
+  .filter-panel-body > .filter-result-count {
+    grid-column: 1;
+    align-self: center;
+    padding-top: 0;
+  }
+
+  .filter-radios {
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: var(--space-md);
   }
 }
 
@@ -589,7 +717,8 @@
   transition: background-color var(--duration-200) ease;
 }
 
-.post-list-item:first-child {
+.post-list-item:first-child,
+.post-list-group + .post-list-item {
   background-image:
     linear-gradient(90deg, transparent, var(--color-border) 15%, var(--color-border) 85%, transparent),
     linear-gradient(90deg, transparent, var(--color-border) 15%, var(--color-border) 85%, transparent);
@@ -599,6 +728,22 @@
 
 .post-list-item:hover {
   background-color: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg));
+}
+
+/* Topic heading in a grouped list (Notes), styled like the tag page sections */
+.post-list-group {
+  padding-top: var(--space-lg);
+}
+
+.post-list-group:first-child {
+  padding-top: 0;
+}
+
+.post-list-group h2 {
+  font-size: var(--fs-lg);
+  margin-top: 0;
+  margin-bottom: var(--space-sm);
+  color: var(--color-accent);
 }
 
 .post-link {
@@ -618,20 +763,38 @@
   transition: color var(--duration-150) ease;
 }
 
-.post-link:hover .post-title {
+/* A stretched item is one link, so the title stays lit while the pointer is
+   on a tag inside it */
+.post-link:hover .post-title,
+.post-list-item--stretched:hover .post-title {
   color: var(--color-accent);
 }
 
-.post-date {
-  font-size: var(--fs-sm);
+/* Date, with the read time under it (blog listing) */
+.post-when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.post-date,
+.post-read-time,
+.post-when-separator {
+  font-size: var(--text-meta);
   color: var(--color-text-muted);
   white-space: nowrap;
   font-family: var(--font-heading);
 }
 
+/* Only shown when the read time sits beside the date, on phones */
+.post-when-separator {
+  display: none;
+  opacity: 0.4;
+}
+
 .post-excerpt {
   color: var(--color-text-muted);
-  font-size: var(--fs-sm);
+  font-size: var(--text-description);
   margin: var(--space-xs) 0 0;
   line-height: var(--leading-body);
 }
@@ -647,6 +810,34 @@
   inset: 0;
 }
 
+.post-list-tags {
+  display: flex;
+  gap: 0.4em;
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+}
+
+/* Keep tag links clickable above the stretched link */
+.post-list-item--stretched .post-list-tags a {
+  position: relative;
+  z-index: 1;
+}
+
+/* Series and part above a post's title, in the series' colour; it sits above
+   the stretched link too */
+.post-series-label {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  margin-bottom: 0.15em;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.post-series-label:hover {
+  text-decoration: underline;
+}
+
 /* Large variant: roomier items with bigger titles (blog listing) */
 .post-list--lg .post-list-item {
   padding: var(--space-md) var(--space-sm);
@@ -655,6 +846,16 @@
 .post-list--lg .post-title {
   font-size: var(--fs-md);
 }
+
+/* Date and read time as one tight block, centred on the title's first line,
+   so nothing sits beside the description */
+.post-list--lg .post-when:has(.post-read-time) {
+  align-self: flex-start;
+  justify-content: center;
+  height: calc(var(--fs-md) * var(--leading-body));
+  line-height: 1.25;
+}
+
 
 /* === TAG/TYPE SECTIONS (tag pages + search results) === */
 .tag-section {
@@ -681,5 +882,23 @@
 
   .post-date {
     white-space: normal;
+  }
+
+  /* Read time beside the date, on the same line */
+  .post-when {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4em;
+  }
+
+  .post-list--lg .post-when:has(.post-read-time) {
+    justify-content: normal;
+    height: auto;
+    line-height: inherit;
+  }
+
+  .post-when-separator {
+    display: inline;
   }
 }

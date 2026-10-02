@@ -1,5 +1,12 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+import { partLabel, postSeries, seriesColors } from '../lib/series';
+
+// A series post's label above its title, as in the blog list
+function seriesLabel(id: string) {
+  const series = postSeries(id);
+  return series && { label: partLabel(series), url: `/blog/?series=${series.id}`, style: seriesColors(series.id) };
+}
 
 export const GET: APIRoute = async () => {
   const [blog, notes, projects] = await Promise.all([
@@ -12,6 +19,7 @@ export const GET: APIRoute = async () => {
     ...blog.map((post) => ({
       type: 'blog' as const,
       title: post.data.title,
+      series: seriesLabel(post.id),
       description: post.data.description,
       date: post.data.date.toISOString(),
       tags: post.data.tags,
@@ -23,6 +31,7 @@ export const GET: APIRoute = async () => {
       description: note.data.description,
       date: note.data.date.toISOString(),
       tags: note.data.tags,
+      aliases: note.data.aliases,
       url: `/notes/${note.id}/`,
     })),
     ...projects.map((project) => ({

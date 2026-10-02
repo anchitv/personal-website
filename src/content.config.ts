@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 import { isTag, sortTags } from './lib/tags';
+import { isTopic } from './lib/topics';
 
 const tagSlug = z
   .string()
@@ -28,6 +29,10 @@ const notes = defineCollection({
     title: z.string(),
     date: z.coerce.date(),
     description: z.string().optional(),
+    // The heading the note is grouped under on the Notes page
+    topic: z.string().refine(isTopic, { error: (issue) => `Unknown topic "${issue.input}": add it to src/lib/topics.ts` }),
+    // Other terms readers might search for; each one is also a glossary entry
+    aliases: z.array(z.string()).default([]),
     tags,
     draft: z.boolean().default(false),
   }),

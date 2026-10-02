@@ -46,6 +46,10 @@ import HeaderRule from '../components/HeaderRule.astro';
     description?: string;
     date?: string;
     tags: string[];
+    /** Notes only: extra terms to match */
+    aliases?: string[];
+    /** Series posts: the label above the title, its filter link and colours */
+    series?: { label: string; url: string; style: string };
     url: string;
   }
 
@@ -112,6 +116,15 @@ import HeaderRule from '../components/HeaderRule.astro';
         li.setAttribute('data-reveal', '');
         li.style.setProperty('--delay', `${100 * i}ms`);
 
+        if (item.series) {
+          const label = document.createElement('a');
+          label.href = item.series.url;
+          label.className = 'post-series-label caps-label';
+          label.setAttribute('style', item.series.style);
+          label.textContent = item.series.label;
+          li.appendChild(label);
+        }
+
         const link = document.createElement('a');
         link.href = item.url;
         link.className = 'post-link';
@@ -167,8 +180,10 @@ import HeaderRule from '../components/HeaderRule.astro';
     const filtered = entries.filter((entry) => {
       const haystack = [
         entry.title,
+        entry.series?.label ?? '',
         entry.description ?? '',
         ...entry.tags,
+        ...(entry.aliases ?? []),
         entry.type,
       ]
         .join(' ')

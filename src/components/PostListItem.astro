@@ -1,5 +1,7 @@
 ---
+import TagPill from './TagPill.astro';
 import { formatDate } from '../lib/formatDate';
+import { partLabel, seriesColors, type PostSeries } from '../lib/series';
 
 interface Props {
   href: string;
@@ -7,6 +9,12 @@ interface Props {
   date?: Date;
   dateStyle?: 'long' | 'short';
   description?: string;
+  /** e.g. "5 min read"; shown with the date */
+  readTime?: string;
+  tags?: string[];
+  /** A series post's place in it, shown above the title, e.g. "Homelab · Part 4",
+      as a link to the blog filtered to that series */
+  series?: PostSeries;
   /** Make the whole list item the click target */
   stretched?: boolean;
   class?: string;
@@ -19,6 +27,9 @@ const {
   date,
   dateStyle = 'short',
   description,
+  readTime,
+  tags = [],
+  series,
   stretched = false,
   class: className,
   ...rest
@@ -34,11 +45,25 @@ const attrs = Object.fromEntries(
   class:list={['post-list-item', stretched && 'post-list-item--stretched', className]}
   {...attrs}
 >
+  {series && (
+    <a href={`/blog/?series=${series.id}`} class="post-series-label caps-label" style={seriesColors(series.id)}>{partLabel(series)}</a>
+  )}
   <a href={href} class:list={['post-link', stretched && 'post-link--stretched']}>
     <span class="post-title">{title}</span>
     {date && (
-      <time datetime={date.toISOString()} class="post-date">{formatDate(date, dateStyle)}</time>
+      <span class="post-when">
+        <time datetime={date.toISOString()} class="post-date">{formatDate(date, dateStyle)}</time>
+        {readTime && <span class="post-when-separator" aria-hidden="true">&middot;</span>}
+        {readTime && <span class="post-read-time">{readTime}</span>}
+      </span>
     )}
   </a>
   {description && <p class="post-excerpt">{description}</p>}
+  {tags.length > 0 && (
+    <div class="post-list-tags">
+      {tags.map((tag) => (
+        <TagPill tag={tag} />
+      ))}
+    </div>
+  )}
 </li>

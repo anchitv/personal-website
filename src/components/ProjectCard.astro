@@ -131,7 +131,9 @@ const shortDate = formatDate(date, 'month-year');
     transition: color var(--duration-150) ease;
   }
 
-  .card-title a:hover {
+  /* The whole card is the title link, so the title stays lit while the
+     pointer is on a tag or link pill inside it */
+  .project-card:hover .card-title a {
     color: var(--color-accent);
   }
 
@@ -152,18 +154,18 @@ const shortDate = formatDate(date, 'month-year');
   .card-date {
     display: block;
     font-family: var(--font-heading);
-    font-size: var(--fs-xs);
+    font-size: var(--text-meta);
     color: var(--color-text-muted);
     margin-bottom: var(--space-xs);
   }
 
   .card-description {
     color: var(--color-text-muted);
-    font-size: var(--fs-sm);
+    font-size: var(--text-description);
     line-height: var(--leading-body);
     margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

@@ -45,6 +45,15 @@
   --fs-2xl: clamp(2.125rem, 0.94vi + 1.83rem, 2.5rem);
   --fs-3xl: clamp(2.5rem, 1.46vi + 2.04rem, 3rem);
 
+  /* === TEXT ROLES ===
+   * What a size is for. Components use a role rather than a step on the
+   * scale, so changing a role updates every place that shares it. Add one
+   * only when two or more places share it; one-offs use the scale directly.
+   */
+  --text-description: var(--fs-base); /* one-line summaries: cards, lists, page intros */
+  --text-meta: var(--fs-sm);          /* dates, read times */
+  --text-label: var(--fs-xs);         /* small caps labels, see .caps-label */
+
   /* === LINE HEIGHT === */
   --leading-body: 1.65;
   --leading-heading: 1.2;
@@ -86,6 +95,25 @@
   --color-tag-hover: #843858;
   --color-tag-text: #faf9f5;
   --color-tag-dark-bg: #6b2d48;
+
+  /* === SERIES COLORS (one pair per colour in SERIES_COLORS, src/lib/series.ts; ≥4.5:1 on --color-bg) === */
+  --color-series-teal: #0a6d6a;
+  --color-series-teal-hover: #065755;
+  /* Optional lighter shade for tints and borders, for colours that must be deep
+     to pass as text but look heavy as a fill; others fall back to the base colour */
+  --color-series-teal-surface: #15a09c;
+  --color-series-violet: #6539a9;
+  --color-series-violet-hover: #522292;
+  --color-series-terracotta: #933610;
+  --color-series-terracotta-hover: #75290b;
+  --color-series-orchid: #892783;
+  --color-series-orchid-hover: #71106c;
+
+  /* How strongly series UI is tinted (see seriesColors in src/lib/series.ts) */
+  --series-tint: 12%;
+  --series-tint-hover: 18%;
+  --series-edge: 60%;
+
 
   /* Darkened variants for body-size text on --color-bg (≥4.5:1);
      used for active nav links, where the base accents fall short */
@@ -147,6 +175,21 @@ html.dark {
   --color-tag-hover: #d8b4c0;
   --color-tag-text: #faf9f5;
   --color-tag-dark-bg: #6b2d48;
+
+  --color-series-teal: #6cc2bd;
+  --color-series-teal-hover: #93d4d0;
+  --color-series-teal-surface: var(--color-series-teal);
+  --color-series-violet: #b49ae0;
+  --color-series-violet-hover: #cbb8ec;
+  --color-series-terracotta: #e89b80;
+  --color-series-terracotta-hover: #fbb49b;
+  --color-series-orchid: #d59acf;
+  --color-series-orchid-hover: #e9b2e3;
+
+  --series-tint: 6%;
+  --series-tint-hover: 12%;
+  --series-edge: 35%;
+
 
   /* Dark-mode accents already pass at body size */
   --color-blog-strong: var(--color-blog);

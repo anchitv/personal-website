@@ -10,7 +10,7 @@ const { class: className, label, ...rest } = Astro.props;
 ---
 <div class:list={['divider', className]} aria-hidden={label ? undefined : 'true'} {...rest}>
   <span class="divider-line"></span>
-  {label ? <span class="divider-label">{label}</span> : <span class="divider-diamond"></span>}
+  {label ? <span class="divider-label caps-label">{label}</span> : <span class="divider-diamond"></span>}
   <span class="divider-line"></span>
 </div>
 
@@ -37,11 +37,6 @@ const { class: className, label, ...rest } = Astro.props;
 
   .divider-label {
     flex-shrink: 0;
-    font-family: var(--font-heading);
-    font-size: var(--fs-xs);
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
     color: var(--color-accent);
   }
 </style>
