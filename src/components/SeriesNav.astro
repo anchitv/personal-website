@@ -1,0 +1,203 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { seriesColors, seriesName, seriesOutline, type SeriesItem, type SeriesPart } from '../lib/series';
+
+interface Props {
+  /** Series slug */
+  id: string;
+  /** Published posts */
+  posts: CollectionEntry<'blog'>[];
+  /** id of the post being shown */
+  current: string;
+}
+
+const { id, posts, current } = Astro.props;
+
+const outline = seriesOutline(id);
+const published = new Map(posts.map((post) => [post.id, post]));
+// Readers only see published parts: drafts keep their number but stay hidden
+const readable = outline.parts.filter((part) => published.has(part.post));
+const shownItems = outline.items.flatMap((item): SeriesItem[] => {
+  if (!('parts' in item)) return published.has(item.post) ? [item] : [];
+  const parts = item.parts.filter((part) => published.has(part.post));
+  return parts.length > 0 ? [{ ...item, parts }] : [];
+});
+const index = readable.findIndex((part) => part.post === current);
+const prev = readable[index - 1];
+const next = readable[index + 1];
+
+const titleOf = (part: SeriesPart) => published.get(part.post)!.data.title;
+const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
+---
+
+<nav class="series-nav" aria-label={`${seriesName(id)} series`} style={seriesColors(id)}>
+  {(prev || next) && (
+    <div class="series-cards">
+      {prev && (
+        <a href={hrefOf(prev)} rel="prev" class="series-card">
+          <span class="caps-label">&larr; Previous &middot; Part {prev.number}</span>
+          <span class="series-card-title">{titleOf(prev)}</span>
+          <span class="series-card-description">{published.get(prev.post)!.data.description}</span>
+        </a>
+      )}
+      {next && (
+        <a href={hrefOf(next)} rel="next" class="series-card series-card--next">
+          <span class="caps-label">Next &middot; Part {next.number} &rarr;</span>
+          <span class="series-card-title">{titleOf(next)}</span>
+          <span class="series-card-description">{published.get(next.post)!.data.description}</span>
+        </a>
+      )}
+    </div>
+  )}
+
+  <!-- Every published part, so readers can jump anywhere in the series -->
+  <details class="series-all">
+    <summary class="caps-label">All {shownItems.length} parts</summary>
+    <ol class="series-all-list">
+      {shownItems.map((item) =>
+        'parts' in item ? (
+          <li>
+            <span class="series-all-number">{item.number}</span>
+            <span class="series-all-group">{item.title}</span>
+            <ol class="series-all-list series-all-list--sub">
+              {item.parts.map((part) => (
+                <li>
+                  <span class="series-all-number">{part.number}</span>
+                  {part.post === current ? (
+                    <span class="series-all-current" aria-current="page">{titleOf(part)}</span>
+                  ) : (
+                    <a href={hrefOf(part)}>{titleOf(part)}</a>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </li>
+        ) : (
+          <li>
+            <span class="series-all-number">{item.number}</span>
+            {item.post === current ? (
+              <span class="series-all-current" aria-current="page">{titleOf(item)}</span>
+            ) : (
+              <a href={hrefOf(item)}>{titleOf(item)}</a>
+            )}
+          </li>
+        ),
+      )}
+    </ol>
+  </details>
+</nav>
+
+<style>
+  .series-nav {
+    margin-top: var(--space-xl);
+  }
+
+  .series-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+
+  .series-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid color-mix(in srgb, var(--color-series-surface) var(--series-edge), var(--color-border));
+    border-radius: var(--radius-xl);
+    background-color: color-mix(in srgb, var(--color-series-surface) var(--series-tint), var(--color-bg));
+    text-decoration: none;
+    transition: border-color var(--duration-200) ease, background-color var(--duration-200) ease, transform var(--duration-200) ease;
+  }
+
+  .series-card:hover {
+    border-color: var(--color-accent);
+    background-color: color-mix(in srgb, var(--color-series-surface) var(--series-tint-hover), var(--color-bg));
+    transform: translateY(-2px);
+  }
+
+  /* Next stays on the right even when there is no previous part */
+  .series-card--next {
+    grid-column: 2;
+    text-align: right;
+  }
+
+  .series-card-title {
+    font-family: var(--font-heading);
+    font-size: var(--fs-base);
+    font-weight: 600;
+    color: var(--color-text-heading);
+    line-height: var(--leading-heading);
+  }
+
+  .series-card-description {
+    font-size: var(--text-description);
+    color: var(--color-text-muted);
+  }
+
+  /* === ALL PARTS === */
+  .series-all {
+    margin-top: var(--space-md);
+  }
+
+  .series-all summary {
+    cursor: pointer;
+    color: var(--color-accent);
+    width: fit-content;
+  }
+
+  .series-all-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-sm) 0 0;
+    font-family: var(--font-heading);
+    font-size: var(--fs-sm);
+  }
+
+  .series-all-list li {
+    margin: 0;
+    padding: 0.15em 0;
+  }
+
+  /* Numbers in a fixed column, so the titles line up */
+  .series-all-number {
+    display: inline-block;
+    min-width: 2.5em;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .series-all-list--sub {
+    margin: 0.15em 0 0 2.5em;
+  }
+
+  .series-all-group {
+    color: var(--color-text-heading);
+  }
+
+  .series-all-list a {
+    color: var(--color-text-heading);
+    text-decoration: none;
+  }
+
+  .series-all-list a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
+  .series-all-current {
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  /* Phones: too narrow for two cards, so they stack */
+  @media (max-width: 480px) {
+    .series-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .series-card--next {
+      grid-column: 1;
+    }
+  }
+</style>

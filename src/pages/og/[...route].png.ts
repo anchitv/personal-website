@@ -2,6 +2,7 @@ import type { APIRoute, GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import { renderOgImage } from '../../og/render';
 import type { OgProps } from '../../og/template';
+import { postTitle } from '../../lib/series';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const [blog, notes, projects] = await Promise.all([
@@ -13,7 +14,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   return [
     ...blog.map((post) => ({
       params: { route: `blog/${post.id}` },
-      props: { title: post.data.title, description: post.data.description, kind: 'blog' } satisfies OgProps,
+      props: { title: postTitle(post), description: post.data.description, kind: 'blog' } satisfies OgProps,
     })),
     ...notes.map((note) => ({
       params: { route: `notes/${note.id}` },
