@@ -1,9 +1,10 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import { unified } from '@astrojs/markdown-remark';
+import { rehypeHeadingIds, unified } from '@astrojs/markdown-remark';
 import { FontaineTransform } from 'fontaine';
 import { partRefs, remarkPartRefs } from './src/remark-part-refs.mjs';
 import { remarkReadingTime } from './src/remark-reading-time.mjs';
+import { rehypeHeadingLinks } from './src/rehype-heading-links.mjs';
 
 export default defineConfig({
   site: 'https://anchitverma.com',
@@ -23,6 +24,8 @@ export default defineConfig({
     processor: unified({
       // Part numbers first, so the read time counts them as written out
       remarkPlugins: [[remarkPartRefs, partRefs()], remarkReadingTime],
+      // Astro adds heading ids after these plugins; run it first so the links have ids to point at
+      rehypePlugins: [rehypeHeadingIds, rehypeHeadingLinks],
     }),
   },
   vite: {

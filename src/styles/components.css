@@ -630,11 +630,26 @@ html:not(.dark) .link-pill svg {
   color: var(--color-accent);
 }
 
-.post-date {
+/* Date, with the read time under it (blog listing) */
+.post-when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.post-date,
+.post-read-time,
+.post-when-separator {
   font-size: var(--text-meta);
   color: var(--color-text-muted);
   white-space: nowrap;
   font-family: var(--font-heading);
+}
+
+/* Only shown when the read time sits beside the date, on phones */
+.post-when-separator {
+  display: none;
+  opacity: 0.4;
 }
 
 .post-excerpt {
@@ -692,6 +707,16 @@ html:not(.dark) .link-pill svg {
   font-size: var(--fs-md);
 }
 
+/* Date and read time as one tight block, centred on the title's first line,
+   so nothing sits beside the description */
+.post-list--lg .post-when:has(.post-read-time) {
+  align-self: flex-start;
+  justify-content: center;
+  height: calc(var(--fs-md) * var(--leading-body));
+  line-height: 1.25;
+}
+
+
 /* === TAG/TYPE SECTIONS (tag pages + search results) === */
 .tag-section {
   margin-top: var(--space-lg);
@@ -717,5 +742,23 @@ html:not(.dark) .link-pill svg {
 
   .post-date {
     white-space: normal;
+  }
+
+  /* Read time beside the date, on the same line */
+  .post-when {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4em;
+  }
+
+  .post-list--lg .post-when:has(.post-read-time) {
+    justify-content: normal;
+    height: auto;
+    line-height: inherit;
+  }
+
+  .post-when-separator {
+    display: inline;
   }
 }
