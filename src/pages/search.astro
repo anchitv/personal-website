@@ -46,6 +46,8 @@ import HeaderRule from '../components/HeaderRule.astro';
     description?: string;
     date?: string;
     tags: string[];
+    /** Notes only: extra terms to match */
+    aliases?: string[];
     /** Series posts: the label above the title, its filter link and colours */
     series?: { label: string; url: string; style: string };
     url: string;
@@ -181,6 +183,7 @@ import HeaderRule from '../components/HeaderRule.astro';
         entry.series?.label ?? '',
         entry.description ?? '',
         ...entry.tags,
+        ...(entry.aliases ?? []),
         entry.type,
       ]
         .join(' ')

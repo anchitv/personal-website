@@ -1,0 +1,66 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HeaderRule from '../../components/HeaderRule.astro';
+
+const notes = await getCollection('notes', ({ data }) => !data.draft);
+
+// Sorting and letters skip leading punctuation, so ".gitignore" files under G
+const sortKey = (term: string) => term.replace(/^[^\p{L}\p{N}]+/u, '');
+
+const terms = notes
+  .flatMap((note) => note.data.aliases.map((term) => ({ term, note })))
+  .sort((a, b) => sortKey(a.term).localeCompare(sortKey(b.term), 'en', { sensitivity: 'base', numeric: true }));
+
+const letters = new Map<string, typeof terms>();
+for (const entry of terms) {
+  const first = sortKey(entry.term).charAt(0).toUpperCase();
+  const letter = /\p{L}/u.test(first) ? first : '#';
+  letters.set(letter, [...(letters.get(letter) ?? []), entry]);
+}
+---
+
+<BaseLayout
+  title="Glossary | Anchit Verma"
+  description="Every term my notes cover, A to Z, with a link to the note that explains it."
+>
+  <section class="listing-container accent-notes">
+    <div class="page-header reveal" style="--delay: 0ms">
+      <h1>Glossary</h1>
+      <p class="page-intro">Every term my <a href="/notes/">notes</a> cover, A to Z. Each one links to the note that explains it.</p>
+      <HeaderRule accent />
+    </div>
+
+    {[...letters].map(([letter, entries]) => (
+      <div class="tag-section tag-section--notes" data-reveal>
+        <h2 id={letter === '#' ? 'symbols' : letter.toLowerCase()}>{letter}</h2>
+        <ul class="post-list">
+          {entries.map(({ term, note }) => (
+            <li class="post-list-item post-list-item--stretched">
+              <a href={`/notes/${note.id}/`} class="post-link post-link--stretched">
+                <span class="post-title">{term}</span>
+                <span class="glossary-note">{note.data.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </section>
+</BaseLayout>
+
+<style>
+  /* The note's title sits where a listing shows the date */
+  .glossary-note {
+    font-family: var(--font-heading);
+    font-size: var(--text-meta);
+    color: var(--color-text-muted);
+    text-align: right;
+  }
+
+  @media (max-width: 480px) {
+    .glossary-note {
+      text-align: left;
+    }
+  }
+</style>

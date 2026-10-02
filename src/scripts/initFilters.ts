@@ -1,5 +1,6 @@
 interface FilterConfig {
-  itemsPerPage: number;
+  /** Omit to show every item on one page */
+  itemsPerPage?: number;
   itemLabel: string;
   listSelector?: string;
   itemSelector?: string;
@@ -47,6 +48,9 @@ export function initFilters(config: FilterConfig) {
   const items = Array.from(list.querySelectorAll(itemSelector));
   const searchInput = document.querySelector<HTMLInputElement>('[data-filter-search]');
   const yearSelect = document.querySelector<HTMLSelectElement>('[data-filter-year]');
+  const sortSelect = document.querySelector<HTMLSelectElement>('[data-filter-sort]');
+  // Headings for the "group" sort, in display order; items name theirs in data-group
+  const groupHeadings = Array.from(list.querySelectorAll<HTMLElement>('[data-group-heading]'));
   const tagButtons = Array.from(document.querySelectorAll('[data-filter-tags] .filter-tag'));
   const seriesButtons = Array.from(document.querySelectorAll<HTMLElement>('[data-filter-series] .filter-tag'));
   const clearBtn = document.querySelector('[data-filter-clear]');
@@ -73,15 +77,18 @@ export function initFilters(config: FilterConfig) {
   const seriesOrder = (el: Element) => Number((el as HTMLElement).dataset.seriesOrder);
 
   function getFiltered(includeSearch = true) {
-    const query = includeSearch ? (searchInput?.value || '').toLowerCase().trim() : '';
+    const terms = includeSearch ? (searchInput?.value || '').toLowerCase().split(/\s+/).filter(Boolean) : [];
     const year = yearSelect?.value || '';
 
     return items.filter((item) => {
       const el = item as HTMLElement;
-      if (query) {
-        const title = (el.dataset.title || '').toLowerCase();
-        const desc = (el.dataset.description || '').toLowerCase();
-        if (!title.includes(query) && !(hasDescription && desc.includes(query))) return false;
+      // Every word has to match somewhere, in any order
+      if (terms.length > 0) {
+        const haystack = [el.dataset.title, hasDescription && el.dataset.description, el.dataset.aliases]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        if (!terms.every((term) => haystack.includes(term))) return false;
       }
       if (activeTags.length > 0) {
         const itemTags = (el.dataset.tags || '').split(',');
@@ -97,28 +104,64 @@ export function initFilters(config: FilterConfig) {
     });
   }
 
+  const titleOf = (el: Element) => (el as HTMLElement).dataset.title || '';
+  const dateOf = (el: Element) => (el as HTMLElement).dataset.date || '';
+  const groupIndex = (el: Element) =>
+    groupHeadings.findIndex((heading) => heading.dataset.groupHeading === (el as HTMLElement).dataset.group);
+  const byTitle = (a: Element, b: Element) =>
+    titleOf(a).localeCompare(titleOf(b), 'en', { sensitivity: 'base', numeric: true });
+
+  // Ties fall back to title order, so items with the same date don't shuffle
+  function sortItems(filtered: Element[], sort: string) {
+    if (sort === 'newest') filtered.sort((a, b) => dateOf(b).localeCompare(dateOf(a)) || byTitle(a, b));
+    else if (sort === 'oldest') filtered.sort((a, b) => dateOf(a).localeCompare(dateOf(b)) || byTitle(a, b));
+    else if (sort === 'group') filtered.sort((a, b) => groupIndex(a) - groupIndex(b) || byTitle(a, b));
+    else filtered.sort(byTitle);
+  }
+
+  // Puts the shown items in order, with each group's heading before its
+  // first item, and moves everything hidden to the end. The first item shown
+  // then stays the list's first child and keeps its top rule
+  function arrange(visibleArr: Element[]) {
+    const grouped = sortSelect!.value === 'group';
+    const shown: Element[] = [];
+    for (const item of visibleArr) {
+      const heading = grouped && groupHeadings[groupIndex(item)];
+      if (heading && !shown.includes(heading)) shown.push(heading);
+      shown.push(item);
+    }
+    groupHeadings.forEach((heading) => {
+      heading.style.display = shown.includes(heading) ? '' : 'none';
+    });
+    list!.append(...shown, ...[...items, ...groupHeadings].filter((el) => !shown.includes(el)));
+  }
+
   function render() {
     const filtered = getFiltered();
 
-    // A series reads in part order; everything else stays newest first
+    // A series reads in part order; the Sort by menu orders the rest, and
+    // without one everything stays newest first
     if (activeSeries) {
       filtered.sort((a, b) => seriesOrder(a) - seriesOrder(b));
       list!.append(...filtered);
+    } else if (sortSelect) {
+      sortItems(filtered, sortSelect.value);
     } else if (seriesButtons.length > 0) {
       list!.append(...items);
     }
 
-    const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+    const totalPages = itemsPerPage ? Math.max(1, Math.ceil(filtered.length / itemsPerPage)) : 1;
     if (currentPage > totalPages) currentPage = totalPages;
 
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    const visibleArr = filtered.slice(start, end);
+    const start = itemsPerPage ? (currentPage - 1) * itemsPerPage : 0;
+    const visibleArr = itemsPerPage ? filtered.slice(start, start + itemsPerPage) : filtered;
     const visibleSet = new Set(visibleArr);
 
     items.forEach((item) => {
       (item as HTMLElement).style.display = visibleSet.has(item) ? '' : 'none';
     });
+
+    if (sortSelect) arrange(visibleArr);
 
     if (!isFirstRender) {
       visibleArr.forEach((item, i) => {
@@ -201,6 +244,7 @@ export function initFilters(config: FilterConfig) {
   // Event listeners
   searchInput?.addEventListener('input', () => { currentPage = 1; render(); });
   yearSelect?.addEventListener('change', () => { currentPage = 1; render(); });
+  sortSelect?.addEventListener('change', () => { currentPage = 1; render(); });
 
   tagButtons.forEach((btn) => {
     btn.addEventListener('click', () => {

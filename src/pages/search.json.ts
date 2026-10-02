@@ -31,6 +31,7 @@ export const GET: APIRoute = async () => {
       description: note.data.description,
       date: note.data.date.toISOString(),
       tags: note.data.tags,
+      aliases: note.data.aliases,
       url: `/notes/${note.id}/`,
     })),
     ...projects.map((project) => ({
