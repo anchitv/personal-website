@@ -121,6 +121,40 @@ pre code {
   border-radius: 0;
 }
 
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-md);
+  font-size: 0.9em;
+}
+
+th,
+td {
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+th:first-child,
+td:first-child {
+  padding-left: 0;
+}
+
+th {
+  font-family: var(--font-heading);
+  font-size: var(--text-meta);
+  font-weight: 600;
+  color: var(--color-text-heading);
+}
+
+/* Long hostnames past the first column wrap, so a table never widens the
+   page on phones; the first column keeps each row's name whole */
+td + td code {
+  overflow-wrap: anywhere;
+}
+
 /* Links */
 a {
   color: var(--color-accent);
@@ -183,4 +217,16 @@ html.dark .astro-code span {
   color: var(--color-text-muted);
   opacity: 0.6;
   text-transform: lowercase;
+}
+
+/* === CAPS LABEL ===
+ * The small uppercase label above titles, on cards and in sidebars.
+ * Colour, spacing and layout stay with each component.
+ */
+.caps-label {
+  font-family: var(--font-heading);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
