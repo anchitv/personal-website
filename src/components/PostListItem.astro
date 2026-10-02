@@ -1,4 +1,5 @@
 ---
+import TagPill from './TagPill.astro';
 import { formatDate } from '../lib/formatDate';
 
 interface Props {
@@ -7,6 +8,7 @@ interface Props {
   date?: Date;
   dateStyle?: 'long' | 'short';
   description?: string;
+  tags?: string[];
   /** Make the whole list item the click target */
   stretched?: boolean;
   class?: string;
@@ -19,6 +21,7 @@ const {
   date,
   dateStyle = 'short',
   description,
+  tags = [],
   stretched = false,
   class: className,
   ...rest
@@ -41,4 +44,11 @@ const attrs = Object.fromEntries(
     )}
   </a>
   {description && <p class="post-excerpt">{description}</p>}
+  {tags.length > 0 && (
+    <div class="post-list-tags">
+      {tags.map((tag) => (
+        <TagPill tag={tag} />
+      ))}
+    </div>
+  )}
 </li>

@@ -28,6 +28,8 @@ interface Props {
   dateStyle: 'long' | 'short';
   /** Show descriptions as excerpts and include them in search */
   showDescriptions?: boolean;
+  /** Show each entry's tags as pills */
+  showTags?: boolean;
 }
 
 const {
@@ -42,6 +44,7 @@ const {
   itemLabel,
   dateStyle,
   showDescriptions = false,
+  showTags = false,
 } = Astro.props;
 
 const allTags = [...new Set(entries.flatMap((e) => e.data.tags || []))].sort();
@@ -78,6 +81,7 @@ const allYears = [...new Set(entries.map((e) => e.data.date.getFullYear()))].sor
             date={entry.data.date}
             dateStyle={dateStyle}
             description={showDescriptions ? entry.data.description : undefined}
+            tags={showTags ? entry.data.tags : undefined}
             stretched
             class="reveal"
             style={`--delay: ${15 * i}ms`}
