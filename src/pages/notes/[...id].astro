@@ -1,8 +1,11 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Divider from '../../components/Divider.astro';
 import HeadingLinks from '../../components/HeadingLinks.astro';
 import PostMeta from '../../components/PostMeta.astro';
+import { linkedNoteIds, linkSnippet } from '../../lib/noteLinks';
+import { partLabel, postSeries, seriesColors } from '../../lib/series';
 import { tagLabel } from '../../lib/tags';
 
 export async function getStaticPaths() {
@@ -16,6 +19,44 @@ export async function getStaticPaths() {
 const { note } = Astro.props;
 const { Content } = await render(note);
 const description = note.data.description ?? `${note.data.title} — a note by Anchit Verma`;
+
+const [allPosts, allNotes] = await Promise.all([
+  getCollection('blog', ({ data }) => !data.draft),
+  getCollection('notes', ({ data }) => !data.draft),
+]);
+// Posts that link here, newest first, each pointing at the section with the
+// link (recorded by src/rehype-note-sections.mjs)
+const mentionedIn = await Promise.all(
+  allPosts
+    .filter((post) => linkedNoteIds(post.body).includes(note.id))
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+    .map(async (post) => {
+      const { remarkPluginFrontmatter } = await render(post);
+      const section = remarkPluginFrontmatter.noteSections?.[note.id];
+      return {
+        href: `/blog/${post.id}/${section ? `#${section}` : ''}`,
+        title: post.data.title,
+        series: postSeries(post.id),
+        snippet: linkSnippet(post.id, post.body ?? '', note.id),
+      };
+    }),
+);
+// Two notes are related when they share a topic or either links to the
+// other, so if this note lists another, that one lists this note too. Linked
+// notes come first, then the rest of the topic, each A–Z. The page shows the
+// first four
+const byTitle = (a: (typeof allNotes)[number], b: (typeof allNotes)[number]) =>
+  a.data.title.localeCompare(b.data.title, 'en', { sensitivity: 'base' });
+const linksTo = linkedNoteIds(note.body);
+const otherNotes = allNotes.filter((other) => other.id !== note.id);
+const linkedNotes = otherNotes
+  .filter((other) => linksTo.includes(other.id) || linkedNoteIds(other.body).includes(note.id))
+  .sort(byTitle);
+const relatedNotes = [
+  ...linkedNotes,
+  ...otherNotes.filter((other) => other.data.topic === note.data.topic && !linkedNotes.includes(other)).sort(byTitle),
+];
+const shownNotes = relatedNotes.slice(0, 4);
 
 const ogImage = `/og/notes/${note.id}.png`;
 const canonical = new URL(`/notes/${note.id}/`, Astro.site).href;
@@ -57,6 +98,52 @@ const structuredData = {
     <Content />
     <HeadingLinks />
   </article>
+  <!-- Outside the article: it's navigation, and stays clear of the note's own heading styles -->
+  {(mentionedIn.length > 0 || relatedNotes.length > 0) && (
+    <aside class="note-links accent-notes" aria-label="Related pages">
+      <Divider class="note-links-divider" />
+      <!-- Mentioned in lists blog posts, so it takes the blog's colours -->
+      {mentionedIn.length > 0 && (
+        <section class="accent-blog" aria-labelledby="mentioned-in">
+          <h2 id="mentioned-in" class="caps-label">Mentioned in</h2>
+          <ul class="note-link-list">
+            {mentionedIn.map(({ href, title, series, snippet }) => (
+              <li>
+                <a href={href} class="note-link">
+                  {series && (
+                    <span class="mentioned-in-series caps-label" style={seriesColors(series.id)}>{partLabel(series)}</span>
+                  )}
+                  <span class="note-link-title">{title}</span>
+                  {snippet && (
+                    <q class="note-link-text mentioned-in-snippet">
+                      {snippet.map(({ text, kind }) =>
+                        kind === 'link' ? <mark>{text}</mark> : kind === 'code' ? <code>{text}</code> : text,
+                      )}
+                    </q>
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {relatedNotes.length > 0 && (
+        <section aria-labelledby="related-notes">
+          <h2 id="related-notes" class="caps-label">Related notes</h2>
+          <ul class="note-link-list related-notes">
+            {shownNotes.map((other) => (
+              <li>
+                <a href={`/notes/${other.id}/`} class="note-link">
+                  <span class="note-link-title">{other.data.title}</span>
+                  {other.data.description && <span class="note-link-text">{other.data.description}</span>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </aside>
+  )}
 </BaseLayout>
 
 <style>
@@ -67,5 +154,94 @@ const structuredData = {
 
   .prose :global(h3) {
     font-size: var(--fs-md);
+  }
+
+  /* Same column as the note above it */
+  .note-links {
+    max-width: var(--prose-width);
+    margin: var(--space-xl) auto 0;
+    padding: 0 var(--side-padding);
+  }
+
+  .note-links-divider {
+    margin-bottom: var(--space-lg);
+  }
+
+  .note-links section + section {
+    margin-top: var(--space-lg);
+  }
+
+  .note-links h2 {
+    margin: 0 0 var(--space-xs);
+    color: var(--color-text-muted);
+  }
+
+  .note-link-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Each entry is one link: a title with a muted line under it (the
+     sentence from a post, or a note's description). The negative margin
+     keeps the text in line with the headings while the hover tint gets room
+     around it */
+  .note-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+    margin-inline: calc(-1 * var(--space-sm));
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: background-color var(--duration-150) ease;
+  }
+
+  .note-link:hover {
+    background-color: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg));
+  }
+
+  .note-link-title {
+    font-family: var(--font-heading);
+    font-size: var(--fs-base);
+    font-weight: 600;
+    color: var(--color-text-heading);
+    line-height: var(--leading-heading);
+    transition: color var(--duration-150) ease;
+  }
+
+  .note-link:hover .note-link-title {
+    color: var(--color-accent);
+  }
+
+  /* Halfway between the small size and the title's, a touch under the title */
+  .note-link-text {
+    font-size: calc((var(--fs-sm) + var(--fs-base)) / 2);
+    color: var(--color-text-muted);
+  }
+
+  .mentioned-in-series {
+    color: var(--color-accent);
+  }
+
+  .mentioned-in-snippet mark {
+    padding: 0 0.15em;
+    border-radius: var(--radius-sm);
+    background-color: color-mix(in srgb, var(--color-accent) 18%, transparent);
+    color: var(--color-text);
+  }
+
+  /* Two columns, wide enough apart that the hover tints don't touch */
+  .related-notes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--space-lg);
+  }
+
+  /* Phones: too narrow for two columns, so they stack, as the series cards do */
+  @media (max-width: 480px) {
+    .related-notes {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
