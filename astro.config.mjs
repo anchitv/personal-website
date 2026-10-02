@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { unified } from '@astrojs/markdown-remark';
 import { FontaineTransform } from 'fontaine';
+import { partRefs, remarkPartRefs } from './src/remark-part-refs.mjs';
 import { remarkReadingTime } from './src/remark-reading-time.mjs';
 
 export default defineConfig({
@@ -19,7 +20,10 @@ export default defineConfig({
       },
       defaultColor: false,
     },
-    processor: unified({ remarkPlugins: [remarkReadingTime] }),
+    processor: unified({
+      // Part numbers first, so the read time counts them as written out
+      remarkPlugins: [[remarkPartRefs, partRefs()], remarkReadingTime],
+    }),
   },
   vite: {
     plugins: [

@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import sanitizeHtml from 'sanitize-html';
 import MarkdownIt from 'markdown-it';
 import type { APIContext } from 'astro';
+import { postTitle, writePartRefs } from '../lib/series';
 
 // @astrojs/rss requires pre-rendered HTML, so we use MarkdownIt instead of
 // Astro's render pipeline. This means Shiki syntax highlighting and remark
@@ -19,12 +20,17 @@ export async function GET(context: APIContext) {
     getCollection('notes', ({ data }) => !data.draft),
   ]);
 
+  // remark-part-refs doesn't run here either, so part mentions get written out
+  // first, linked when the part is published
+  const published = new Set(posts.map((post) => post.id));
+  const partLink = (part: { post: string }) => (published.has(part.post) ? `/blog/${part.post}/` : undefined);
+
   const blogItems = posts.map((post) => ({
-    title: post.data.title,
+    title: postTitle(post),
     pubDate: post.data.date,
     description: post.data.description,
     link: `/blog/${post.id}/`,
-    content: sanitizeHtml(parser.render(stripFrontmatter(post.body ?? '')), {
+    content: sanitizeHtml(parser.render(writePartRefs(post.id, stripFrontmatter(post.body ?? ''), partLink)), {
       allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
     }),
   }));

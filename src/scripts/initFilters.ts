@@ -28,13 +28,29 @@ export function initFilters(config: FilterConfig) {
   const searchInput = document.querySelector<HTMLInputElement>('[data-filter-search]');
   const yearSelect = document.querySelector<HTMLSelectElement>('[data-filter-year]');
   const tagButtons = Array.from(document.querySelectorAll('[data-filter-tags] .filter-tag'));
+  const seriesButtons = Array.from(document.querySelectorAll<HTMLElement>('[data-filter-series] .filter-tag'));
   const clearBtn = document.querySelector('[data-filter-clear]');
   const countEl = document.querySelector('[data-filter-count]');
   const paginationEl = document.querySelector('[data-pagination]');
 
   let activeTags: string[] = [];
+  let activeSeries = '';
   let currentPage = 1;
   let isFirstRender = true;
+
+  // Keeps ?series= in the URL in step with the Series filter, so the
+  // "<name> series" links elsewhere on the site open the listing filtered
+  function setSeries(id: string) {
+    activeSeries = id;
+    seriesButtons.forEach((btn) => btn.classList.toggle('is-active', btn.dataset.series === id));
+    const url = new URL(location.href);
+    if (id) url.searchParams.set('series', id);
+    else url.searchParams.delete('series');
+    history.replaceState(history.state, '', url);
+  }
+
+  // Reading order within a series, from its list in src/lib/series.ts
+  const seriesOrder = (el: Element) => Number((el as HTMLElement).dataset.seriesOrder);
 
   function getFiltered() {
     const query = (searchInput?.value || '').toLowerCase().trim();
@@ -51,6 +67,7 @@ export function initFilters(config: FilterConfig) {
         const itemTags = (el.dataset.tags || '').split(',');
         if (!activeTags.some((t) => itemTags.includes(t))) return false;
       }
+      if (activeSeries && el.dataset.series !== activeSeries) return false;
       if (year) {
         const itemDate = el.dataset.date || '';
         if (!itemDate.startsWith(year)) return false;
@@ -62,6 +79,15 @@ export function initFilters(config: FilterConfig) {
 
   function render() {
     const filtered = getFiltered();
+
+    // A series reads in part order; everything else stays newest first
+    if (activeSeries) {
+      filtered.sort((a, b) => seriesOrder(a) - seriesOrder(b));
+      list!.append(...filtered);
+    } else if (seriesButtons.length > 0) {
+      list!.append(...items);
+    }
+
     const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
     if (currentPage > totalPages) currentPage = totalPages;
 
@@ -167,11 +193,20 @@ export function initFilters(config: FilterConfig) {
     });
   });
 
+  seriesButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setSeries(activeSeries === btn.dataset.series ? '' : btn.dataset.series!);
+      currentPage = 1;
+      render();
+    });
+  });
+
   clearBtn?.addEventListener('click', () => {
     if (searchInput) searchInput.value = '';
     if (yearSelect) yearSelect.value = '';
     activeTags = [];
     tagButtons.forEach((btn) => btn.classList.remove('is-active'));
+    if (activeSeries) setSeries('');
     if (onClear) onClear();
     currentPage = 1;
     render();
@@ -187,6 +222,9 @@ export function initFilters(config: FilterConfig) {
     render();
     document.querySelector('.header-rule')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+
+  const seriesParam = new URLSearchParams(location.search).get('series');
+  if (seriesButtons.some((btn) => btn.dataset.series === seriesParam)) setSeries(seriesParam!);
 
   render();
 
