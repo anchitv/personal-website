@@ -5,6 +5,7 @@ import Divider from '../components/Divider.astro';
 import Avatar from '../components/Avatar.astro';
 import GitHubIcon from '../components/GitHubIcon.astro';
 import ObfuscatedEmail from '../components/ObfuscatedEmail.astro';
+import { postTitle } from '../lib/series';
 import { formatDate } from '../lib/formatDate';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
@@ -51,7 +52,7 @@ const structuredData = {
         <h1 class="hero-title reveal" style="--delay: 0ms">Writing about software, ideas and the things I'm building.</h1>
         {latestPosts[0] && (
           <a href={`/blog/${latestPosts[0].id}/`} class="hero-latest reveal" style="--delay: 80ms">
-            <span class="hero-latest-label">Latest:</span> {latestPosts[0].data.title} &rarr;
+            <span class="hero-latest-label">Latest:</span> {postTitle(latestPosts[0])} &rarr;
           </a>
         )}
         <div class="hero-links reveal" style="--delay: 120ms">
@@ -106,7 +107,7 @@ const structuredData = {
             latestPosts.map((post) => (
               <li class="preview-item">
                 <a href={`/blog/${post.id}/`} class="preview-link">
-                  <span class="preview-title">{post.data.title}</span>
+                  <span class="preview-title">{postTitle(post)}</span>
                   <span class="preview-meta">
                     {formatDate(post.data.date)}
                   </span>

@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import HeaderRule from '../../components/HeaderRule.astro';
 import PostListItem from '../../components/PostListItem.astro';
 import { tagLabel } from '../../lib/tags';
+import { postSeries } from '../../lib/series';
 
 export async function getStaticPaths() {
   const [blogEntries, noteEntries, projectEntries] = await Promise.all([
@@ -69,6 +70,7 @@ const sortedProjects = [...projects].sort((a, b) => b.data.date.valueOf() - a.da
             <PostListItem
               href={`/blog/${post.id}/`}
               title={post.data.title}
+              series={postSeries(post.id)}
               date={post.data.date}
               dateStyle="short"
               description={post.data.description}

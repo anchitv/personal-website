@@ -2,6 +2,7 @@
 import FilterPanel from './FilterPanel.astro';
 import HeaderRule from './HeaderRule.astro';
 import PostListItem from './PostListItem.astro';
+import { postSeries, postTitle } from '../lib/series';
 
 interface Entry {
   id: string;
@@ -49,6 +50,7 @@ const {
 
 const allTags = [...new Set(entries.flatMap((e) => e.data.tags || []))].sort();
 const allYears = [...new Set(entries.map((e) => e.data.date.getFullYear()))].sort((a, b) => b - a);
+const allSeries = [...new Set(entries.flatMap((e) => postSeries(e.id)?.id ?? []))].sort();
 ---
 
 <div
@@ -58,7 +60,7 @@ const allYears = [...new Set(entries.map((e) => e.data.date.getFullYear()))].sor
   data-item-label={itemLabel}
   data-has-description={showDescriptions ? 'true' : undefined}
 >
-  <FilterPanel idPrefix={accent} searchPlaceholder={searchPlaceholder} tags={allTags} years={allYears} />
+  <FilterPanel idPrefix={accent} searchPlaceholder={searchPlaceholder} tags={allTags} years={allYears} series={allSeries} />
 
   <section class="listing-section listing-container">
     <div class="page-header reveal" style="--delay: 0ms">
@@ -74,23 +76,29 @@ const allYears = [...new Set(entries.map((e) => e.data.date.getFullYear()))].sor
       </div>
     ) : (
       <ul class:list={['post-list', showDescriptions && 'post-list--lg']} data-list>
-        {entries.map((entry, i) => (
-          <PostListItem
-            href={`${basePath}/${entry.id}/`}
-            title={entry.data.title}
-            date={entry.data.date}
-            dateStyle={dateStyle}
-            description={showDescriptions ? entry.data.description : undefined}
-            tags={showTags ? entry.data.tags : undefined}
-            stretched
-            class="reveal"
-            style={`--delay: ${15 * i}ms`}
-            data-tags={(entry.data.tags || []).join(',')}
-            data-date={entry.data.date.toISOString().slice(0, 10)}
-            data-title={entry.data.title}
-            data-description={showDescriptions ? entry.data.description || '' : undefined}
-          />
-        ))}
+        {entries.map((entry, i) => {
+          const series = postSeries(entry.id);
+          return (
+            <PostListItem
+              href={`${basePath}/${entry.id}/`}
+              title={entry.data.title}
+              date={entry.data.date}
+              dateStyle={dateStyle}
+              description={showDescriptions ? entry.data.description : undefined}
+              tags={showTags ? entry.data.tags : undefined}
+              series={series}
+              stretched
+              class="reveal"
+              style={`--delay: ${15 * i}ms`}
+              data-tags={(entry.data.tags || []).join(',')}
+              data-series={series?.id}
+              data-series-order={series?.order}
+              data-date={entry.data.date.toISOString().slice(0, 10)}
+              data-title={postTitle(entry)}
+              data-description={showDescriptions ? entry.data.description || '' : undefined}
+            />
+          );
+        })}
       </ul>
     )}
 
