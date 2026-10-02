@@ -12,6 +12,8 @@ interface Entry {
     description?: string;
     tags: string[];
   };
+  /** e.g. "5 min read"; shown with the date when set */
+  readTime?: string;
 }
 
 interface Props {
@@ -84,6 +86,7 @@ const allSeries = [...new Set(entries.flatMap((e) => postSeries(e.id)?.id ?? [])
               title={entry.data.title}
               date={entry.data.date}
               dateStyle={dateStyle}
+              readTime={entry.readTime}
               description={showDescriptions ? entry.data.description : undefined}
               tags={showTags ? entry.data.tags : undefined}
               series={series}

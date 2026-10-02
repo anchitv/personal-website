@@ -1,8 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import HeadingLinks from '../../components/HeadingLinks.astro';
 import PostMeta from '../../components/PostMeta.astro';
 import SeriesNav from '../../components/SeriesNav.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
 import { tagLabel } from '../../lib/tags';
 import { checkSeries, postSeries, postTitle, seriesColors, seriesName } from '../../lib/series';
 
@@ -16,7 +18,7 @@ export async function getStaticPaths() {
 const { post, posts } = Astro.props;
 const series = postSeries(post.id);
 const title = postTitle(post);
-const { Content, remarkPluginFrontmatter } = await render(post);
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
 
 // [[part:…]] placeholders that aren't an earlier part (see src/remark-part-refs.mjs)
 const { partRefErrors } = remarkPluginFrontmatter;
@@ -25,6 +27,15 @@ if (partRefErrors) {
     `Blog post "${post.id}" has placeholders that aren't earlier parts of its series: ${partRefErrors.join(', ')}. A post only refers back: use [[part:<file name>]] with a part listed before it in src/lib/series.ts`
   );
 }
+
+// Longest read time a post may show; longer ones get trimmed or split into a series
+const MAX_READ_MINUTES = 5;
+if (parseInt(remarkPluginFrontmatter.minutesRead) > MAX_READ_MINUTES) {
+  throw new Error(
+    `Blog post "${post.id}" is a ${remarkPluginFrontmatter.minutesRead}. Posts can be at most ${MAX_READ_MINUTES} min (${MAX_READ_MINUTES * 200} words): trim it or split it into a series.`
+  );
+}
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 
 const ogImage = `/og/blog/${post.id}.png`;
 const canonical = new URL(`/blog/${post.id}/`, Astro.site).href;
@@ -55,23 +66,31 @@ const structuredData = {
   ogType="article"
   structuredData={structuredData}
 >
-  <article class="prose accent-blog">
-    <header class="entry-header">
-      {series && (
-        <a href={`/blog/?series=${series.id}`} class="series-label caps-label" style={seriesColors(series.id)}>
-          {seriesName(series.id)} &middot; Part {series.number}
-        </a>
-      )}
-      <h1>{post.data.title}</h1>
-      <PostMeta
-        date={post.data.date}
-        readTime={remarkPluginFrontmatter.minutesRead}
-        tags={post.data.tags}
-      />
-    </header>
-    <Content />
-    {series && <SeriesNav id={series.id} posts={posts} current={post.id} />}
-  </article>
+  <div class:list={['post-layout', toc.length > 1 && 'post-layout--toc']}>
+    {toc.length > 1 && (
+      <aside class="toc-sidebar accent-blog">
+        <TableOfContents headings={toc} />
+      </aside>
+    )}
+    <article class="prose accent-blog">
+      <header class="entry-header">
+        {series && (
+          <a href={`/blog/?series=${series.id}`} class="series-label caps-label" style={seriesColors(series.id)}>
+            {seriesName(series.id)} &middot; Part {series.number}
+          </a>
+        )}
+        <h1>{post.data.title}</h1>
+        <PostMeta
+          date={post.data.date}
+          readTime={remarkPluginFrontmatter.minutesRead}
+          tags={post.data.tags}
+        />
+      </header>
+      <Content />
+      <HeadingLinks />
+      {series && <SeriesNav id={series.id} posts={posts} current={post.id} />}
+    </article>
+  </div>
 </BaseLayout>
 
 <style>
@@ -88,5 +107,47 @@ const structuredData = {
 
   .entry-header .series-label + h1 {
     margin-top: 0.15em;
+  }
+
+  /* :global because the Markdown body isn't scoped to this component */
+  .prose :global(h2) {
+    font-size: var(--fs-lg);
+  }
+
+  .prose :global(h3) {
+    font-size: var(--fs-md);
+  }
+
+  .toc-sidebar {
+    display: none;
+  }
+
+  /* Wide screens: contents in the left margin, post stays centred */
+  @media (min-width: 1280px) {
+    .post-layout--toc {
+      display: grid;
+      grid-template-columns: 1fr minmax(0, var(--prose-width)) 1fr;
+    }
+
+    .post-layout--toc .prose {
+      grid-column: 2;
+      grid-row: 1;
+      width: 100%;
+    }
+
+    .toc-sidebar {
+      display: block;
+      grid-column: 1;
+      grid-row: 1;
+      justify-self: end;
+      align-self: start;
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-md));
+      width: min(15rem, 100%);
+      max-height: calc(100vh - var(--header-height) - var(--space-xl));
+      overflow-y: auto;
+      margin-top: var(--space-xl);
+      padding-left: var(--space-md);
+    }
   }
 </style>
