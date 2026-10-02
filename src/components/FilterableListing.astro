@@ -11,6 +11,9 @@ interface Entry {
     date: Date;
     description?: string;
     tags: string[];
+    /** Notes only: the topic heading it sits under, and extra search terms */
+    topic?: string;
+    aliases?: string[];
   };
   /** e.g. "5 min read"; shown with the date when set */
   readTime?: string;
@@ -26,13 +29,18 @@ interface Props {
   emptyMessage: string;
   /** Pre-sorted (newest first), draft-filtered entries */
   entries: Entry[];
-  itemsPerPage: number;
+  /** Omit to list everything on one page */
+  itemsPerPage?: number;
   itemLabel: string;
   dateStyle: 'long' | 'short';
   /** Show descriptions as excerpts and include them in search */
   showDescriptions?: boolean;
   /** Show each entry's tags as pills */
   showTags?: boolean;
+  /** Show the Year filter */
+  showYears?: boolean;
+  /** Group entries under these headings, in this order, and add a Sort by menu */
+  topics?: { id: string; name: string }[];
 }
 
 const {
@@ -48,26 +56,52 @@ const {
   dateStyle,
   showDescriptions = false,
   showTags = false,
+  showYears = true,
+  topics,
 } = Astro.props;
 
 const allTags = [...new Set(entries.flatMap((e) => e.data.tags || []))].sort();
 const allYears = [...new Set(entries.map((e) => e.data.date.getFullYear()))].sort((a, b) => b - a);
 const allSeries = [...new Set(entries.flatMap((e) => postSeries(e.id)?.id ?? []))].sort();
+
+// Grouped listings start in the menu's default Topic order: each topic's
+// entries A–Z under its heading. The filter script handles the other orders
+const byTitle = (a: Entry, b: Entry) =>
+  postTitle(a).localeCompare(postTitle(b), 'en', { sensitivity: 'base', numeric: true });
+const groups = topics
+  ? topics
+      .map((topic) => ({ topic, entries: entries.filter((e) => e.data.topic === topic.id).sort(byTitle) }))
+      .filter((group) => group.entries.length > 0)
+  : [{ topic: undefined, entries }];
+const ordered = groups.flatMap((group) => group.entries);
+const sorts = topics && [
+  { value: 'group', label: 'Topic' },
+  { value: 'title', label: 'Title, A–Z' },
+  { value: 'newest', label: 'Newest first' },
+  { value: 'oldest', label: 'Oldest first' },
+];
 ---
 
 <div
   class={`listing-layout accent-${accent}`}
   data-filterable-listing
-  data-items-per-page={String(itemsPerPage)}
+  data-items-per-page={itemsPerPage && String(itemsPerPage)}
   data-item-label={itemLabel}
   data-has-description={showDescriptions ? 'true' : undefined}
 >
-  <FilterPanel idPrefix={accent} searchPlaceholder={searchPlaceholder} tags={allTags} years={allYears} series={allSeries} />
+  <FilterPanel
+    idPrefix={accent}
+    searchPlaceholder={searchPlaceholder}
+    tags={allTags}
+    years={showYears ? allYears : undefined}
+    series={allSeries}
+    sorts={sorts}
+  />
 
   <section class="listing-section listing-container">
     <div class="page-header reveal" style="--delay: 0ms">
       <h1>{heading}</h1>
-      <p class="page-intro">{intro}</p>
+      <p class="page-intro">{intro}<slot name="intro" /></p>
       <HeaderRule accent />
     </div>
 
@@ -78,30 +112,45 @@ const allSeries = [...new Set(entries.flatMap((e) => postSeries(e.id)?.id ?? [])
       </div>
     ) : (
       <ul class:list={['post-list', showDescriptions && 'post-list--lg']} data-list>
-        {entries.map((entry, i) => {
-          const series = postSeries(entry.id);
-          return (
-            <PostListItem
-              href={`${basePath}/${entry.id}/`}
-              title={entry.data.title}
-              date={entry.data.date}
-              dateStyle={dateStyle}
-              readTime={entry.readTime}
-              description={showDescriptions ? entry.data.description : undefined}
-              tags={showTags ? entry.data.tags : undefined}
-              series={series}
-              stretched
-              class="reveal"
-              style={`--delay: ${15 * i}ms`}
-              data-tags={(entry.data.tags || []).join(',')}
-              data-series={series?.id}
-              data-series-order={series?.order}
-              data-date={entry.data.date.toISOString().slice(0, 10)}
-              data-title={postTitle(entry)}
-              data-description={showDescriptions ? entry.data.description || '' : undefined}
-            />
-          );
-        })}
+        {groups.map(({ topic, entries: groupEntries }) => (
+          <Fragment>
+            {topic && (
+              <li
+                class="post-list-group reveal"
+                style={`--delay: ${15 * ordered.indexOf(groupEntries[0])}ms`}
+                data-group-heading={topic.id}
+              >
+                <h2>{topic.name}</h2>
+              </li>
+            )}
+            {groupEntries.map((entry) => {
+              const series = postSeries(entry.id);
+              return (
+                <PostListItem
+                  href={`${basePath}/${entry.id}/`}
+                  title={entry.data.title}
+                  date={entry.data.date}
+                  dateStyle={dateStyle}
+                  readTime={entry.readTime}
+                  description={showDescriptions ? entry.data.description : undefined}
+                  tags={showTags ? entry.data.tags : undefined}
+                  series={series}
+                  stretched
+                  class="reveal"
+                  style={`--delay: ${15 * ordered.indexOf(entry)}ms`}
+                  data-tags={(entry.data.tags || []).join(',')}
+                  data-series={series?.id}
+                  data-series-order={series?.order}
+                  data-date={entry.data.date.toISOString().slice(0, 10)}
+                  data-title={postTitle(entry)}
+                  data-description={showDescriptions ? entry.data.description || '' : undefined}
+                  data-group={entry.data.topic}
+                  data-aliases={entry.data.aliases?.join(', ')}
+                />
+              );
+            })}
+          </Fragment>
+        ))}
       </ul>
     )}
 
@@ -116,8 +165,10 @@ const allSeries = [...new Set(entries.flatMap((e) => postSeries(e.id)?.id ?? [])
     const root = document.querySelector<HTMLElement>('[data-filterable-listing]');
     if (!root) return;
     initFilters({
-      itemsPerPage: Number(root.dataset.itemsPerPage) || 10,
+      itemsPerPage: Number(root.dataset.itemsPerPage) || undefined,
       itemLabel: root.dataset.itemLabel || 'posts',
+      // Topic headings share the list, so match only the entries
+      itemSelector: '.post-list-item',
       hasDescription: root.dataset.hasDescription === 'true',
     });
   }

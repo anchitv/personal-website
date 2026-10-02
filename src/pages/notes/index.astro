@@ -2,9 +2,13 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FilterableListing from '../../components/FilterableListing.astro';
+import { TOPICS } from '../../lib/topics';
 
 const allNotes = await getCollection('notes', ({ data }) => !data.draft);
 const notes = allNotes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const topics = Object.entries(TOPICS)
+  .map(([id, name]) => ({ id, name }))
+  .sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
 ---
 
 <BaseLayout title="Notes | Anchit Verma" description="Quick thoughts, things I learned and things worth remembering.">
@@ -16,8 +20,13 @@ const notes = allNotes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueO
     searchPlaceholder="Search notes..."
     emptyMessage="No notes yet. Check back soon."
     entries={notes}
-    itemsPerPage={12}
     itemLabel="notes"
     dateStyle="short"
-  />
+    showDescriptions
+    showTags
+    showYears={false}
+    topics={topics}
+  >
+    <Fragment slot="intro"> Looking for a term? Try the <a href="/notes/glossary/">glossary</a>.</Fragment>
+  </FilterableListing>
 </BaseLayout>

@@ -717,7 +717,8 @@ html:not(.dark) .link-pill svg {
   transition: background-color var(--duration-200) ease;
 }
 
-.post-list-item:first-child {
+.post-list-item:first-child,
+.post-list-group + .post-list-item {
   background-image:
     linear-gradient(90deg, transparent, var(--color-border) 15%, var(--color-border) 85%, transparent),
     linear-gradient(90deg, transparent, var(--color-border) 15%, var(--color-border) 85%, transparent);
@@ -727,6 +728,22 @@ html:not(.dark) .link-pill svg {
 
 .post-list-item:hover {
   background-color: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg));
+}
+
+/* Topic heading in a grouped list (Notes), styled like the tag page sections */
+.post-list-group {
+  padding-top: var(--space-lg);
+}
+
+.post-list-group:first-child {
+  padding-top: 0;
+}
+
+.post-list-group h2 {
+  font-size: var(--fs-lg);
+  margin-top: 0;
+  margin-bottom: var(--space-sm);
+  color: var(--color-accent);
 }
 
 .post-link {

@@ -11,9 +11,11 @@ interface Props {
   years?: number[];
   /** Series slugs; omit or leave empty to hide the Series filter */
   series?: string[];
+  /** Orders for the Sort by select, the first being the default; omit to hide it */
+  sorts?: { value: string; label: string }[];
 }
 
-const { idPrefix, searchPlaceholder, tags, years, series = [] } = Astro.props;
+const { idPrefix, searchPlaceholder, tags, years, series = [], sorts = [] } = Astro.props;
 ---
 
 <aside class="filter-panel reveal" style="--delay: 100ms" data-filter-panel>
@@ -47,6 +49,17 @@ const { idPrefix, searchPlaceholder, tags, years, series = [] } = Astro.props;
 
   <div class="filter-panel-collapse" id={`${idPrefix}-filters`} data-filter-collapse>
     <div class="filter-panel-body">
+      {sorts.length > 0 && (
+        <div class="filter-panel-section">
+          <label class="filter-panel-label" for={`${idPrefix}-sort`}>Sort by</label>
+          <select id={`${idPrefix}-sort`} class="filter-select" data-filter-sort>
+            {sorts.map(({ value, label }) => (
+              <option value={value}>{label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {series.length > 0 && (
         <div class="filter-panel-section">
           <span class="filter-panel-label">Series</span>
