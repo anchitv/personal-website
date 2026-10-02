@@ -1,0 +1,61 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  /** The post's h2 and h3 headings, in order */
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+---
+
+<nav class="toc" aria-label="Table of contents">
+  <span class="toc-label caps-label">Contents</span>
+  <ol class="toc-list">
+    {headings.map((heading) => (
+      <li class:list={[heading.depth === 3 && 'toc-sub']}>
+        <a href={`#${heading.slug}`} class="toc-link">{heading.text}</a>
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .toc {
+    font-family: var(--font-heading);
+  }
+
+  .toc-label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    padding: 0 0.5em;
+    color: var(--color-text-muted);
+  }
+
+  .toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: var(--fs-sm);
+  }
+
+  .toc-sub {
+    padding-left: 0.9em;
+    font-size: 0.92em;
+  }
+
+  .toc-link {
+    display: block;
+    padding: 0.3em 0.5em;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    line-height: 1.35;
+    transition: color var(--duration-150) ease, background-color var(--duration-150) ease;
+  }
+
+  .toc-link:hover {
+    color: var(--color-accent);
+    background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  }
+</style>

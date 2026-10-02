@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import HeadingLinks from '../../components/HeadingLinks.astro';
 import PostMeta from '../../components/PostMeta.astro';
 import { tagLabel } from '../../lib/tags';
 
@@ -54,5 +55,17 @@ const structuredData = {
       />
     </header>
     <Content />
+    <HeadingLinks />
   </article>
 </BaseLayout>
+
+<style>
+  /* :global because the Markdown body isn't scoped to this component */
+  .prose :global(h2) {
+    font-size: var(--fs-lg);
+  }
+
+  .prose :global(h3) {
+    font-size: var(--fs-md);
+  }
+</style>
