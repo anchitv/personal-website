@@ -171,3 +171,34 @@ export function postTitle(post: { id: string; data: { title: string } }): string
 export function partLabel(series: PostSeries): string {
   return `${seriesName(series.id)} · Part ${series.number}`;
 }
+
+interface DatedEntry {
+  id: string;
+  data: { date: Date };
+}
+
+/**
+ * The newest posts for a short list, newest first. Each series shows once, as
+ * its newest part, so one series can't fill the list; if that leaves fewer
+ * than `count` posts, more parts of the same series fill the gaps.
+ */
+export function latestPostsPerSeries<T extends DatedEntry>(posts: T[], count: number): T[] {
+  // On the same day, the later part counts as newer
+  const newestFirst = (a: T, b: T) =>
+    b.data.date.valueOf() - a.data.date.valueOf() || (postSeries(b.id)?.order ?? 0) - (postSeries(a.id)?.order ?? 0);
+  const sorted = [...posts].sort(newestFirst);
+
+  const shownSeries = new Set<string>();
+  const picked = sorted
+    .filter((post) => {
+      const id = postSeries(post.id)?.id;
+      if (!id) return true;
+      if (shownSeries.has(id)) return false;
+      shownSeries.add(id);
+      return true;
+    })
+    .slice(0, count);
+  const fillers = sorted.filter((post) => !picked.includes(post)).slice(0, count - picked.length);
+
+  return [...picked, ...fillers].sort(newestFirst);
+}

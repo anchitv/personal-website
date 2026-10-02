@@ -4,25 +4,41 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Divider from '../components/Divider.astro';
 import Avatar from '../components/Avatar.astro';
 import GitHubIcon from '../components/GitHubIcon.astro';
+import AppleIcon from '../components/AppleIcon.astro';
+import GooglePlayIcon from '../components/GooglePlayIcon.astro';
 import ObfuscatedEmail from '../components/ObfuscatedEmail.astro';
-import { postTitle } from '../lib/series';
-import { formatDate } from '../lib/formatDate';
+import { linkedNoteIds } from '../lib/noteLinks';
+import { latestPostsPerSeries, partLabel, postSeries, seriesColors } from '../lib/series';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
-const latestPosts = allPosts
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3);
+const latestPosts = latestPostsPerSeries(allPosts, 3);
 
 const allNotes = await getCollection('notes', ({ data }) => !data.draft);
-const latestNotes = allNotes
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3);
+const notesById = new Map(allNotes.map((note) => [note.id, note]));
+// The notes the latest posts lean on, taking one from each post in turn
+const postNoteIds = latestPosts.map((post) => linkedNoteIds(post.body).filter((id) => notesById.has(id)));
+const featuredNoteIds: string[] = [];
+for (let i = 0; featuredNoteIds.length < 3 && postNoteIds.some((ids) => i < ids.length); i++) {
+  for (const ids of postNoteIds) {
+    if (featuredNoteIds.length < 3 && i < ids.length && !featuredNoteIds.includes(ids[i])) featuredNoteIds.push(ids[i]);
+  }
+}
+// Newest notes fill any slots the posts leave
+const latestNotes = [
+  ...featuredNoteIds.map((id) => notesById.get(id)!),
+  ...allNotes
+    .filter((note) => !featuredNoteIds.includes(note.id))
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+].slice(0, 3);
 
 const allProjects = await getCollection('projects', ({ data }) => !data.draft);
-const latestProjects = allProjects
-  .filter((p) => p.data.status === 'active')
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3);
+const newestFirst = (a: (typeof allProjects)[number], b: (typeof allProjects)[number]) =>
+  b.data.date.valueOf() - a.data.date.valueOf();
+// Active projects first; ideas fill any slots left over
+const latestProjects = [
+  ...allProjects.filter((p) => p.data.status === 'active').sort(newestFirst),
+  ...allProjects.filter((p) => p.data.status === 'idea').sort(newestFirst),
+].slice(0, 3);
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -50,11 +66,6 @@ const structuredData = {
     <div class="hero-inner">
       <div class="hero-text">
         <h1 class="hero-title reveal" style="--delay: 0ms">Writing about software, ideas and the things I'm building.</h1>
-        {latestPosts[0] && (
-          <a href={`/blog/${latestPosts[0].id}/`} class="hero-latest reveal" style="--delay: 80ms">
-            <span class="hero-latest-label">Latest:</span> {postTitle(latestPosts[0])} &rarr;
-          </a>
-        )}
         <div class="hero-links reveal" style="--delay: 120ms">
           <a href="/about/" class="hero-about">More about me &rarr;</a>
           <span class="hero-icons">
@@ -89,14 +100,17 @@ const structuredData = {
   <div class="home-content">
     <div class="sections-grid">
       <!-- Writing (Blog) section -->
-      <section class="home-section reveal" style="--delay: 100ms">
-        <div class="section-top">
-          <span class="section-emoji" aria-hidden="true">&#9997;&#65039;</span>
-        </div>
-        <div class="section-header">
-          <h2>Blog</h2>
-        </div>
-        <p class="section-desc">Long-form thoughts on software, technology, and craft.</p>
+      <section class="home-section" data-reveal style="--delay: 100ms">
+        <h2 class="section-title">
+          <a href="/blog/">
+            <svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M13 21h8" />
+              <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+            </svg>
+            Blog
+          </a>
+        </h2>
+        <p class="section-desc">Step-by-step guides, currently on homelabs and email.</p>
         <ul class="preview-list">
           {latestPosts.length === 0 ? (
             <li class="preview-item empty-preview">
@@ -104,32 +118,39 @@ const structuredData = {
               <span class="preview-title">First post coming soon</span>
             </li>
           ) : (
-            latestPosts.map((post) => (
-              <li class="preview-item">
-                <a href={`/blog/${post.id}/`} class="preview-link">
-                  <span class="preview-title">{postTitle(post)}</span>
-                  <span class="preview-meta">
-                    {formatDate(post.data.date)}
-                  </span>
-                </a>
-              </li>
-            ))
+            latestPosts.map((post) => {
+              const series = postSeries(post.id);
+              return (
+                <li class="preview-item">
+                  <a href={`/blog/${post.id}/`} class="preview-link">
+                    {series && (
+                      <span class="preview-series caps-label" style={seriesColors(series.id)}>{partLabel(series)}</span>
+                    )}
+                    <span class="preview-title">{post.data.title}</span>
+                    <span class="preview-meta">{post.data.description}</span>
+                  </a>
+                </li>
+              );
+            })
           )}
         </ul>
         <div class="section-footer">
-          <a href="/blog/" class="view-all">View all &rarr;</a>
+          <a href="/blog/" class="view-all">All {allPosts.length} posts <span class="arrow" aria-hidden="true">&rarr;</span></a>
         </div>
       </section>
 
       <!-- Notes section -->
-      <section class="home-section reveal" style="--delay: 200ms">
-        <div class="section-top">
-          <span class="section-emoji" aria-hidden="true">&#128221;</span>
-        </div>
-        <div class="section-header">
-          <h2>Notes</h2>
-        </div>
-        <p class="section-desc">Quick thoughts, things I learned and things worth remembering.</p>
+      <section class="home-section" data-reveal style="--delay: 200ms">
+        <h2 class="section-title">
+          <a href="/notes/">
+            <svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z" />
+              <path d="M15 3v4a2 2 0 0 0 2 2h4" />
+            </svg>
+            Notes
+          </a>
+        </h2>
+        <p class="section-desc">Short explainers on the ideas behind the guides.</p>
         <ul class="preview-list">
           {latestNotes.length === 0 ? (
             <li class="preview-item empty-preview">
@@ -141,27 +162,27 @@ const structuredData = {
               <li class="preview-item">
                 <a href={`/notes/${note.id}/`} class="preview-link">
                   <span class="preview-title">{note.data.title}</span>
-                  <span class="preview-meta">
-                    {formatDate(note.data.date)}
-                  </span>
+                  {note.data.description && <span class="preview-meta">{note.data.description}</span>}
                 </a>
               </li>
             ))
           )}
         </ul>
         <div class="section-footer">
-          <a href="/notes/" class="view-all">View all &rarr;</a>
+          <a href="/notes/" class="view-all">All {allNotes.length} notes <span class="arrow" aria-hidden="true">&rarr;</span></a>
         </div>
       </section>
 
       <!-- Projects section -->
-      <section class="home-section reveal" style="--delay: 300ms">
-        <div class="section-top">
-          <span class="section-emoji" aria-hidden="true">&#128736;&#65039;</span>
-        </div>
-        <div class="section-header">
-          <h2>Projects</h2>
-        </div>
+      <section class="home-section" data-reveal style="--delay: 300ms">
+        <h2 class="section-title">
+          <a href="/projects/">
+            <svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+            </svg>
+            Projects
+          </a>
+        </h2>
         <p class="section-desc">Things I've built or am currently working on.</p>
         <ul class="preview-list">
           {latestProjects.length === 0 ? (
@@ -171,22 +192,66 @@ const structuredData = {
             </li>
           ) : (
             latestProjects.map((project) => (
-              <li class="preview-item">
-                <a href={`/projects/${project.id}/`} class="preview-link">
-                  <span class="preview-title">{project.data.title}</span>
+              <li class="preview-item preview-item--stretched">
+                <a href={`/projects/${project.id}/`} class="preview-link preview-link--stretched">
+                  <span class="preview-title">
+                    {project.data.title}
+                    {project.data.status === 'idea' && <span class="idea-badge">Idea</span>}
+                  </span>
                   <span class="preview-meta">{project.data.description}</span>
                 </a>
+                {(project.data.repo || project.data.appStore || project.data.playStore) && (
+                  <div class="preview-links">
+                    {project.data.repo && (
+                      <a href={project.data.repo} class="link-pill link-pill--sm" aria-label="View source on GitHub" target="_blank" rel="noopener noreferrer">
+                        <GitHubIcon />
+                        Source
+                      </a>
+                    )}
+                    {project.data.appStore && (
+                      <a href={project.data.appStore} class="link-pill link-pill--sm" aria-label="Download on the App Store" target="_blank" rel="noopener noreferrer">
+                        <AppleIcon />
+                        App Store
+                      </a>
+                    )}
+                    {project.data.playStore && (
+                      <a href={project.data.playStore} class="link-pill link-pill--sm" aria-label="Get it on Google Play" target="_blank" rel="noopener noreferrer">
+                        <GooglePlayIcon />
+                        Google Play
+                      </a>
+                    )}
+                  </div>
+                )}
               </li>
             ))
           )}
         </ul>
         <div class="section-footer">
-          <a href="/projects/" class="view-all">View all &rarr;</a>
+          <a href="/projects/" class="view-all">All {allProjects.length} projects <span class="arrow" aria-hidden="true">&rarr;</span></a>
         </div>
       </section>
     </div>
   </div>
 </BaseLayout>
+
+<script>
+  // Clamp each description to the whole lines that fit in its entry, so the
+  // last one ends in an ellipsis rather than being cut through
+  function fitDescriptions() {
+    const observer = new ResizeObserver((entries) => {
+      for (const { target } of entries) {
+        const el = target as HTMLElement;
+        const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+        // The extra pixel keeps a height of exactly N lines from rounding down
+        el.style.setProperty('--lines', String(Math.max(1, Math.floor((el.clientHeight + 1) / lineHeight))));
+      }
+    });
+    document.querySelectorAll('.preview-meta').forEach((el) => observer.observe(el));
+  }
+
+  fitDescriptions();
+  document.addEventListener('astro:after-swap', fitDescriptions);
+</script>
 
 <style>
   /* === HERO === */
@@ -227,29 +292,6 @@ const structuredData = {
     margin: 0;
     max-width: 28ch;
     text-wrap: balance;
-  }
-
-  /* Latest post pill */
-  .hero-latest {
-    display: inline-block;
-    margin-top: var(--space-sm);
-    padding: 0.25em 0.8em;
-    font-family: var(--font-heading);
-    font-size: var(--fs-sm);
-    color: var(--color-text-heading);
-    text-decoration: none;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-full);
-    transition: color var(--duration-150) ease, border-color var(--duration-150) ease;
-  }
-
-  .hero-latest-label {
-    color: var(--color-text-muted);
-  }
-
-  .hero-latest:hover {
-    color: var(--color-accent);
-    border-color: var(--color-accent);
   }
 
   .hero-links {
@@ -321,6 +363,8 @@ const structuredData = {
   }
 
   /* === SECTIONS === */
+  /* The card itself isn't a link, so it stays still; its entries and links
+     carry the hover states */
   .home-section {
     --section-accent: var(--color-accent);
     display: flex;
@@ -332,7 +376,6 @@ const structuredData = {
     position: relative;
     background: var(--color-bg);
     box-shadow: var(--shadow-panel);
-    transition: transform var(--duration-200) ease, box-shadow var(--duration-200) ease, border-color var(--duration-200) ease, background-color var(--duration-200) ease;
   }
 
   /* Blog — warm amber */
@@ -342,105 +385,34 @@ const structuredData = {
   /* Projects — slate blue */
   .home-section:nth-child(3) { --section-accent: var(--color-projects); }
 
-  .home-section:hover:not(:has(.view-all:hover)) {
-    border-color: color-mix(in srgb, var(--section-accent) 25%, var(--color-bg));
-    border-top-color: var(--section-accent);
-    background-color: color-mix(in srgb, var(--section-accent) 8%, var(--color-bg));
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-panel-hover);
-  }
-
-  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) {
-    background-color: color-mix(in srgb, var(--section-accent) 6%, var(--color-bg));
-    border-color: color-mix(in srgb, var(--section-accent) 30%, var(--color-bg));
-    border-top-color: var(--section-accent);
-    /* Accent halo; lives here because --section-accent is only defined on the card */
-    box-shadow:
-      var(--shadow-panel-hover),
-      0 0 28px -6px color-mix(in srgb, var(--section-accent) 35%, transparent);
-  }
-
-  .section-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-xs);
-  }
-
-  .section-emoji {
-    display: block;
-    font-size: 1.4rem;
-    line-height: 1;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-md);
-    flex-wrap: wrap;
-  }
-
-  .section-header h2 {
+  .section-title {
     font-family: var(--font-heading);
     font-size: var(--fs-xl);
     font-weight: 600;
-    color: var(--color-text-heading);
     margin: 0;
-    transition: color var(--duration-200) ease;
   }
 
-  .home-section:hover:not(:has(.view-all:hover)) .section-header h2 {
+  .section-title a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    color: var(--color-text-heading);
+    text-decoration: none;
+    transition: color var(--duration-150) ease;
+  }
+
+  .section-title a:hover {
     color: var(--section-accent);
   }
 
-  .home-section:hover:not(:has(.view-all:hover)) .view-all {
-    color: color-mix(in srgb, var(--section-accent) 80%, var(--color-text));
-    border-color: color-mix(in srgb, var(--section-accent) 80%, var(--color-text));
-    background-color: var(--color-bg);
-  }
-
-  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .view-all {
-    color: color-mix(in srgb, var(--section-accent) 80%, var(--color-text));
-    border-color: color-mix(in srgb, var(--section-accent) 80%, var(--color-text));
-    background-color: transparent;
-  }
-
-  .home-section:hover:not(:has(.view-all:hover)) .preview-link:hover .preview-title {
+  .section-icon {
+    width: 0.8em;
+    height: 0.8em;
+    flex-shrink: 0;
     color: var(--section-accent);
   }
 
-  .home-section:hover:not(:has(.view-all:hover)) .preview-item {
-    background-image: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 0;
-  }
-
-  .home-section:hover:not(:has(.view-all:hover)) .preview-item:first-child {
-    background-image: none;
-  }
-
-  .home-section:hover:not(:has(.view-all:hover)) .preview-item:hover {
-    background-color: color-mix(in srgb, var(--section-accent) 15%, var(--color-bg));
-  }
-
-  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .preview-item {
-    border-top-color: rgba(255, 255, 255, 0.1);
-  }
-
-  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .preview-item:hover {
-    background-color: color-mix(in srgb, var(--section-accent) 15%, var(--color-bg));
-  }
-
-  .home-section:hover:not(:has(.view-all:hover)) .empty-preview {
-    border-color: rgba(0, 0, 0, 0.2);
-  }
-
-  :global(html.dark) .home-section:hover:not(:has(.view-all:hover)) .empty-preview {
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
-  /* Pinned to the card bottom so "View all" lines up across a row */
+  /* Pinned to the card bottom so the footer links line up across a row */
   .section-footer {
     margin-top: auto;
     padding-top: var(--space-md);
@@ -473,7 +445,6 @@ const structuredData = {
     font-size: var(--text-description);
     margin-top: var(--space-xs);
     margin-bottom: var(--space-md);
-    transition: color var(--duration-200) ease;
   }
 
   /* === PREVIEW LIST === */
@@ -521,8 +492,34 @@ const structuredData = {
     padding-left: var(--space-sm);
   }
 
-  .preview-link:hover .preview-title {
+  .preview-link:hover .preview-title,
+  .preview-item--stretched:hover .preview-title {
     color: var(--section-accent);
+  }
+
+  /* Project entries: the title link covers the whole entry, and the source
+     and store pills sit above it so they stay clickable */
+  .preview-item--stretched {
+    position: relative;
+  }
+
+  .preview-link--stretched::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .preview-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+    margin-top: var(--space-xs);
+    padding-left: var(--space-sm);
+  }
+
+  .preview-links a {
+    position: relative;
+    z-index: 1;
   }
 
   .preview-title {
@@ -533,10 +530,31 @@ const structuredData = {
     transition: color var(--duration-150) ease;
   }
 
+  /* Marks an idea among the projects, in the colours of its project page badge */
+  .idea-badge {
+    margin-left: 0.4em;
+    padding: 0.15em 0.6em;
+    border-radius: var(--radius-sm);
+    font-size: 0.8em;
+    font-weight: 500;
+    background: var(--color-status-idea-bg);
+    color: var(--color-status-idea-text);
+  }
+
+  /* Series name and part above a series post's title */
+  .preview-series {
+    color: var(--color-accent);
+  }
+
+  /* Descriptions stop at two lines on phones; side by side, they fill their
+     entry instead (see the tablet styles) */
   .preview-meta {
     font-size: var(--text-meta);
     color: var(--color-text-muted);
-    transition: color var(--duration-200) ease;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   /* === EMPTY STATES === */
@@ -563,6 +581,134 @@ const structuredData = {
     font-style: italic;
   }
 
+  /* === MOTION === */
+
+  @keyframes icon-pop {
+    from {
+      opacity: 0;
+      scale: 0.4;
+      rotate: -25deg;
+    }
+  }
+
+  @keyframes entry-in {
+    from {
+      opacity: 0;
+      translate: 0 8px;
+    }
+  }
+
+  /* As each card scrolls into view it rises, its accent line draws across
+     the top, its icon pops in, then the entries and footer follow in turn */
+  @media (prefers-reduced-motion: no-preference) {
+    .home-section[data-reveal] {
+      transform: translateY(16px);
+      transition: opacity 0.5s ease-out, transform 0.7s var(--ease-out-expo);
+      transition-delay: var(--delay, 0ms);
+    }
+
+    .home-section[data-reveal].is-visible {
+      transform: none;
+    }
+
+    /* The accent line covers the top border, corners and all; the border
+       underneath stays grey until the line arrives */
+    .home-section {
+      border-top-color: var(--color-border);
+    }
+
+    .home-section::before {
+      content: '';
+      position: absolute;
+      inset: -3px -1px auto;
+      height: var(--radius-lg);
+      border: 0 solid transparent;
+      border-width: 3px 1px 0;
+      border-top-color: var(--section-accent);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      clip-path: inset(0 100% 0 0);
+      transition: clip-path 0.8s var(--ease-out-expo);
+      transition-delay: calc(var(--delay, 0ms) + 150ms);
+      pointer-events: none;
+    }
+
+    .home-section.is-visible::before {
+      clip-path: inset(0);
+    }
+
+    .home-section.is-visible .section-icon {
+      animation: icon-pop 0.6s var(--ease-out-expo) both;
+      animation-delay: calc(var(--delay, 0ms) + 200ms);
+    }
+
+    .preview-item:nth-child(2) { --i: 1; }
+    .preview-item:nth-child(3) { --i: 2; }
+    .section-footer { --i: 3; }
+
+    .home-section.is-visible .preview-item,
+    .home-section.is-visible .section-footer {
+      animation: entry-in 0.5s var(--ease-out-expo) both;
+      animation-delay: calc(var(--delay, 0ms) + 250ms + var(--i, 0) * 80ms);
+    }
+  }
+
+  /* On hover a bar grows down the entry's left edge and its text steps
+     aside, the heading's icon moves in character, and the arrow nudges on */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .preview-item {
+      position: relative;
+    }
+
+    .preview-item:not(.empty-preview)::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: var(--space-sm);
+      bottom: var(--space-sm);
+      width: 3px;
+      border-radius: var(--radius-full);
+      background: var(--section-accent);
+      scale: 1 0;
+      transition: scale var(--duration-300) var(--ease-out-expo);
+    }
+
+    .preview-item:hover::before {
+      scale: 1 1;
+    }
+
+    .preview-link,
+    .preview-links {
+      transition: translate var(--duration-300) var(--ease-out-expo);
+    }
+
+    .preview-item:hover .preview-link,
+    .preview-item:hover .preview-links {
+      translate: 4px 0;
+    }
+
+    .section-icon {
+      transition: transform var(--duration-400) var(--ease-out-expo);
+    }
+
+    .section-title a:hover .section-icon,
+    .section-title a:focus-visible .section-icon {
+      transform: var(--icon-move);
+    }
+
+    /* The pen lifts to write, the note tilts, the wrench turns */
+    .home-section:nth-child(1) { --icon-move: rotate(-14deg) translate(-1px, -2px); }
+    .home-section:nth-child(2) { --icon-move: rotate(-8deg) translateY(-2px); }
+    .home-section:nth-child(3) { --icon-move: rotate(-45deg); }
+
+    .view-all .arrow {
+      transition: translate var(--duration-200) ease;
+    }
+
+    .view-all:hover .arrow {
+      translate: 3px 0;
+    }
+  }
+
   /* === RESPONSIVE === */
 
   /* Tablet: 2-column grid */
@@ -571,12 +717,51 @@ const structuredData = {
       padding-block: var(--space-lg) var(--space-md);
     }
 
+    /* Two bands of card rows: the first two cards, then the third at full width.
+       The entry rows are 1fr, so every entry is as tall as the tallest one */
     .sections-grid {
       grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, auto auto 1fr 1fr 1fr auto);
     }
 
     .sections-grid .home-section:last-child:nth-child(odd) {
       grid-column: 1 / -1;
+    }
+
+    /* Cards side by side share the grid's rows, so their headers, entries and
+       footers line up: header, description, three entries, footer */
+    .home-section {
+      display: grid;
+      grid-row: span 6;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+    }
+
+    .preview-list {
+      display: grid;
+      grid-row: span 3;
+      grid-template-rows: subgrid;
+    }
+
+    /* A description fills the space left in its entry without adding to the
+       entry's height (contain: size), and the script clamps it to the whole
+       lines that fit. The box keeps its full height so the script can measure
+       it, so the clip hides the text below the last clamped line */
+    .preview-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-link {
+      flex: 1;
+    }
+
+    .preview-meta {
+      flex: 1 1 0;
+      min-height: 1lh;
+      contain: size;
+      -webkit-line-clamp: var(--lines, 1);
+      clip-path: inset(0 0 calc(100% - var(--lines, 1) * 1lh) 0);
     }
   }
 
@@ -586,8 +771,10 @@ const structuredData = {
       padding-block: var(--space-xl) var(--space-lg);
     }
 
+    /* One band: all three cards side by side */
     .sections-grid {
       grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto 1fr 1fr 1fr auto;
     }
 
     .sections-grid .home-section:last-child:nth-child(odd) {
