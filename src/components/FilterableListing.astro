@@ -120,7 +120,7 @@ const sorts = topics && [
                 style={`--delay: ${15 * ordered.indexOf(groupEntries[0])}ms`}
                 data-group-heading={topic.id}
               >
-                <h2>{topic.name}</h2>
+                <h2 class="caps-label">{topic.name}</h2>
               </li>
             )}
             {groupEntries.map((entry) => {

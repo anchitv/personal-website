@@ -21,15 +21,20 @@
   font-weight: 200 900;
 }
 
+/* The root keeps the reader's browser size (usually 16px), so the rem-based
+   type scale grows with the screen once, not twice */
 html {
   font-family: var(--font-body);
-  font-size: var(--fs-base);
   line-height: var(--leading-body);
   color: var(--color-text);
   background-color: var(--color-bg);
   /* The header is taller than --header-height at wider widths, so leave the
      same gap as the sticky table of contents; linked headings stay in view */
   scroll-padding-top: calc(var(--header-height) + var(--space-md));
+}
+
+body {
+  font-size: var(--text-body);
 }
 
 /* Headings */
@@ -48,19 +53,19 @@ h6 {
 }
 
 h1 {
-  font-size: var(--fs-2xl);
+  font-size: var(--text-page-title);
 }
 
 h2 {
-  font-size: var(--fs-xl);
+  font-size: var(--text-section-title);
 }
 
 h3 {
-  font-size: var(--fs-lg);
+  font-size: var(--text-heading);
 }
 
 h4 {
-  font-size: var(--fs-md);
+  font-size: var(--text-subheading);
 }
 
 h5 {
@@ -174,7 +179,16 @@ a:hover {
   max-width: var(--prose-width);
   margin: 0 auto;
   padding: 0 var(--side-padding);
-  font-size: clamp(1.125rem, 0.2vi + 1.06rem, 1.25rem);
+  font-size: var(--text-prose);
+}
+
+/* Headings inside articles, a step smaller than the page-level h2 and h3 */
+.prose h2 {
+  font-size: var(--text-heading);
+}
+
+.prose h3 {
+  font-size: var(--text-subheading);
 }
 
 /* Listing container -- wider for index/listing pages */
@@ -215,7 +229,7 @@ html.dark .astro-code span {
   right: 0;
   padding: 0.15em 0.5em;
   font-family: var(--font-heading);
-  font-size: 0.7em;
+  font-size: var(--text-label);
   color: var(--color-text-muted);
   opacity: 0.6;
   text-transform: lowercase;
