@@ -48,8 +48,8 @@ import HeaderRule from '../components/HeaderRule.astro';
     tags: string[];
     /** Notes only: extra terms to match */
     aliases?: string[];
-    /** Series posts: the label above the title, its filter link and colours */
-    series?: { label: string; url: string; style: string };
+    /** Series posts: the label above the title as text to match and as its steps, and its colours */
+    series?: { label: string; crumbs: { text: string; href?: string }[]; style: string };
     url: string;
   }
 
@@ -116,12 +116,25 @@ import HeaderRule from '../components/HeaderRule.astro';
         li.setAttribute('data-reveal', '');
         li.style.setProperty('--delay', `${100 * i}ms`);
 
+        // The same markup as SeriesCrumbs.astro
         if (item.series) {
-          const label = document.createElement('a');
-          label.href = item.series.url;
-          label.className = 'post-series-label caps-label';
+          const label = document.createElement('div');
+          label.className = 'series-crumbs caps-label';
           label.setAttribute('style', item.series.style);
-          label.textContent = item.series.label;
+          item.series.crumbs.forEach((crumb, i) => {
+            if (i > 0) {
+              const separator = document.createElement('span');
+              separator.className = 'series-crumbs-separator';
+              separator.setAttribute('aria-hidden', 'true');
+              separator.textContent = '\u203a';
+              label.appendChild(separator);
+            }
+            const step = document.createElement(crumb.href ? 'a' : 'span');
+            if (crumb.href) (step as HTMLAnchorElement).href = crumb.href;
+            else step.className = 'series-crumbs-part';
+            step.textContent = crumb.text;
+            label.appendChild(step);
+          });
           li.appendChild(label);
         }
 

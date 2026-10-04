@@ -1,11 +1,11 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
-import { partLabel, postSeries, seriesColors } from '../lib/series';
+import { partCrumbs, partLabel, postSeries, seriesColors } from '../lib/series';
 
 // A series post's label above its title, as in the blog list
 function seriesLabel(id: string) {
   const series = postSeries(id);
-  return series && { label: partLabel(series), url: `/blog/?series=${series.id}`, style: seriesColors(series.id) };
+  return series && { label: partLabel(series), crumbs: partCrumbs(series), style: seriesColors(series.id) };
 }
 
 export const GET: APIRoute = async () => {

@@ -11,28 +11,36 @@ export type SeriesColor = (typeof SERIES_COLORS)[number];
 
 /** A post split into sub-parts, which share its number: Part 7.1, 7.2 */
 type Split = { readonly title: string; readonly parts: readonly string[] };
+/** Consecutive parts under a heading, e.g. Foundations for parts 1 to 4. Numbers run on across topics */
+type Topic = { readonly topic: string; readonly parts: readonly (string | Split)[] };
 
 /**
  * Every blog series. The key is the slug: it's the folder its posts live in
  * (src/content/blog/<slug>/) and the /blog/?series=<slug> filter. `name` is
  * shown to readers and `color` is one of SERIES_COLORS. `parts` lists the
  * file names of the posts in reading order, and each part's number is its
- * place in the list. Only written posts are listed: add each one as you write
- * it. The build fails when this list and the series folder disagree (see
+ * place in the list. Wrap consecutive parts in { topic, parts } to give them
+ * a heading. Only written posts are listed: add each one as you write it. The
+ * build fails when this list and the series folder disagree (see
  * checkSeries).
  */
 export const SERIES = {
   'homelab': {
     name: 'Homelab',
     color: 'teal',
-    parts: ['what-is-a-homelab', 'networking-basics', 'setting-up-the-server', 'running-containers'],
+    parts: [
+      {
+        topic: 'Foundations',
+        parts: ['what-is-a-homelab', 'networking-basics', 'setting-up-the-server', 'running-containers'],
+      },
+    ],
   },
   'email': {
     name: 'Email',
     color: 'violet',
     parts: ['choosing-a-provider', 'setting-up-simplelogin'],
   },
-} as const satisfies Record<string, { name: string; color: SeriesColor; parts: readonly (string | Split)[] }>;
+} as const satisfies Record<string, { name: string; color: SeriesColor; parts: readonly (string | Split | Topic)[] }>;
 
 // The build doesn't type-check, so a colour typo would otherwise pass silently
 for (const [id, { color }] of Object.entries(SERIES)) {
@@ -69,10 +77,12 @@ export interface SeriesPart {
   slug: string;
   /** Collection id of the post: <series>/<slug> */
   post: string;
+  /** Heading of the parts it's grouped with, if any */
+  topic?: string;
 }
 
 /** A part, or a split post's sub-parts under its title */
-export type SeriesItem = SeriesPart | { number: string; title: string; parts: SeriesPart[] };
+export type SeriesItem = SeriesPart | { number: string; title: string; topic?: string; parts: SeriesPart[] };
 
 export interface SeriesOutline {
   items: SeriesItem[];
@@ -82,11 +92,18 @@ export interface SeriesOutline {
 
 /** A series in reading order, each part numbered from its place in the list */
 export function seriesOutline(id: string): SeriesOutline {
-  const toPart = (slug: string, number: string): SeriesPart => ({ number, slug, post: `${id}/${slug}` });
-  const items = (SERIES[id as Series].parts as readonly (string | Split)[]).map((item, i): SeriesItem =>
+  // Topics don't take a number: each part in one gets its topic instead
+  const entries = (SERIES[id as Series].parts as readonly (string | Split | Topic)[]).flatMap(
+    (entry): { item: string | Split; topic?: string }[] =>
+      typeof entry === 'object' && 'topic' in entry
+        ? entry.parts.map((item) => ({ item, topic: entry.topic }))
+        : [{ item: entry }],
+  );
+  const toPart = (slug: string, number: string, topic?: string): SeriesPart => ({ number, slug, post: `${id}/${slug}`, topic });
+  const items = entries.map(({ item, topic }, i): SeriesItem =>
     typeof item === 'object'
-      ? { number: `${i + 1}`, title: item.title, parts: item.parts.map((slug, j) => toPart(slug, `${i + 1}.${j + 1}`)) }
-      : toPart(item, `${i + 1}`),
+      ? { number: `${i + 1}`, title: item.title, topic, parts: item.parts.map((slug, j) => toPart(slug, `${i + 1}.${j + 1}`, topic)) }
+      : toPart(item, `${i + 1}`, topic),
   );
   return { items, parts: items.flatMap((item) => ('parts' in item ? item.parts : [item])) };
 }
@@ -96,6 +113,8 @@ export interface PostSeries {
   id: Series;
   /** "4", or "7.1" for a sub-part */
   number: string;
+  /** Heading of the parts it's grouped with, if any */
+  topic?: string;
   /** Position in reading order, for sorting */
   order: number;
 }
@@ -106,7 +125,9 @@ export function postSeries(postId: string): PostSeries | undefined {
   if (!slug || !isSeries(id)) return undefined;
   const outline = seriesOutline(id);
   const order = outline.parts.findIndex((part) => part.post === postId);
-  return order === -1 ? undefined : { id, number: outline.parts[order].number, order };
+  if (order === -1) return undefined;
+  const { number, topic } = outline.parts[order];
+  return { id, number, topic, order };
 }
 
 /**
@@ -167,9 +188,35 @@ export function postTitle(post: { id: string; data: { title: string } }): string
   return series ? `Part ${series.number}: ${post.data.title}` : post.data.title;
 }
 
-/** The label above a series post's title, e.g. "Homelab · Part 4" */
+/** A topic in URLs, e.g. "foundations" in /blog/?series=homelab&topic=foundations */
+export function topicId(topic: string): string {
+  return topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+/** One step of the label above a series post's title; the part has no link */
+export interface PartCrumb {
+  text: string;
+  href?: string;
+}
+
+/**
+ * The label above a series post's title, step by step: the series and its
+ * topic, each linking to the blog filtered to it, then the part
+ */
+export function partCrumbs(series: PostSeries): PartCrumb[] {
+  const filter = `/blog/?series=${series.id}`;
+  return [
+    { text: seriesName(series.id), href: filter },
+    ...(series.topic ? [{ text: series.topic, href: `${filter}&topic=${topicId(series.topic)}` }] : []),
+    { text: `Part ${series.number}` },
+  ];
+}
+
+/** The label as plain text, where it sits inside a link to the post: "Homelab · Foundations · Part 4" */
 export function partLabel(series: PostSeries): string {
-  return `${seriesName(series.id)} · Part ${series.number}`;
+  return partCrumbs(series)
+    .map((crumb) => crumb.text)
+    .join(' · ');
 }
 
 interface DatedEntry {

@@ -1,6 +1,6 @@
 ---
 import { tagLabel, sortTags } from '../lib/tags';
-import { seriesColors, seriesName } from '../lib/series';
+import { seriesColors, seriesName, topicId } from '../lib/series';
 
 interface Props {
   /** Prefix for input ids, e.g. 'blog' -> #blog-search */
@@ -9,8 +9,8 @@ interface Props {
   tags: string[];
   /** Omit to hide the Year select */
   years?: number[];
-  /** Series slugs; omit or leave empty to hide the Series filter */
-  series?: string[];
+  /** Series slugs with their topics; omit or leave empty to hide the Series filter */
+  series?: { id: string; topics: string[] }[];
   /** Orders for the Sort by select, the first being the default; omit to hide it.
       `orders` names its ascending and descending orders, e.g. A–Z and Z–A;
       without it, the sort has one order. It starts ascending unless
@@ -90,10 +90,24 @@ const firstIcon = `${sorts[0]?.icon ?? 'text'}-${sorts[0]?.startDescending ? 'de
         <div class="filter-panel-section">
           <span class="filter-panel-label">Series</span>
           <div class="filter-tags" data-filter-series>
-            {series.map((id) => (
+            {series.map(({ id }) => (
               <button type="button" class="filter-tag" data-series={id} style={seriesColors(id)}>{seriesName(id)}</button>
             ))}
           </div>
+        </div>
+      )}
+
+      <!-- The selected series' topics; hidden until a series with topics is selected -->
+      {series.some(({ topics }) => topics.length > 0) && (
+        <div class="filter-panel-section" data-filter-topic-section hidden>
+          <span class="filter-panel-label">Topic</span>
+          {series.map(({ id, topics }) => topics.length > 0 && (
+            <div class="filter-tags" data-filter-topics={id} style={seriesColors(id)} hidden>
+              {topics.map((topic) => (
+                <button type="button" class="filter-tag" data-topic={topicId(topic)}>{topic}</button>
+              ))}
+            </div>
+          ))}
         </div>
       )}
 

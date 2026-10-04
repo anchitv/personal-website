@@ -1,0 +1,26 @@
+---
+import { partCrumbs, seriesColors, type PostSeries } from '../lib/series';
+
+interface Props {
+  series: PostSeries;
+  /** On the post's own page, where it's the page's breadcrumb */
+  breadcrumb?: boolean;
+}
+
+const { series, breadcrumb = false } = Astro.props;
+const Wrapper = breadcrumb ? 'nav' : 'div';
+// Styled in components.css, which the search page's copy of this markup shares
+---
+
+<Wrapper class="series-crumbs caps-label" style={seriesColors(series.id)} aria-label={breadcrumb ? 'Breadcrumb' : undefined}>
+  {partCrumbs(series).map((crumb, i) => (
+    <Fragment>
+      {i > 0 && <span class="series-crumbs-separator" aria-hidden="true">›</span>}
+      {crumb.href ? (
+        <a href={crumb.href}>{crumb.text}</a>
+      ) : (
+        <span class="series-crumbs-part" aria-current={breadcrumb ? 'page' : undefined}>{crumb.text}</span>
+      )}
+    </Fragment>
+  ))}
+</Wrapper>

@@ -393,6 +393,12 @@ html:not(.dark) .link-pill svg {
   gap: 0.35em;
 }
 
+/* The Topic section and its rows show only for the selected series */
+.filter-panel-section[hidden],
+.filter-tags[hidden] {
+  display: none;
+}
+
 .filter-tag {
   display: inline-block;
   padding: 0.15em 0.55em;
@@ -868,19 +874,31 @@ html:not(.dark) .link-pill svg {
   z-index: 1;
 }
 
-/* Series and part above a post's title, in the series' colour; it sits above
-   the stretched link too */
-.post-series-label {
-  position: relative;
-  z-index: 1;
+/* Series, topic and part above a post's title (SeriesCrumbs.astro). The series
+   and topic are links in the series' colour and sit above the stretched
+   link; the part is muted text, so in a list it clicks through to the post */
+.series-crumbs {
   display: inline-block;
   margin-bottom: 0.15em;
+  font-size: var(--text-eyebrow);
+  color: var(--color-text-muted);
+}
+
+.series-crumbs a {
+  position: relative;
+  z-index: 1;
+  /* A taller tap target without moving the line */
+  padding-block: 0.4em;
   color: var(--color-accent);
   text-decoration: none;
 }
 
-.post-series-label:hover {
+.series-crumbs a:hover {
   text-decoration: underline;
+}
+
+.series-crumbs-separator {
+  margin-inline: 0.4em;
 }
 
 /* Large variant: roomier items with bigger titles (blog listing) */

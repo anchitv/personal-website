@@ -1,7 +1,8 @@
 ---
+import SeriesCrumbs from './SeriesCrumbs.astro';
 import TagPill from './TagPill.astro';
 import { formatDate } from '../lib/formatDate';
-import { partLabel, seriesColors, type PostSeries } from '../lib/series';
+import type { PostSeries } from '../lib/series';
 
 interface Props {
   href: string;
@@ -12,8 +13,8 @@ interface Props {
   /** e.g. "5 min read"; shown with the date */
   readTime?: string;
   tags?: string[];
-  /** A series post's place in it, shown above the title, e.g. "Homelab · Part 4",
-      as a link to the blog filtered to that series */
+  /** A series post's place in it, shown above the title, e.g. "Homelab ›
+      Foundations › Part 4", the series and topic linking to the blog filtered to them */
   series?: PostSeries;
   /** Make the whole list item the click target */
   stretched?: boolean;
@@ -46,7 +47,7 @@ const attrs = Object.fromEntries(
   {...attrs}
 >
   {series && (
-    <a href={`/blog/?series=${series.id}`} class="post-series-label caps-label" style={seriesColors(series.id)}>{partLabel(series)}</a>
+    <SeriesCrumbs series={series} />
   )}
   <a href={href} class:list={['post-link', stretched && 'post-link--stretched']}>
     <span class="post-title">{title}</span>

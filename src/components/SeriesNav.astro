@@ -22,6 +22,13 @@ const shownItems = outline.items.flatMap((item): SeriesItem[] => {
   const parts = item.parts.filter((part) => published.has(part.post));
   return parts.length > 0 ? [{ ...item, parts }] : [];
 });
+// Runs of parts under the same topic, each shown under its heading
+const groups: { topic?: string; items: SeriesItem[] }[] = [];
+for (const item of shownItems) {
+  const last = groups.at(-1);
+  if (last && last.topic === item.topic) last.items.push(item);
+  else groups.push({ topic: item.topic, items: [item] });
+}
 const index = readable.findIndex((part) => part.post === current);
 const prev = readable[index - 1];
 const next = readable[index + 1];
@@ -53,37 +60,42 @@ const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
   <!-- Every published part, so readers can jump anywhere in the series -->
   <details class="series-all">
     <summary class="caps-label">All {shownItems.length} parts</summary>
-    <ol class="series-all-list">
-      {shownItems.map((item) =>
-        'parts' in item ? (
-          <li>
-            <span class="series-all-number">{item.number}</span>
-            <span class="series-all-group">{item.title}</span>
-            <ol class="series-all-list series-all-list--sub">
-              {item.parts.map((part) => (
-                <li>
-                  <span class="series-all-number">{part.number}</span>
-                  {part.post === current ? (
-                    <span class="series-all-current" aria-current="page">{titleOf(part)}</span>
-                  ) : (
-                    <a href={hrefOf(part)}>{titleOf(part)}</a>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </li>
-        ) : (
-          <li>
-            <span class="series-all-number">{item.number}</span>
-            {item.post === current ? (
-              <span class="series-all-current" aria-current="page">{titleOf(item)}</span>
+    {groups.map((group) => (
+      <>
+        {group.topic && <p class="series-all-topic">{group.topic}</p>}
+        <ol class="series-all-list">
+          {group.items.map((item) =>
+            'parts' in item ? (
+              <li>
+                <span class="series-all-number">{item.number}</span>
+                <span class="series-all-group">{item.title}</span>
+                <ol class="series-all-list series-all-list--sub">
+                  {item.parts.map((part) => (
+                    <li>
+                      <span class="series-all-number">{part.number}</span>
+                      {part.post === current ? (
+                        <span class="series-all-current" aria-current="page">{titleOf(part)}</span>
+                      ) : (
+                        <a href={hrefOf(part)}>{titleOf(part)}</a>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              </li>
             ) : (
-              <a href={hrefOf(item)}>{titleOf(item)}</a>
-            )}
-          </li>
-        ),
-      )}
-    </ol>
+              <li>
+                <span class="series-all-number">{item.number}</span>
+                {item.post === current ? (
+                  <span class="series-all-current" aria-current="page">{titleOf(item)}</span>
+                ) : (
+                  <a href={hrefOf(item)}>{titleOf(item)}</a>
+                )}
+              </li>
+            ),
+          )}
+        </ol>
+      </>
+    ))}
   </details>
 </nav>
 
@@ -157,6 +169,18 @@ const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
   .series-all-list li {
     margin: 0;
     padding: 0.15em 0;
+  }
+
+  .series-all-topic {
+    margin: var(--space-md) 0 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-ui);
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  .series-all-topic + .series-all-list {
+    margin-top: 0.15em;
   }
 
   /* Numbers in a fixed column, so the titles line up */
