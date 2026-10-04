@@ -201,6 +201,9 @@ import HeaderRule from '../components/HeaderRule.astro';
     const input = document.getElementById('search-input') as HTMLInputElement | null;
     if (!input) return;
 
+    // Searching is the page's only job, so the cursor starts in the box
+    input.focus();
+
     try {
       const res = await fetch('/search.json');
       entries = await res.json();

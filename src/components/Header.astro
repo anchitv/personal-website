@@ -123,6 +123,8 @@ const navLinks = [
     };
   }
 
+  // "/" focuses the page's own search box (the search page's, or a listing's
+  // filter search); anywhere else it opens the search page, which focuses its box
   function handleSearchShortcut(e: KeyboardEvent) {
     if (
       e.key === '/' &&
@@ -131,7 +133,7 @@ const navLinks = [
       !(document.activeElement instanceof HTMLInputElement) &&
       !(document.activeElement instanceof HTMLTextAreaElement)
     ) {
-      const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
+      const searchInput = document.querySelector<HTMLInputElement>('#search-input, [data-filter-search]');
       if (searchInput) {
         e.preventDefault();
         searchInput.focus();
