@@ -11,11 +11,26 @@ interface Props {
   years?: number[];
   /** Series slugs; omit or leave empty to hide the Series filter */
   series?: string[];
-  /** Orders for the Sort by select, the first being the default; omit to hide it */
-  sorts?: { value: string; label: string }[];
+  /** Orders for the Sort by select, the first being the default; omit to hide it.
+      `orders` names its ascending and descending orders, e.g. A–Z and Z–A;
+      without it, the sort has one order. It starts ascending unless
+      `startDescending`, e.g. dates newest first. `icon` is 'date' for a
+      calendar on the direction button, letters otherwise */
+  sorts?: { value: string; label: string; orders?: { asc: string; desc: string }; startDescending?: boolean; icon?: 'date' | 'text' }[];
 }
 
 const { idPrefix, searchPlaceholder, tags, years, series = [], sorts = [] } = Astro.props;
+
+// The direction button's icons from Lucide, by sort icon and direction; the
+// filter script shows one. Dates are calendar-arrow-up/-down, the rest
+// arrow-down-a-z/-z-a
+const sortIcons = {
+  'date-asc': '<path d="m14 17 4-4 4 4" /><path d="M16 2v3" /><path d="M18 21v-8" /><path d="M21 10.343V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h9" /><path d="M3 9h18" /><path d="M8 2v3" />',
+  'date-desc': '<path d="m14 17 4 4 4-4" /><path d="M16 2v3" /><path d="M18 13v8" /><path d="M21 10.354V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h7.343" /><path d="M3 9h18" /><path d="M8 2v3" />',
+  'text-asc': '<path d="m3 16 4 4 4-4" /><path d="M7 20V4" /><path d="M20 8h-5" /><path d="M15 10V6.5a2.5 2.5 0 0 1 5 0V10" /><path d="M15 14h5l-5 6h5" />',
+  'text-desc': '<path d="m3 16 4 4 4-4" /><path d="M7 4v16" /><path d="M15 4h5l-5 6h5" /><path d="M15 20v-3.5a2.5 2.5 0 0 1 5 0V20" /><path d="M20 18h-5" />',
+};
+const firstIcon = `${sorts[0]?.icon ?? 'text'}-${sorts[0]?.startDescending ? 'desc' : 'asc'}`;
 ---
 
 <aside class="filter-panel reveal" style="--delay: 100ms" data-filter-panel>
@@ -52,11 +67,22 @@ const { idPrefix, searchPlaceholder, tags, years, series = [], sorts = [] } = As
       {sorts.length > 0 && (
         <div class="filter-panel-section">
           <label class="filter-panel-label" for={`${idPrefix}-sort`}>Sort by</label>
-          <select id={`${idPrefix}-sort`} class="filter-select" data-filter-sort>
-            {sorts.map(({ value, label }) => (
-              <option value={value}>{label}</option>
-            ))}
-          </select>
+          <div class="filter-sort">
+            <select id={`${idPrefix}-sort`} class="filter-select" data-filter-sort>
+              {sorts.map(({ value, label, orders, startDescending, icon }) => (
+                <option value={value} data-asc={orders?.asc} data-desc={orders?.desc} data-start-descending={startDescending && ''} data-icon={icon}>{label}</option>
+              ))}
+            </select>
+            <!-- Reverses the selected sort, its icon showing what's sorted and
+                 which way; the filter script names the order in its label and tooltip -->
+            <button type="button" class="filter-sort-direction" aria-label="Sort order" disabled={!sorts[0].orders} data-filter-sort-direction>
+              {Object.entries(sortIcons).map(([id, body]) => (
+                <span data-sort-icon={id} hidden={id !== firstIcon}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={body} />
+                </span>
+              ))}
+            </button>
+          </div>
         </div>
       )}
 

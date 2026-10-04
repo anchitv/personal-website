@@ -74,12 +74,17 @@ const groups = topics
       .filter((group) => group.entries.length > 0)
   : [{ topic: undefined, entries }];
 const ordered = groups.flatMap((group) => group.entries);
-const sorts = topics && [
-  { value: 'group', label: 'Topic' },
-  { value: 'title', label: 'Title, A–Z' },
-  { value: 'newest', label: 'Newest first' },
-  { value: 'oldest', label: 'Oldest first' },
-];
+// Grouped listings default to their headings, the rest to newest first (the
+// order entries come in). Every sort but Topic runs both ways
+const dateSort = { value: 'date', label: 'Date', orders: { asc: 'Oldest first', desc: 'Newest first' }, startDescending: true, icon: 'date' as const };
+const titleSort = { value: 'title', label: 'Title', orders: { asc: 'A–Z', desc: 'Z–A' } };
+const sorts = topics
+  ? [{ value: 'group', label: 'Topic' }, titleSort, dateSort]
+  : [
+      dateSort,
+      titleSort,
+      ...(allSeries.length > 0 ? [{ value: 'series', label: 'Series', orders: { asc: 'A–Z', desc: 'Z–A' } }] : []),
+    ];
 ---
 
 <div
@@ -143,6 +148,7 @@ const sorts = topics && [
                   data-series-order={series?.order}
                   data-date={entry.data.date.toISOString().slice(0, 10)}
                   data-title={postTitle(entry)}
+                  data-sort-title={entry.data.title}
                   data-description={showDescriptions ? entry.data.description || '' : undefined}
                   data-group={entry.data.topic}
                   data-aliases={entry.data.aliases?.join(', ')}

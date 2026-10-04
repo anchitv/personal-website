@@ -49,6 +49,7 @@ export function initFilters(config: FilterConfig) {
   const searchInput = document.querySelector<HTMLInputElement>('[data-filter-search]');
   const yearSelect = document.querySelector<HTMLSelectElement>('[data-filter-year]');
   const sortSelect = document.querySelector<HTMLSelectElement>('[data-filter-sort]');
+  const sortDirection = document.querySelector<HTMLButtonElement>('[data-filter-sort-direction]');
   // Headings for the "group" sort, in display order; items name theirs in data-group
   const groupHeadings = Array.from(list.querySelectorAll<HTMLElement>('[data-group-heading]'));
   const tagButtons = Array.from(document.querySelectorAll('[data-filter-tags] .filter-tag'));
@@ -59,6 +60,9 @@ export function initFilters(config: FilterConfig) {
 
   let activeTags: string[] = [];
   let activeSeries = '';
+  // The selected sort's direction; each starts in its usual one
+  const startsDescending = () => sortSelect?.selectedOptions[0]?.dataset.startDescending !== undefined;
+  let descending = startsDescending();
   let currentPage = 1;
   let isFirstRender = true;
 
@@ -104,19 +108,45 @@ export function initFilters(config: FilterConfig) {
     });
   }
 
-  const titleOf = (el: Element) => (el as HTMLElement).dataset.title || '';
+  // The post's own title, without "Part 4: ", so series parts don't sort by number
+  const titleOf = (el: Element) => (el as HTMLElement).dataset.sortTitle || '';
   const dateOf = (el: Element) => (el as HTMLElement).dataset.date || '';
   const groupIndex = (el: Element) =>
     groupHeadings.findIndex((heading) => heading.dataset.groupHeading === (el as HTMLElement).dataset.group);
   const byTitle = (a: Element, b: Element) =>
     titleOf(a).localeCompare(titleOf(b), 'en', { sensitivity: 'base', numeric: true });
+  // Series A–Z (Z–A descending), each in reading order, then posts outside
+  // a series, newest first
+  const seriesOf = (el: Element) => (el as HTMLElement).dataset.series || '';
+  const bySeries = (a: Element, b: Element, dir: number) => {
+    const [seriesA, seriesB] = [seriesOf(a), seriesOf(b)];
+    if (seriesA && seriesB) return dir * seriesA.localeCompare(seriesB) || seriesOrder(a) - seriesOrder(b);
+    if (seriesA || seriesB) return seriesA ? -1 : 1;
+    return dateOf(b).localeCompare(dateOf(a)) || byTitle(a, b);
+  };
 
-  // Ties fall back to title order, so items with the same date don't shuffle
+  // Ascending is oldest first, A–Z, series A–Z; descending flips it. Ties
+  // fall back to title order, so items with the same date don't shuffle
   function sortItems(filtered: Element[], sort: string) {
-    if (sort === 'newest') filtered.sort((a, b) => dateOf(b).localeCompare(dateOf(a)) || byTitle(a, b));
-    else if (sort === 'oldest') filtered.sort((a, b) => dateOf(a).localeCompare(dateOf(b)) || byTitle(a, b));
+    const dir = descending ? -1 : 1;
+    if (sort === 'date') filtered.sort((a, b) => dir * dateOf(a).localeCompare(dateOf(b)) || byTitle(a, b));
     else if (sort === 'group') filtered.sort((a, b) => groupIndex(a) - groupIndex(b) || byTitle(a, b));
-    else filtered.sort(byTitle);
+    else if (sort === 'series') filtered.sort((a, b) => bySeries(a, b, dir));
+    else filtered.sort((a, b) => dir * byTitle(a, b));
+  }
+
+  // Shows the selected sort's direction on its button: its icon (a calendar
+  // for dates, letters for the rest), and the order's name for screen readers
+  // and as a tooltip. A sort with one order, like Topic, disables it
+  function showOrder() {
+    if (!sortDirection) return;
+    const option = sortSelect!.selectedOptions[0];
+    const order = option.dataset[descending ? 'desc' : 'asc'];
+    const icon = `${option.dataset.icon ?? 'text'}-${descending ? 'desc' : 'asc'}`;
+    sortDirection.disabled = !order;
+    sortDirection.querySelectorAll<HTMLElement>('[data-sort-icon]').forEach((el) => { el.hidden = el.dataset.sortIcon !== icon; });
+    sortDirection.setAttribute('aria-label', order ? `Sort order: ${order}` : 'Sort order');
+    sortDirection.title = order ? `${order}, select to reverse` : '';
   }
 
   // Puts the shown items in order, with each group's heading before its
@@ -139,16 +169,9 @@ export function initFilters(config: FilterConfig) {
   function render() {
     const filtered = getFiltered();
 
-    // A series reads in part order; the Sort by menu orders the rest, and
-    // without one everything stays newest first
-    if (activeSeries) {
-      filtered.sort((a, b) => seriesOrder(a) - seriesOrder(b));
-      list!.append(...filtered);
-    } else if (sortSelect) {
-      sortItems(filtered, sortSelect.value);
-    } else if (seriesButtons.length > 0) {
-      list!.append(...items);
-    }
+    // The Sort by menu orders the list, a selected series too; without one,
+    // items stay in page order
+    if (sortSelect) sortItems(filtered, sortSelect.value);
 
     const totalPages = itemsPerPage ? Math.max(1, Math.ceil(filtered.length / itemsPerPage)) : 1;
     if (currentPage > totalPages) currentPage = totalPages;
@@ -244,7 +267,9 @@ export function initFilters(config: FilterConfig) {
   // Event listeners
   searchInput?.addEventListener('input', () => { currentPage = 1; render(); });
   yearSelect?.addEventListener('change', () => { currentPage = 1; render(); });
-  sortSelect?.addEventListener('change', () => { currentPage = 1; render(); });
+  // A new sort starts in its usual order
+  sortSelect?.addEventListener('change', () => { descending = startsDescending(); showOrder(); currentPage = 1; render(); });
+  sortDirection?.addEventListener('click', () => { descending = !descending; showOrder(); currentPage = 1; render(); });
 
   tagButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -294,6 +319,8 @@ export function initFilters(config: FilterConfig) {
   const seriesParam = new URLSearchParams(location.search).get('series');
   if (seriesButtons.some((btn) => btn.dataset.series === seriesParam)) setSeries(seriesParam!);
 
+  // The browser can restore an earlier sort on back navigation
+  showOrder();
   render();
 
   return {
