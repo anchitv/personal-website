@@ -54,26 +54,44 @@ export function initFilters(config: FilterConfig) {
   const groupHeadings = Array.from(list.querySelectorAll<HTMLElement>('[data-group-heading]'));
   const tagButtons = Array.from(document.querySelectorAll('[data-filter-tags] .filter-tag'));
   const seriesButtons = Array.from(document.querySelectorAll<HTMLElement>('[data-filter-series] .filter-tag'));
+  // Each series' topic buttons, in a row of the Topic section that shows while
+  // the series is selected
+  const topicSection = document.querySelector<HTMLElement>('[data-filter-topic-section]');
+  const topicRows = Array.from(document.querySelectorAll<HTMLElement>('[data-filter-topics]'));
+  const topicButtonsOf = (series: string) =>
+    Array.from(topicRows.find((row) => row.dataset.filterTopics === series)?.querySelectorAll<HTMLElement>('.filter-tag') ?? []);
   const clearBtn = document.querySelector('[data-filter-clear]');
   const countEl = document.querySelector('[data-filter-count]');
   const paginationEl = document.querySelector('[data-pagination]');
 
   let activeTags: string[] = [];
   let activeSeries = '';
+  let activeTopic = '';
   // The selected sort's direction; each starts in its usual one
   const startsDescending = () => sortSelect?.selectedOptions[0]?.dataset.startDescending !== undefined;
   let descending = startsDescending();
   let currentPage = 1;
   let isFirstRender = true;
 
-  // Keeps ?series= in the URL in step with the Series filter, so the
-  // "<name> series" links elsewhere on the site open the listing filtered
-  function setSeries(id: string) {
+  // Keeps ?series= and ?topic= in the URL in step with the Series filter, so
+  // the series and topic links above post titles open the listing filtered.
+  // A topic belongs to its series, so choosing a series clears it
+  function setSeries(id: string, topic = '') {
     activeSeries = id;
+    activeTopic = topic;
     seriesButtons.forEach((btn) => btn.classList.toggle('is-active', btn.dataset.series === id));
+    topicRows.forEach((row) => {
+      const shown = row.dataset.filterTopics === id;
+      row.hidden = !shown;
+      topicButtonsOf(row.dataset.filterTopics!).forEach((btn) =>
+        btn.classList.toggle('is-active', shown && btn.dataset.topic === topic));
+    });
+    if (topicSection) topicSection.hidden = topicRows.every((row) => row.hidden);
     const url = new URL(location.href);
     if (id) url.searchParams.set('series', id);
     else url.searchParams.delete('series');
+    if (topic) url.searchParams.set('topic', topic);
+    else url.searchParams.delete('topic');
     history.replaceState(history.state, '', url);
   }
 
@@ -99,6 +117,7 @@ export function initFilters(config: FilterConfig) {
         if (!activeTags.some((t) => itemTags.includes(t))) return false;
       }
       if (activeSeries && el.dataset.series !== activeSeries) return false;
+      if (activeTopic && el.dataset.seriesTopic !== activeTopic) return false;
       if (year) {
         const itemDate = el.dataset.date || '';
         if (!itemDate.startsWith(year)) return false;
@@ -294,6 +313,16 @@ export function initFilters(config: FilterConfig) {
     });
   });
 
+  topicRows.forEach((row) => {
+    topicButtonsOf(row.dataset.filterTopics!).forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setSeries(activeSeries, activeTopic === btn.dataset.topic ? '' : btn.dataset.topic!);
+        currentPage = 1;
+        render();
+      });
+    });
+  });
+
   clearBtn?.addEventListener('click', () => {
     if (searchInput) searchInput.value = '';
     if (yearSelect) yearSelect.value = '';
@@ -316,8 +345,13 @@ export function initFilters(config: FilterConfig) {
     document.querySelector('.header-rule')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  const seriesParam = new URLSearchParams(location.search).get('series');
-  if (seriesButtons.some((btn) => btn.dataset.series === seriesParam)) setSeries(seriesParam!);
+  const params = new URLSearchParams(location.search);
+  const seriesParam = params.get('series');
+  const topicParam = params.get('topic');
+  if (seriesButtons.some((btn) => btn.dataset.series === seriesParam)) {
+    const hasTopic = topicButtonsOf(seriesParam!).some((btn) => btn.dataset.topic === topicParam);
+    setSeries(seriesParam!, hasTopic ? topicParam! : '');
+  }
 
   // The browser can restore an earlier sort on back navigation
   showOrder();

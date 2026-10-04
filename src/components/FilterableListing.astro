@@ -2,7 +2,7 @@
 import FilterPanel from './FilterPanel.astro';
 import HeaderRule from './HeaderRule.astro';
 import PostListItem from './PostListItem.astro';
-import { postSeries, postTitle } from '../lib/series';
+import { postSeries, postTitle, topicId } from '../lib/series';
 
 interface Entry {
   id: string;
@@ -62,7 +62,12 @@ const {
 
 const allTags = [...new Set(entries.flatMap((e) => e.data.tags || []))].sort();
 const allYears = [...new Set(entries.map((e) => e.data.date.getFullYear()))].sort((a, b) => b - a);
-const allSeries = [...new Set(entries.flatMap((e) => postSeries(e.id)?.id ?? []))].sort();
+// Each series with its topics in reading order, for the Series filter
+const entrySeries = entries.flatMap((e) => postSeries(e.id) ?? []).sort((a, b) => a.order - b.order);
+const allSeries = [...new Set(entrySeries.map((s) => s.id))].sort().map((id) => ({
+  id,
+  topics: [...new Set(entrySeries.flatMap((s) => (s.id === id && s.topic ? [s.topic] : [])))],
+}));
 
 // Grouped listings start in the menu's default Topic order: each topic's
 // entries A–Z under its heading. The filter script handles the other orders
@@ -146,6 +151,7 @@ const sorts = topics
                   data-tags={(entry.data.tags || []).join(',')}
                   data-series={series?.id}
                   data-series-order={series?.order}
+                  data-series-topic={series?.topic && topicId(series.topic)}
                   data-date={entry.data.date.toISOString().slice(0, 10)}
                   data-title={postTitle(entry)}
                   data-sort-title={entry.data.title}

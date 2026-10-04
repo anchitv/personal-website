@@ -3,10 +3,11 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import HeadingLinks from '../../components/HeadingLinks.astro';
 import PostMeta from '../../components/PostMeta.astro';
+import SeriesCrumbs from '../../components/SeriesCrumbs.astro';
 import SeriesNav from '../../components/SeriesNav.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
 import { tagLabel } from '../../lib/tags';
-import { checkSeries, postSeries, postTitle, seriesColors, seriesName } from '../../lib/series';
+import { checkSeries, postSeries, postTitle } from '../../lib/series';
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('blog');
@@ -74,11 +75,7 @@ const structuredData = {
     )}
     <article class="prose accent-blog">
       <header class="entry-header">
-        {series && (
-          <a href={`/blog/?series=${series.id}`} class="series-label caps-label" style={seriesColors(series.id)}>
-            {seriesName(series.id)} &middot; Part {series.number}
-          </a>
-        )}
+        {series && <SeriesCrumbs series={series} breadcrumb />}
         <h1>{post.data.title}</h1>
         <PostMeta
           date={post.data.date}
@@ -94,18 +91,14 @@ const structuredData = {
 </BaseLayout>
 
 <style>
-  /* Series name above the title; it takes the title's top margin */
-  .series-label {
-    display: inline-block;
+  /* Series above the title; it takes the title's top margin. :global because
+     it's SeriesCrumbs' element */
+  .entry-header :global(.series-crumbs) {
     margin-top: var(--space-xl);
-    text-decoration: none;
+    margin-bottom: 0;
   }
 
-  .series-label:hover {
-    text-decoration: underline;
-  }
-
-  .entry-header .series-label + h1 {
+  .entry-header :global(.series-crumbs) + h1 {
     margin-top: 0.15em;
   }
 
