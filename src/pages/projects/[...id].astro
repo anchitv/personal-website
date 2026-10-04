@@ -108,7 +108,7 @@ const formattedDate = formatDate(date);
 
   .status-badge {
     font-family: var(--font-heading);
-    font-size: 0.8em;
+    font-size: var(--text-tag);
     padding: 0.15em 0.6em;
     border-radius: var(--radius-sm);
     font-weight: 500;
@@ -140,10 +140,5 @@ const formattedDate = formatDate(date);
     gap: 0.5em;
     flex-wrap: wrap;
     margin-top: var(--space-xs);
-  }
-
-  /* :global because the Markdown body isn't scoped to this component */
-  .prose :global(h2) {
-    font-size: var(--fs-md);
   }
 </style>

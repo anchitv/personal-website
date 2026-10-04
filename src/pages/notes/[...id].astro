@@ -147,15 +147,6 @@ const structuredData = {
 </BaseLayout>
 
 <style>
-  /* :global because the Markdown body isn't scoped to this component */
-  .prose :global(h2) {
-    font-size: var(--fs-lg);
-  }
-
-  .prose :global(h3) {
-    font-size: var(--fs-md);
-  }
-
   /* Same column as the note above it */
   .note-links {
     max-width: var(--prose-width);
@@ -203,7 +194,7 @@ const structuredData = {
 
   .note-link-title {
     font-family: var(--font-heading);
-    font-size: var(--fs-base);
+    font-size: var(--text-title);
     font-weight: 600;
     color: var(--color-text-heading);
     line-height: var(--leading-heading);
@@ -216,11 +207,12 @@ const structuredData = {
 
   /* Halfway between the small size and the title's, a touch under the title */
   .note-link-text {
-    font-size: calc((var(--fs-sm) + var(--fs-base)) / 2);
+    font-size: var(--text-description);
     color: var(--color-text-muted);
   }
 
   .mentioned-in-series {
+    font-size: var(--text-eyebrow);
     color: var(--color-accent);
   }
 

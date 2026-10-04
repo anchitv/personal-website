@@ -34,10 +34,11 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* === TYPE SCALE (fluid, Major Third ~1.25) ===
-   * Base: 16px @ 320px → 18px @ 1280px
+   * Base: 16px @ 320px → 18px @ 1280px. The two smallest steps stay fixed,
+   * since they're already at the floor for readable text on phones
    */
-  --fs-xs: clamp(0.7rem, 0.1vi + 0.67rem, 0.75rem);
-  --fs-sm: clamp(0.8rem, 0.13vi + 0.76rem, 0.875rem);
+  --fs-xs: 0.75rem;  /* 12px: the floor for UI text */
+  --fs-sm: 0.875rem; /* 14px: the floor for text people tap or read in runs */
   --fs-base: clamp(1rem, 0.16vi + 0.95rem, 1.125rem);
   --fs-md: clamp(1.25rem, 0.26vi + 1.17rem, 1.438rem);
   --fs-lg: clamp(1.5rem, 0.42vi + 1.37rem, 1.688rem);
@@ -46,13 +47,39 @@
   --fs-3xl: clamp(2.5rem, 1.46vi + 2.04rem, 3rem);
 
   /* === TEXT ROLES ===
-   * What a size is for. Components use a role rather than a step on the
-   * scale, so changing a role updates every place that shares it. Add one
-   * only when two or more places share it; one-offs use the scale directly.
+   * What a size is for. Components use a role, not a step on the scale, so
+   * changing a role updates every place that shares it. Only one-offs take a
+   * step directly: display sizes (the site name, the home hero, the
+   * principles page, decorative dashes) and the rarely used h5 and h6.
+   * Sizes that follow their surroundings (code,
+   * tables, nested contents entries) stay in em.
    */
-  --text-description: var(--fs-base); /* one-line summaries: cards, lists, page intros */
-  --text-meta: var(--fs-sm);          /* dates, read times */
-  --text-label: var(--fs-xs);         /* small caps labels, see .caps-label */
+  /* Running text, in Crimson Pro: its short x-height needs 18px to read like 16px sans */
+  --text-body: 1.125rem;                  /* page text and intros */
+  --text-prose: clamp(1.125rem, 0.2vi + 1.06rem, 1.25rem); /* articles: posts, notes, projects, about */
+  --text-description: var(--text-body);   /* one-line summaries: cards, lists, page intros */
+  --text-lead: var(--fs-md);              /* a page's opening line: 404, principles */
+
+  /* Headings and titles */
+  --text-page-title: var(--fs-2xl);       /* h1 */
+  --text-section-title: var(--fs-xl);     /* h2 outside articles: home sections, glossary letters */
+  --text-heading: var(--fs-lg);           /* headings in articles (h2) and tag page sections */
+  --text-subheading: var(--fs-md);        /* subheadings in articles (h3) */
+  --text-title: var(--fs-md);             /* titles in lists and cards */
+  --text-title-compact: var(--fs-base);   /* titles in compact lists: tag pages, search, tag names */
+  --text-group: var(--fs-base);           /* small caps headings over groups in a list: Notes topics, Projects sections */
+  --text-eyebrow: var(--fs-sm);           /* the series label above a title: "Homelab › Foundations › Part 4" */
+
+  /* Interface */
+  --text-nav: var(--fs-base);             /* navigation links */
+  --text-control: var(--fs-sm);           /* form controls: search boxes, menus, options, Clear filters (16px on phones, see --text-field-phone) */
+  --text-filter-heading: 1rem;            /* filter panel sections (Search, Sort by, Tags…): 16px at every width, a step above their controls */
+  --text-ui: var(--fs-sm);                /* small interface text: filter chips and counts, pagination, footer, contents and part lists */
+  --text-field-phone: 1rem;               /* form fields on phones: under 16px, iOS Safari zooms in on focus */
+  --text-field-lg: 1.125rem;              /* a page's main field: the search page */
+  --text-meta: var(--fs-sm);              /* dates, read times, meta lines, table headers */
+  --text-tag: var(--fs-xs);               /* tag pills, status badges */
+  --text-label: var(--fs-xs);             /* small caps labels (see .caps-label), tag counts, hints, code language labels */
 
   /* === LINE HEIGHT === */
   --leading-body: 1.65;

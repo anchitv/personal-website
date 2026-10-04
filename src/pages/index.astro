@@ -304,7 +304,7 @@ const structuredData = {
 
   .hero-about {
     font-family: var(--font-heading);
-    font-size: var(--fs-sm);
+    font-size: var(--text-ui);
     color: var(--color-text-muted);
     text-decoration: none;
     transition: color var(--duration-150) ease;
@@ -387,7 +387,7 @@ const structuredData = {
 
   .section-title {
     font-family: var(--font-heading);
-    font-size: var(--fs-xl);
+    font-size: var(--text-section-title);
     font-weight: 600;
     margin: 0;
   }
@@ -420,7 +420,7 @@ const structuredData = {
 
   .view-all {
     font-family: var(--font-heading);
-    font-size: var(--fs-sm);
+    font-size: var(--text-ui);
     color: var(--color-text-muted);
     text-decoration: none;
     white-space: nowrap;
@@ -524,7 +524,7 @@ const structuredData = {
 
   .preview-title {
     font-family: var(--font-heading);
-    font-size: var(--fs-base);
+    font-size: var(--text-title);
     font-weight: 500;
     color: var(--color-text-heading);
     transition: color var(--duration-150) ease;
@@ -535,7 +535,7 @@ const structuredData = {
     margin-left: 0.4em;
     padding: 0.15em 0.6em;
     border-radius: var(--radius-sm);
-    font-size: 0.8em;
+    font-size: var(--text-tag);
     font-weight: 500;
     background: var(--color-status-idea-bg);
     color: var(--color-status-idea-text);
@@ -543,13 +543,14 @@ const structuredData = {
 
   /* Series name and part above a series post's title */
   .preview-series {
+    font-size: var(--text-eyebrow);
     color: var(--color-accent);
   }
 
   /* Descriptions stop at two lines on phones; side by side, they fill their
      entry instead (see the tablet styles) */
   .preview-meta {
-    font-size: var(--text-meta);
+    font-size: var(--text-description);
     color: var(--color-text-muted);
     display: -webkit-box;
     -webkit-line-clamp: 2;

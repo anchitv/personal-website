@@ -74,7 +74,7 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
 
           {ideaProjects.length > 0 && (
             <div class="idea-section" data-idea-section>
-              <h2>Ideas</h2>
+              <h2 class="caps-label">Ideas</h2>
               <div class="project-grid" data-section="idea">
                 {ideaProjects.map((project, i) => (
                   <div
@@ -96,7 +96,7 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
 
           {archivedProjects.length > 0 && (
             <div class="archived-section" data-archived-section>
-              <h2>Past projects</h2>
+              <h2 class="caps-label">Past projects</h2>
               <div class="project-grid" data-section="archived">
                 {archivedProjects.map((project, i) => (
                   <div
@@ -197,21 +197,23 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
     margin-top: var(--space-2xl);
   }
 
+  /* A small caps subheading (with .caps-label), close to its cards */
   .idea-section h2 {
     font-family: var(--font-heading);
-    font-size: var(--fs-md);
+    font-size: var(--text-group);
     color: var(--color-text-muted);
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-sm);
   }
 
   .archived-section {
     margin-top: var(--space-2xl);
   }
 
+  /* A small caps subheading (with .caps-label), close to its cards */
   .archived-section h2 {
     font-family: var(--font-heading);
-    font-size: var(--fs-md);
+    font-size: var(--text-group);
     color: var(--color-text-muted);
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-sm);
   }
 </style>
