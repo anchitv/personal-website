@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FilterableListing from '../../components/FilterableListing.astro';
+import { SECTION_DESCRIPTIONS } from '../../lib/sections';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 const sortedPosts = allPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -14,10 +15,10 @@ const posts = await Promise.all(
 );
 ---
 
-<BaseLayout title="Blog | Anchit Verma" description="Long-form thoughts on software, technology, and craft.">
+<BaseLayout title="Blog | Anchit Verma" description={SECTION_DESCRIPTIONS.blog}>
   <FilterableListing
     heading="Blog"
-    intro="Long-form thoughts on software, technology, and craft."
+    intro={SECTION_DESCRIPTIONS.blog}
     accent="blog"
     basePath="/blog"
     searchPlaceholder="Search posts..."

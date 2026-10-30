@@ -8,6 +8,7 @@ import AppleIcon from '../components/AppleIcon.astro';
 import GooglePlayIcon from '../components/GooglePlayIcon.astro';
 import ObfuscatedEmail from '../components/ObfuscatedEmail.astro';
 import { linkedNoteIds } from '../lib/noteLinks';
+import { SECTION_DESCRIPTIONS } from '../lib/sections';
 import { latestPostsPerSeries, partLabel, postSeries, seriesColors } from '../lib/series';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
@@ -116,7 +117,7 @@ const structuredData = {
             Blog
           </a>
         </h2>
-        <p class="section-desc">Step-by-step guides, currently on homelabs and email.</p>
+        <p class="section-desc">{SECTION_DESCRIPTIONS.blog}</p>
         <ul class="preview-list">
           {latestPosts.length === 0 ? (
             <li class="preview-item empty-preview">
@@ -156,7 +157,7 @@ const structuredData = {
             Notes
           </a>
         </h2>
-        <p class="section-desc">Short explainers on the ideas behind the guides.</p>
+        <p class="section-desc">{SECTION_DESCRIPTIONS.notes}</p>
         <ul class="preview-list">
           {latestNotes.length === 0 ? (
             <li class="preview-item empty-preview">
@@ -189,7 +190,7 @@ const structuredData = {
             Projects
           </a>
         </h2>
-        <p class="section-desc">Things I've built or am currently working on.</p>
+        <p class="section-desc">{SECTION_DESCRIPTIONS.projects}</p>
         <ul class="preview-list">
           {latestProjects.length === 0 ? (
             <li class="preview-item empty-preview">
