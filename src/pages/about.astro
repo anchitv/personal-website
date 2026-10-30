@@ -24,8 +24,9 @@ const structuredData = {
 >
   <section class="about-page prose">
     <div class="about-header reveal" style="--delay: 0ms">
+      <!-- The sizes mirror .about-avatar's width: 10vw between its 80px and 120px bounds -->
       <div class="about-avatar" aria-hidden="true">
-        <Avatar size={120} />
+        <Avatar size={120} sizes="(min-width: 1200px) 120px, (min-width: 800px) 10vw, 80px" widths={[80, 120, 160, 240, 360]} />
       </div>
       <h1>About me</h1>
     </div>

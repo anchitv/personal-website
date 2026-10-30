@@ -88,9 +88,15 @@ const structuredData = {
           </span>
         </div>
       </div>
-      <!-- Ink portrait -->
+      <!-- Ink portrait. The sizes mirror .hero-avatar's width: 12vw between
+           its 100px and 160px bounds, and 180px on ultrawide screens -->
       <div class="hero-avatar reveal" style="--delay: 160ms" aria-hidden="true">
-        <Avatar class="hero-portrait" size={180} />
+        <Avatar
+          class="hero-portrait"
+          size={180}
+          sizes="(min-width: 2000px) 180px, (min-width: 1334px) 160px, (min-width: 834px) 12vw, 100px"
+          widths={[100, 160, 180, 200, 320, 360]}
+        />
       </div>
     </div>
     <!-- Decorative diamond divider -->
