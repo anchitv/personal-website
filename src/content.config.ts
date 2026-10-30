@@ -33,6 +33,9 @@ const notes = defineCollection({
     topic: z.string().refine(isTopic, { error: (issue) => `Unknown topic "${issue.input}": add it to src/lib/topics.ts` }),
     // Other terms readers might search for; each one is also a glossary entry
     aliases: z.array(z.string()).default([]),
+    // Further reading: pages elsewhere worth going to next. `about` is one
+    // line on what the reader gets from it
+    links: z.array(z.object({ title: z.string(), url: z.url(), about: z.string() })).default([]),
     tags,
     draft: z.boolean().default(false),
   }),

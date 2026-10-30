@@ -68,6 +68,7 @@
   --text-title: var(--fs-md);             /* titles in lists and cards */
   --text-title-compact: var(--fs-base);   /* titles in compact lists: tag pages, search, tag names */
   --text-group: var(--fs-base);           /* small caps headings over groups in a list: Notes topics, Projects sections */
+  --text-list-heading: var(--fs-sm);      /* small caps headings over the lists under a note: Mentioned in, Related notes, Further reading */
   --text-eyebrow: var(--fs-sm);           /* the series label above a title: "Homelab › Foundations › Part 4" */
 
   /* Interface */

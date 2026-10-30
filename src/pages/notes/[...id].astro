@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Divider from '../../components/Divider.astro';
+import ExternalLinkIcon from '../../components/ExternalLinkIcon.astro';
 import HeadingLinks from '../../components/HeadingLinks.astro';
 import PostMeta from '../../components/PostMeta.astro';
 import { linkedNoteIds, linkSnippet } from '../../lib/noteLinks';
@@ -57,6 +58,19 @@ const relatedNotes = [
   ...otherNotes.filter((other) => other.data.topic === note.data.topic && !linkedNotes.includes(other)).sort(byTitle),
 ];
 const shownNotes = relatedNotes.slice(0, 4);
+// Further reading, each shown with its site: "cloudflare.com". The title's
+// last word is split off so the ↗ after it never wraps onto a line alone
+const links = note.data.links.map((link) => {
+  const lastWord = link.title.lastIndexOf(' ') + 1;
+  return {
+    ...link,
+    titleStart: link.title.slice(0, lastWord),
+    titleEnd: link.title.slice(lastWord),
+    site: new URL(link.url).hostname.replace(/^www\./, ''),
+  };
+});
+// Related notes and further reading sit beside the note on wide screens
+const hasSidebar = relatedNotes.length > 0 || links.length > 0;
 
 const ogImage = `/og/notes/${note.id}.png`;
 const canonical = new URL(`/notes/${note.id}/`, Astro.site).href;
@@ -87,24 +101,27 @@ const structuredData = {
   ogType="article"
   structuredData={structuredData}
 >
-  <article class="prose accent-notes">
-    <header class="entry-header">
-      <h1>{note.data.title}</h1>
-      <PostMeta
-        date={note.data.date}
-        tags={note.data.tags}
-      />
-    </header>
-    <Content />
-    <HeadingLinks />
-  </article>
-  <!-- Outside the article: it's navigation, and stays clear of the note's own heading styles -->
-  {(mentionedIn.length > 0 || relatedNotes.length > 0) && (
-    <aside class="note-links accent-notes" aria-label="Related pages">
-      <Divider class="note-links-divider" />
-      <!-- Mentioned in lists blog posts, so it takes the blog's colours -->
-      {mentionedIn.length > 0 && (
-        <section class="accent-blog" aria-labelledby="mentioned-in">
+  <div class:list={['note-layout', hasSidebar && 'note-layout--side']}>
+    <article class="prose accent-notes">
+      <header class="entry-header">
+        <h1>{note.data.title}</h1>
+        <PostMeta
+          date={note.data.date}
+          tags={note.data.tags}
+        />
+      </header>
+      <!-- Its own block, so the sidebar can start level with the text rather than the title -->
+      <div class="note-body">
+        <Content />
+        <HeadingLinks />
+      </div>
+    </article>
+    <!-- Outside the article: it's navigation, and stays clear of the note's own heading styles -->
+    <!-- Mentioned in lists blog posts, so it takes the blog's colours. It always sits under the note -->
+    {mentionedIn.length > 0 && (
+      <aside class="note-links note-mentions accent-notes" aria-labelledby="mentioned-in">
+        <Divider class="note-links-divider" />
+        <section class="accent-blog">
           <h2 id="mentioned-in" class="caps-label">Mentioned in</h2>
           <ul class="note-link-list">
             {mentionedIn.map(({ href, title, series, snippet }) => (
@@ -114,44 +131,68 @@ const structuredData = {
                     <span class="mentioned-in-series caps-label" style={seriesColors(series.id)}>{partLabel(series)}</span>
                   )}
                   <span class="note-link-title">{title}</span>
+                  {/* No space inside the quote marks, so they hug the sentence */}
                   {snippet && (
-                    <q class="note-link-text mentioned-in-snippet">
-                      {snippet.map(({ text, kind }) =>
-                        kind === 'link' ? <mark>{text}</mark> : kind === 'code' ? <code>{text}</code> : text,
-                      )}
-                    </q>
+                    <q class="note-link-text mentioned-in-snippet">{snippet.map(({ text, kind }) =>
+                      kind === 'link' ? <mark>{text}</mark> : kind === 'code' ? <code>{text}</code> : text,
+                    )}</q>
                   )}
                 </a>
               </li>
             ))}
           </ul>
         </section>
-      )}
-      {relatedNotes.length > 0 && (
-        <section aria-labelledby="related-notes">
-          <h2 id="related-notes" class="caps-label">Related notes</h2>
-          <ul class="note-link-list related-notes">
-            {shownNotes.map((other) => (
-              <li>
-                <a href={`/notes/${other.id}/`} class="note-link">
-                  <span class="note-link-title">{other.data.title}</span>
-                  {other.data.description && <span class="note-link-text">{other.data.description}</span>}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </aside>
-  )}
+      </aside>
+    )}
+    <!-- Under the note too, or in the left margin on wide screens -->
+    {hasSidebar && (
+      <aside class="note-links note-side accent-notes" aria-label="Related notes and further reading">
+        {mentionedIn.length === 0 && <Divider class="note-links-divider" />}
+        {relatedNotes.length > 0 && (
+          <section aria-labelledby="related-notes">
+            <h2 id="related-notes" class="caps-label">Related notes</h2>
+            <ul class="note-link-list related-notes">
+              {shownNotes.map((other) => (
+                <li>
+                  <a href={`/notes/${other.id}/`} class="note-link">
+                    <span class="note-link-title">{other.data.title}</span>
+                    {other.data.description && <span class="note-link-text">{other.data.description}</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {links.length > 0 && (
+          <section aria-labelledby="further-reading">
+            <h2 id="further-reading" class="caps-label">Further reading</h2>
+            <ul class="note-link-list">
+              {links.map(({ titleStart, titleEnd, url, about, site }) => (
+                <li>
+                  <a href={url} class="note-link" target="_blank" rel="noopener noreferrer">
+                    <span class="note-link-title">{titleStart}<span class="title-end">{titleEnd}<span class="external-icon"><ExternalLinkIcon /></span></span></span>
+                    <span class="note-link-text"><span class="link-site">{site}</span><span class="link-about"> · {about}</span></span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </aside>
+    )}
+  </div>
 </BaseLayout>
 
 <style>
-  /* Same column as the note above it */
+  /* Under the note: the same column as the note above it */
   .note-links {
     max-width: var(--prose-width);
     margin: var(--space-xl) auto 0;
     padding: 0 var(--side-padding);
+  }
+
+  .note-mentions + .note-side {
+    margin-top: var(--space-lg);
   }
 
   .note-links-divider {
@@ -163,7 +204,8 @@ const structuredData = {
   }
 
   .note-links h2 {
-    margin: 0 0 var(--space-xs);
+    margin: 0 0 var(--space-sm);
+    font-size: var(--text-list-heading);
     color: var(--color-text-muted);
   }
 
@@ -174,9 +216,9 @@ const structuredData = {
   }
 
   /* Each entry is one link: a title with a muted line under it (the
-     sentence from a post, or a note's description). The negative margin
-     keeps the text in line with the headings while the hover tint gets room
-     around it */
+     sentence from a post, a note's description, or a link's site and what
+     it's for). The negative margin keeps the text in line with the headings
+     while the hover tint gets room around it */
   .note-link {
     display: flex;
     flex-direction: column;
@@ -192,9 +234,10 @@ const structuredData = {
     background-color: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg));
   }
 
+  /* Compact, so the note's own text stays the biggest on the page */
   .note-link-title {
     font-family: var(--font-heading);
-    font-size: var(--text-title);
+    font-size: var(--text-title-compact);
     font-weight: 600;
     color: var(--color-text-heading);
     line-height: var(--leading-heading);
@@ -205,7 +248,6 @@ const structuredData = {
     color: var(--color-accent);
   }
 
-  /* Halfway between the small size and the title's, a touch under the title */
   .note-link-text {
     font-size: var(--text-description);
     color: var(--color-text-muted);
@@ -223,6 +265,24 @@ const structuredData = {
     color: var(--color-text);
   }
 
+  /* The ↗ after a further reading title: the link leaves the site. It stays
+     on the line with the title's last word */
+  .title-end {
+    white-space: nowrap;
+  }
+
+  .external-icon {
+    display: inline-block;
+    margin-left: 0.3em;
+    color: var(--color-text-muted);
+  }
+
+  .link-site {
+    font-family: var(--font-heading);
+    font-size: var(--text-meta);
+    color: var(--color-text);
+  }
+
   /* Two columns, wide enough apart that the hover tints don't touch */
   .related-notes {
     display: grid;
@@ -234,6 +294,92 @@ const structuredData = {
   @media (max-width: 480px) {
     .related-notes {
       grid-template-columns: 1fr;
+    }
+  }
+
+  /* Wide screens: related notes and further reading move to the left margin,
+     where posts show their contents, and start level with the note's text.
+     Mentioned in stays under the note */
+  @media (min-width: 1280px) {
+    .note-layout--side {
+      display: grid;
+      grid-template-columns: 1fr minmax(0, var(--prose-width)) 1fr;
+    }
+
+    /* The article spans two rows, its header and its text, so the sidebar
+       can start on the second */
+    .note-layout--side .prose {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      display: grid;
+      grid-template-rows: subgrid;
+      width: 100%;
+    }
+
+    .note-layout--side .note-body {
+      min-width: 0;
+    }
+
+    .note-layout--side .note-mentions {
+      grid-column: 2;
+      grid-row: 3;
+      width: 100%;
+    }
+
+    /* Two classes, so it outranks the stacked layout's gap after Mentioned in */
+    .note-layout--side .note-side.note-links {
+      grid-column: 1;
+      grid-row: 2 / span 2;
+      justify-self: end;
+      align-self: start;
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-md));
+      width: min(15rem, 100%);
+      max-height: calc(100vh - var(--header-height) - var(--space-xl));
+      overflow-y: auto;
+      margin: 0;
+      padding: 0 0 0 var(--space-md);
+    }
+
+    /* Titles only, at the size of the contents sidebar on posts; a link
+       keeps its site */
+    .note-side .note-links-divider,
+    .note-side .related-notes .note-link-text,
+    .note-side .link-about {
+      display: none;
+    }
+
+    .note-side h2 {
+      margin-bottom: var(--space-xs);
+      padding: 0 var(--space-sm);
+      font-size: var(--text-label);
+    }
+
+    .note-side .related-notes {
+      grid-template-columns: 1fr;
+    }
+
+    .note-side .note-link {
+      gap: 0.1em;
+      margin-inline: 0;
+      padding: var(--space-xs) var(--space-sm);
+    }
+
+    .note-side .note-link-title {
+      font-size: var(--text-ui);
+    }
+
+    .note-side .note-link-text {
+      line-height: 1.35;
+    }
+
+    .note-side .link-site {
+      color: var(--color-text-muted);
+    }
+
+    .note-side .external-icon :global(svg) {
+      width: 0.8em;
+      height: 0.8em;
     }
   }
 </style>
