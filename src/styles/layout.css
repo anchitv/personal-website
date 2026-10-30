@@ -14,6 +14,21 @@
   flex: 1;
 }
 
+/* Noise texture over the whole page: a 256px tile of fractal noise, repeated.
+   As a full-viewport SVG filter the noise was computed over every pixel of the
+   screen before the first frame could show, which held the first paint back
+   for seconds on a slow device; the tile is rasterised once and reused */
+.page-layout::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
 /* Content container: centered content blocks */
 .content-container {
   max-width: var(--content-width);
