@@ -5,13 +5,20 @@ import portrait from '../assets/portrait.webp';
 interface Props {
   /** Largest rendered size in CSS pixels; a 2x variant is generated too */
   size: number;
+  /** The rendered size per viewport (the img sizes attribute) and the widths
+      to generate, for a portrait that renders much smaller than `size` on
+      phones: the browser then picks a variant for the size it shows rather
+      than the 2x of the largest */
+  sizes?: string;
+  widths?: number[];
   class?: string;
 }
 // Spread the rest so the parent's scoped-style attribute reaches the image
-const { size, class: className, ...rest } = Astro.props;
+const { size, sizes, widths, class: className, ...rest } = Astro.props;
+const variants = sizes && widths ? { sizes, widths } : { densities: [1, 2] };
 ---
 <!-- Eager: the portrait sits at the top of every page that uses it -->
-<Image src={portrait} alt="" width={size} height={size} densities={[1, 2]} loading="eager" class:list={['avatar', className]} {...rest} />
+<Image src={portrait} alt="" width={size} height={size} {...variants} loading="eager" class:list={['avatar', className]} {...rest} />
 
 <style>
   .avatar {
