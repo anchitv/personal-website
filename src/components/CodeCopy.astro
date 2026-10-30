@@ -1,0 +1,160 @@
+---
+// Styles for the code block frame and bar added by src/rehype-code-copy.mjs,
+// and copying for its button
+---
+
+<p class="code-copy-status" role="status"></p>
+
+<style is:global>
+  /* A frame on the site's code background, so blocks stand apart from the
+     page in both themes. A grid, so the button can sit over the code's top
+     right corner: the bar, if there is one, then the code */
+  .code-block {
+    --code-copy-size: 1.75rem;
+    /* Centres the button on the code's first line (1.5em tall, below 0.75em
+       of padding), in the code's em */
+    --code-copy-inset: calc(1.5em - var(--code-copy-size) / 2);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'bar' 'code';
+    margin-bottom: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-code-bg);
+    overflow: hidden;
+  }
+
+  .code-block pre {
+    grid-area: code;
+    margin: 0;
+    border-radius: 0;
+    /* Room for the button, so a long line can scroll out from under it */
+    padding-right: calc(var(--code-copy-size) + 2 * var(--code-copy-inset));
+  }
+
+  /* The bar takes the code's size (0.78em, as in typography.css), so its 1em
+     of padding matches the pre's and the label lines up with the code */
+  .code-bar {
+    grid-area: bar;
+    display: flex;
+    align-items: center;
+    min-height: 2rem;
+    padding-inline: 1em;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.78em;
+  }
+
+  .code-lang {
+    font-family: var(--font-heading);
+    font-size: var(--text-label);
+    color: var(--color-text-muted);
+    text-transform: lowercase;
+  }
+
+  /* A file's name, as written: in the code's font, and free to wrap on a narrow screen */
+  .code-title {
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    color: var(--color-text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  /* Over the code, on its background, so code scrolling under it stays out of
+     the way. Sized like the code, so the inset's em matches the pre's */
+  .code-copy {
+    grid-area: code;
+    z-index: 1;
+    justify-self: end;
+    align-self: start;
+    display: grid;
+    place-items: center;
+    width: var(--code-copy-size);
+    height: var(--code-copy-size);
+    margin: var(--code-copy-inset);
+    padding: 0;
+    border: none;
+    background: var(--color-code-bg);
+    color: var(--color-text-muted);
+    font-size: 0.78em;
+    cursor: pointer;
+  }
+
+  .code-copy:hover {
+    color: var(--color-text);
+  }
+
+  /* The frame clips anything past its edge, so the focus ring stays inside */
+  .code-copy:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .code-copied-icon,
+  .code-copy[data-copied] .code-copy-icon {
+    display: none;
+  }
+
+  .code-copy[data-copied] .code-copied-icon {
+    display: block;
+  }
+
+  /* Touch screens get a button big enough to tap */
+  @media (hover: none) {
+    .code-block {
+      --code-copy-size: 2.25rem;
+    }
+  }
+
+  /* Phones: blocks run to the screen's edges, with the code lined up with the
+     text, for more room before lines scroll */
+  @media (max-width: 480px) {
+    .code-block {
+      margin-inline: calc(-1 * var(--side-padding));
+      border-inline: 0;
+      border-radius: 0;
+    }
+
+    .code-bar {
+      padding-inline: var(--side-padding);
+    }
+
+    .code-block pre {
+      padding-left: var(--side-padding);
+    }
+  }
+
+  /* Announces the copy to screen readers without showing on screen */
+  .code-copy-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  let resetTimer: ReturnType<typeof setTimeout> | undefined;
+
+  document.addEventListener('click', async (event) => {
+    const button = (event.target as Element).closest<HTMLButtonElement>('.code-copy');
+    const code = button?.closest('.code-block')?.querySelector('pre');
+    if (!button || !code) return;
+    try {
+      await navigator.clipboard.writeText(code.textContent ?? '');
+    } catch {
+      return; // No clipboard access; the code can still be selected by hand
+    }
+
+    clearTimeout(resetTimer);
+    document.querySelector('.code-copy[data-copied]')?.removeAttribute('data-copied');
+    button.dataset.copied = '';
+    const status = document.querySelector('.code-copy-status');
+    if (status) status.textContent = 'Code copied';
+    resetTimer = setTimeout(() => {
+      button.removeAttribute('data-copied');
+      if (status) status.textContent = '';
+    }, 2000);
+  });
+</script>

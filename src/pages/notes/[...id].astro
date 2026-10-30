@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import CodeCopy from '../../components/CodeCopy.astro';
 import Divider from '../../components/Divider.astro';
 import ExternalLinkIcon from '../../components/ExternalLinkIcon.astro';
 import HeadingLinks from '../../components/HeadingLinks.astro';
@@ -114,6 +115,7 @@ const structuredData = {
       <div class="note-body">
         <Content />
         <HeadingLinks />
+        <CodeCopy />
       </div>
     </article>
     <!-- Outside the article: it's navigation, and stays clear of the note's own heading styles -->

@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import CodeCopy from '../../components/CodeCopy.astro';
 import HeadingLinks from '../../components/HeadingLinks.astro';
 import PostMeta from '../../components/PostMeta.astro';
 import SeriesCrumbs from '../../components/SeriesCrumbs.astro';
@@ -85,6 +86,7 @@ const structuredData = {
       </header>
       <Content />
       <HeadingLinks />
+      <CodeCopy />
       {series && <SeriesNav id={series.id} posts={posts} current={post.id} />}
     </article>
   </div>
