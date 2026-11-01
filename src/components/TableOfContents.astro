@@ -25,11 +25,18 @@ const { headings } = Astro.props;
     font-family: var(--font-heading);
   }
 
+  /* A labelled block, like the lists beside a note: the label at the size
+     of the groups under a note, in the text colour, with a rule beneath.
+     The label and links have the same padding as a note's, so the text
+     lines up the same way */
   .toc-label {
     display: block;
     margin-bottom: var(--space-xs);
-    padding: 0 0.5em;
-    color: var(--color-text-muted);
+    padding: 0 var(--space-sm) var(--space-xs);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--text-list-heading);
+    line-height: var(--leading-heading);
+    color: var(--color-text);
   }
 
   .toc-list {
@@ -44,11 +51,13 @@ const { headings } = Astro.props;
     font-size: 0.92em;
   }
 
+  /* A word too long for the line wraps rather than overflowing */
   .toc-link {
     display: block;
-    padding: 0.3em 0.5em;
-    border-radius: var(--radius-sm);
-    color: var(--color-text-muted);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-md);
+    overflow-wrap: anywhere;
+    color: var(--color-text);
     text-decoration: none;
     line-height: 1.35;
     transition: color var(--duration-150) ease, background-color var(--duration-150) ease;

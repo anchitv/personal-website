@@ -84,10 +84,13 @@ const structuredData = {
           tags={post.data.tags}
         />
       </header>
-      <Content />
-      <HeadingLinks />
-      <CodeCopy />
-      {series && <SeriesNav id={series.id} posts={posts} current={post.id} />}
+      <!-- Its own block, so the contents can start level with the header's rule rather than the title -->
+      <div class="post-body">
+        <Content />
+        <HeadingLinks />
+        <CodeCopy />
+        {series && <SeriesNav id={series.id} posts={posts} current={post.id} />}
+      </div>
     </article>
   </div>
 </BaseLayout>
@@ -115,25 +118,55 @@ const structuredData = {
       grid-template-columns: 1fr minmax(0, var(--prose-width)) 1fr;
     }
 
+    /* The article spans two rows, its header and its body, as on notes, so
+       the contents can start on the second */
     .post-layout--toc .prose {
       grid-column: 2;
-      grid-row: 1;
+      grid-row: 1 / span 2;
+      display: grid;
+      grid-template-rows: subgrid;
       width: 100%;
+    }
+
+    .post-layout--toc .post-body {
+      min-width: 0;
     }
 
     .toc-sidebar {
       display: block;
       grid-column: 1;
-      grid-row: 1;
+      grid-row: 2;
       justify-self: end;
       align-self: start;
       position: sticky;
-      top: calc(var(--header-height) + var(--space-md));
+      /* As on notes, it never scrolls on its own: it stays in view under the
+         header, and contents taller than the window scroll with the page
+         until the last heading shows, then stay there. --side-height comes
+         from the script below */
+      top: min(
+        calc(var(--header-height) + var(--space-md)),
+        calc(100vh - var(--side-height, 0px) - var(--space-md))
+      );
       width: min(15rem, 100%);
-      max-height: calc(100vh - var(--header-height) - var(--space-xl));
-      overflow-y: auto;
-      margin-top: var(--space-xl);
+      /* Pulled up so the Contents label's rule continues the rule under the
+         post's title: back over the header's gap and its rule, then the
+         label's own height */
+      margin-top: calc(-1 * (var(--space-xl) + 1px + var(--text-list-heading) * var(--leading-heading) + var(--space-xs)));
       padding-left: var(--space-md);
     }
   }
 </style>
+
+<script>
+  // The contents' height, for where they stick on wide screens. It changes
+  // when the fonts load and when the window's width changes the text size
+  function measureContents() {
+    const side = document.querySelector<HTMLElement>('.toc-sidebar');
+    if (!side) return;
+    new ResizeObserver(() => {
+      side.style.setProperty('--side-height', `${side.offsetHeight}px`);
+    }).observe(side);
+  }
+
+  document.addEventListener('astro:page-load', measureContents);
+</script>
