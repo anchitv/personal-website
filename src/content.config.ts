@@ -33,7 +33,8 @@ const notes = defineCollection({
     description: z.string().optional(),
     // The heading the note is grouped under on the Notes page
     topic: z.string().refine(isTopic, { error: (issue) => `Unknown topic "${issue.input}": add it to src/lib/topics.ts` }),
-    // Other terms readers might search for; each one is also a glossary entry
+    // Other terms readers might search for; each one is also a glossary entry.
+    // The note must use each one or the glossary page fails the build
     aliases: z.array(z.string()).default([]),
     // Further reading: pages elsewhere worth going to next. `about` is one
     // line on what the reader gets from it
