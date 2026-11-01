@@ -4,6 +4,7 @@ import { rehypeHeadingIds, unified } from '@astrojs/markdown-remark';
 import { FontaineTransform } from 'fontaine';
 import { partRefs, remarkPartRefs } from './src/remark-part-refs.mjs';
 import { remarkReadingTime } from './src/remark-reading-time.mjs';
+import { checkLinks } from './src/check-links.mjs';
 import { rehypeCodeCopy } from './src/rehype-code-copy.mjs';
 import { rehypeGlossarySections } from './src/rehype-glossary-sections.mjs';
 import { rehypeHeadingLinks } from './src/rehype-heading-links.mjs';
@@ -24,7 +25,7 @@ export default defineConfig({
   // Astro 7's default also strips whitespace between tags, which joins
   // inline text to links (e.g. "by email:contact@…" on /about/)
   compressHTML: true,
-  integrations: [sitemap({ filter: (page) => !page.includes('/search/') && !page.includes('/principles/') })],
+  integrations: [checkLinks(), sitemap({ filter: (page) => !page.includes('/search/') && !page.includes('/principles/') })],
   markdown: {
     shikiConfig: {
       themes: {
