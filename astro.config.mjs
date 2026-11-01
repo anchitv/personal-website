@@ -6,6 +6,7 @@ import { partRefs, remarkPartRefs } from './src/remark-part-refs.mjs';
 import { remarkReadingTime } from './src/remark-reading-time.mjs';
 import { rehypeCodeCopy } from './src/rehype-code-copy.mjs';
 import { rehypeHeadingLinks } from './src/rehype-heading-links.mjs';
+import { rehypeLinkKinds } from './src/rehype-link-kinds.mjs';
 import { rehypeNoteSections } from './src/rehype-note-sections.mjs';
 
 export default defineConfig({
@@ -47,7 +48,7 @@ export default defineConfig({
       // Part numbers first, so the read time counts them as written out
       remarkPlugins: [[remarkPartRefs, partRefs()], remarkReadingTime],
       // Astro adds heading ids after these plugins; run it first so the links have ids to point at
-      rehypePlugins: [rehypeHeadingIds, rehypeHeadingLinks, rehypeNoteSections, rehypeCodeCopy],
+      rehypePlugins: [rehypeHeadingIds, rehypeLinkKinds, rehypeHeadingLinks, rehypeNoteSections, rehypeCodeCopy],
     }),
   },
   vite: {
