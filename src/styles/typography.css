@@ -89,6 +89,12 @@ pre {
   margin-bottom: var(--space-md);
 }
 
+/* A paragraph that introduces a list sits closer to it than the list sits
+   to what follows, as headings do with their sections */
+p:has(+ ul, + ol) {
+  margin-bottom: var(--space-sm);
+}
+
 /* Sublists sit inside a list item, so they don't need block spacing */
 li > ul,
 li > ol {
@@ -178,6 +184,83 @@ a:hover {
   color: var(--color-accent-hover);
 }
 
+/* Where a link in a post, note or project goes, marked by
+   src/rehype-link-kinds.mjs: another site gets an external icon, a section
+   further down the page a down arrow and one further up an up arrow. Links
+   to other pages get no icon. The icon hangs off the last word, so the two
+   never wrap apart */
+.link-end {
+  white-space: nowrap;
+}
+
+.link-external .link-end::after,
+.link-jump .link-end::after {
+  content: '';
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  margin-left: 0.2em;
+  vertical-align: -0.05em;
+  background-color: currentColor;
+  -webkit-mask: var(--link-icon) center / contain no-repeat;
+  mask: var(--link-icon) center / contain no-repeat;
+}
+
+.link-external {
+  --link-icon: var(--icon-external);
+}
+
+.link-jump {
+  --link-icon: var(--icon-arrow-down);
+}
+
+.link-jump-up {
+  --link-icon: var(--icon-arrow-up);
+}
+
+/* A link takes the colour of where it goes, whatever page it's on: posts
+   gold, notes green, projects blue, other pages the site's copper and other
+   sites indigo. A link further down the page carries its page's section.
+   The -strong shades keep body text at 4.5:1 or more. Hover steps towards
+   the heading colour: darker in light, lighter in dark */
+.link-blog {
+  --link-color: var(--color-blog-strong);
+}
+
+.link-notes {
+  --link-color: var(--color-notes-strong);
+}
+
+.link-projects {
+  --link-color: var(--color-projects-strong);
+}
+
+.link-page {
+  --link-color: var(--color-link-page);
+}
+
+.link-external {
+  --link-color: var(--color-link-external);
+}
+
+:is(.link-blog, .link-notes, .link-projects, .link-page, .link-external) {
+  color: var(--link-color);
+}
+
+:is(.link-blog, .link-notes, .link-projects, .link-page, .link-external):hover {
+  color: color-mix(in srgb, var(--link-color) 70%, var(--color-text-heading));
+}
+
+/* Read by screen readers, not shown: "(external site)" after a link */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* Prose container -- narrower for comfortable reading */
 .prose {
   max-width: var(--prose-width);
@@ -193,6 +276,14 @@ a:hover {
 
 .prose h3 {
   font-size: var(--text-subheading);
+}
+
+/* A heading within a subsection, like Pros and Cons: one step below h3 on
+   the type scale, and close to what it heads */
+.prose h4 {
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-xs);
+  font-size: var(--text-minor-heading);
 }
 
 /* Listing container -- wider for index/listing pages */

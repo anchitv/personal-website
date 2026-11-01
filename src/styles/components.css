@@ -965,3 +965,184 @@ html:not(.dark) .link-pill svg {
     display: inline;
   }
 }
+
+/* === COMPARISON TABLE (posts) ===
+   Options rated on a few qualities, written as HTML in a post: a table in
+   <div class="compare">, each option a row header linking to its section,
+   with its install links under it (.compare-links), and each rating a
+   badge. Each cell's data-label names its column for phones, where every
+   row stacks into a block. Its links carry the classes and spans
+   src/rehype-link-kinds.mjs gives Markdown links, which it can't reach in
+   raw HTML.
+
+   Every column rates on the same three levels, in the same colours:
+   .rating-good is the column's best, .rating-mid in between and .rating-bad
+   its worst. Each column names its own levels, like Low, Medium and High */
+.compare {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  margin-bottom: var(--space-md);
+}
+
+.compare table {
+  margin-bottom: 0;
+}
+
+.compare th,
+.compare td {
+  padding: 0.6em 0.7em;
+  border-bottom: 0;
+  vertical-align: middle;
+}
+
+/* Headers at the table text size, on a stone band */
+.compare thead th {
+  font-size: 1em;
+  background: var(--color-bg-alt);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: bottom;
+}
+
+/* The ratings and their headers centred; the option names stay left */
+.compare thead th + th,
+.compare td {
+  text-align: center;
+}
+
+/* Option names a step below the headers */
+.compare tbody th {
+  font-size: 0.9em;
+}
+
+/* Stripes lighter than the header band, and a tint to follow a row across */
+.compare tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--color-bg-alt) 60%, var(--color-bg));
+}
+
+.compare tbody tr:hover {
+  background: color-mix(in srgb, var(--color-accent) 8%, var(--color-bg));
+}
+
+/* Option names link to their sections. No underline: they keep the heading
+   colour, which stays readable on the stripes, and their down arrow
+   (.link-jump) takes the accent to mark them as links */
+.compare tbody th > a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.compare tbody th > a .link-end::after {
+  background-color: var(--color-accent);
+}
+
+.compare tbody th > a:hover {
+  color: var(--color-blog-strong);
+  text-decoration: underline;
+}
+
+.compare tbody th > a:hover .link-end::after {
+  background-color: currentColor;
+}
+
+/* Install links go to other sites, so they take the external link colour
+   (.link-external), 6.3:1 on the stripes */
+.compare-links {
+  display: block;
+  margin-top: 0.1em;
+  font-size: var(--text-ui);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+/* Green for the best, neutral stone in between and red for the worst, so
+   the middle is the one with no colour and the levels stay apart for
+   colour-blind readers too. One width, so each column of badges lines up */
+.rating {
+  display: inline-block;
+  min-width: 4.75em;
+  padding: 0.1em 0.55em;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: var(--text-meta);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.rating-good {
+  background: var(--color-status-active-bg);
+  color: var(--color-status-active-text);
+}
+
+/* 5.4:1 in light, 5.9:1 in dark */
+.rating-mid {
+  background: color-mix(in srgb, var(--color-text-muted) 14%, var(--color-bg));
+  color: var(--color-text-muted);
+}
+
+.rating-bad {
+  background: color-mix(in srgb, var(--color-rating-bad) 12%, var(--color-bg));
+  color: var(--color-rating-bad);
+}
+
+/* The table is as wide as the text. Long headers break into two even lines
+   to fit; every other cell stays on one. The ratings share the width evenly */
+@media (min-width: 768px) {
+  .compare thead th {
+    text-wrap: balance;
+  }
+
+  .compare thead th + th {
+    width: 23%;
+  }
+
+  .compare tbody th,
+  .compare td {
+    white-space: nowrap;
+  }
+}
+
+/* Phones: each row a block, the name first, then a line per rating labelled
+   with its column. The header row stays for screen readers only */
+@media (max-width: 767px) {
+  .compare thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .compare tbody,
+  .compare tr {
+    display: block;
+  }
+
+  .compare tr {
+    padding: var(--space-sm);
+  }
+
+  .compare tbody th,
+  .compare td {
+    padding: 0.2em 0;
+  }
+
+  .compare tbody th {
+    display: block;
+    margin-bottom: var(--space-xs);
+  }
+
+  .compare td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .compare td[data-label]::before {
+    content: attr(data-label);
+    font-family: var(--font-heading);
+    font-size: var(--text-meta);
+    color: var(--color-text-muted);
+  }
+}

@@ -24,6 +24,16 @@
     overflow: hidden;
   }
 
+  /* Inside a list item: a short gap from the text on either side, and when
+     it ends the item, the list's own spacing after, as a sublist has */
+  li > .code-block {
+    margin-block: var(--space-sm);
+  }
+
+  li > .code-block:last-child {
+    margin-bottom: 0;
+  }
+
   .code-block pre {
     grid-area: code;
     margin: 0;
@@ -112,6 +122,14 @@
       margin-inline: calc(-1 * var(--side-padding));
       border-inline: 0;
       border-radius: 0;
+    }
+
+    /* Inside a list item the block keeps its box: the list's indent would
+       stop it reaching the left edge */
+    li > .code-block {
+      margin-inline: 0;
+      border-inline: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
     }
 
     .code-bar {

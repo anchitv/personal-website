@@ -65,6 +65,7 @@
   --text-section-title: var(--fs-xl);     /* h2 outside articles: home sections, glossary letters */
   --text-heading: var(--fs-lg);           /* headings in articles (h2) and tag page sections */
   --text-subheading: var(--fs-md);        /* subheadings in articles (h3) */
+  --text-minor-heading: var(--fs-base);   /* headings within a subsection in articles (h4): Pros, Cons */
   --text-title: var(--fs-md);             /* titles in lists and cards */
   --text-title-compact: var(--fs-base);   /* titles in compact lists: tag pages, search, tag names */
   --text-group: var(--fs-base);           /* small caps headings over groups in a list: Notes topics, Projects sections */
@@ -143,17 +144,27 @@
   --series-edge: 60%;
 
 
-  /* Darkened variants for body-size text on --color-bg (≥4.5:1);
-     used for active nav links, where the base accents fall short */
+  /* Darkened variants for body-size text on --color-bg (≥4.5:1); used for
+     active nav links and links in text, where the base accents fall short */
   --color-blog-strong: #855a15;
   --color-notes-strong: #25703b;
   --color-projects-strong: #2a6298;
 
+  /* Links in text by where they go (typography.css). Another site
+     (.link-external) is 6.7:1 on the page and 6.3:1 on table stripes.
+     Another page outside the blog, notes and projects (.link-page) takes
+     the site's copper, fixed here where no section's accent can change it */
+  --color-link-external: #4a4bb8;
+  --color-link-page: var(--color-accent);
+
   /* === STATUS BADGE COLORS (text ≥4.5:1 on badge bg) === */
-  --color-status-active-bg: #e8f5e9;
+  /* Active's tint is strong enough to show against the page and table stripes */
+  --color-status-active-bg: #c8e6c9;
   --color-status-active-text: #256029;
   --color-status-idea-bg: #fff3e0;
   --color-status-idea-text: #a04000;
+  /* A comparison table's worst rating (.rating-bad): 5.7:1 on its tint */
+  --color-rating-bad: #a12a2a;
 
   /* === MISC === */
   --color-text-on-accent: #fff;
@@ -176,6 +187,13 @@
     0 8px 24px rgba(0, 0, 0, 0.1),
     0 16px 48px rgba(0, 0, 0, 0.06);
   --shadow-avatar: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  /* === ICONS ===
+   * For CSS masks, which paint them in any colour. Drawn like
+   * ExternalLinkIcon.astro: 24px grid, 2px round strokes */
+  --icon-external: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/%3E%3Cpolyline points='15 3 21 3 21 9'/%3E%3Cline x1='10' y1='14' x2='21' y2='3'/%3E%3C/svg%3E");
+  --icon-arrow-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='5' x2='12' y2='19'/%3E%3Cpolyline points='19 12 12 19 5 12'/%3E%3C/svg%3E");
+  --icon-arrow-up: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='12' y1='19' x2='12' y2='5'/%3E%3Cpolyline points='5 12 12 5 19 12'/%3E%3C/svg%3E");
 }
 
 /* === DARK MODE COLORS — Stone & Copper === */
@@ -224,11 +242,14 @@ html.dark {
   --color-notes-strong: var(--color-notes);
   --color-projects-strong: var(--color-projects);
 
+  --color-link-external: #a5a8f0;
+
   /* === STATUS BADGE COLORS === */
   --color-status-active-bg: #1b3a1b;
   --color-status-active-text: #81c784;
   --color-status-idea-bg: #3e2723;
   --color-status-idea-text: #ffb74d;
+  --color-rating-bad: #f08a84;
 
   /* === SHADOWS === */
   --shadow-card:
