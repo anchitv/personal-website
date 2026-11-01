@@ -12,6 +12,14 @@ import { rehypeNoteSections } from './src/rehype-note-sections.mjs';
 export default defineConfig({
   site: 'https://anchitverma.com',
   trailingSlash: 'always',
+  // Removed homelab posts, to what replaced them: networking basics became
+  // notes, and setting up the server was dropped from the series
+  redirects: {
+    '/blog/homelab/networking-basics': '/notes/',
+    '/blog/homelab/setting-up-the-server': '/blog/homelab/choosing-how-to-run/',
+    '/notes/podman-restart': '/notes/rootless-podman/#keeping-containers-running',
+    '/notes/rootless-ownership': '/notes/rootless-podman/#who-owns-the-files',
+  },
   // Astro 7's default also strips whitespace between tags, which joins
   // inline text to links (e.g. "by email:contact@…" on /about/)
   compressHTML: true,
