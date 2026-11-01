@@ -137,6 +137,8 @@ export function initFilters(config: FilterConfig) {
   // Series A–Z (Z–A descending), each in reading order, then posts outside
   // a series, newest first
   const seriesOf = (el: Element) => (el as HTMLElement).dataset.series || '';
+  // Reading order for two parts of the same series, else a tie
+  const byPart = (a: Element, b: Element) => (seriesOf(a) && seriesOf(a) === seriesOf(b) ? seriesOrder(a) - seriesOrder(b) : 0);
   const bySeries = (a: Element, b: Element, dir: number) => {
     const [seriesA, seriesB] = [seriesOf(a), seriesOf(b)];
     if (seriesA && seriesB) return dir * seriesA.localeCompare(seriesB) || seriesOrder(a) - seriesOrder(b);
@@ -144,11 +146,12 @@ export function initFilters(config: FilterConfig) {
     return dateOf(b).localeCompare(dateOf(a)) || byTitle(a, b);
   };
 
-  // Ascending is oldest first, A–Z, series A–Z; descending flips it. Ties
-  // fall back to title order, so items with the same date don't shuffle
+  // Ascending is oldest first, A–Z, series A–Z; descending flips it. On the
+  // same date, the later part of a series counts as newer; other ties fall
+  // back to title order, so items with the same date don't shuffle
   function sortItems(filtered: Element[], sort: string) {
     const dir = descending ? -1 : 1;
-    if (sort === 'date') filtered.sort((a, b) => dir * dateOf(a).localeCompare(dateOf(b)) || byTitle(a, b));
+    if (sort === 'date') filtered.sort((a, b) => dir * dateOf(a).localeCompare(dateOf(b)) || dir * byPart(a, b) || byTitle(a, b));
     else if (sort === 'group') filtered.sort((a, b) => groupIndex(a) - groupIndex(b) || byTitle(a, b));
     else if (sort === 'series') filtered.sort((a, b) => bySeries(a, b, dir));
     else filtered.sort((a, b) => dir * byTitle(a, b));

@@ -11,16 +11,18 @@ export type SeriesColor = (typeof SERIES_COLORS)[number];
 
 /** A post split into sub-parts, which share its number: Part 7.1, 7.2 */
 type Split = { readonly title: string; readonly parts: readonly string[] };
-/** Consecutive parts under a heading, e.g. Foundations for parts 1 to 4. Numbers run on across topics */
+/** Consecutive parts under a heading, e.g. Foundations for parts 1 to 4. Each topic numbers its parts from 1 */
 type Topic = { readonly topic: string; readonly parts: readonly (string | Split)[] };
 
 /**
  * Every blog series. The key is the slug: it's the folder its posts live in
  * (src/content/blog/<slug>/) and the /blog/?series=<slug> filter. `name` is
  * shown to readers and `color` is one of SERIES_COLORS. `parts` lists the
- * file names of the posts in reading order, and each part's number is its
- * place in the list. Wrap consecutive parts in { topic, parts } to give them
- * a heading. Only written posts are listed: add each one as you write it. The
+ * posts in reading order by file name, without the number, and each part's
+ * number is its place in the list. Wrap consecutive parts in { topic, parts } to give them
+ * a heading; a topic's parts are numbered from 1. A post's file sits in its
+ * topic's folder and starts with its number, so files sort in reading order:
+ * homelab/local-ai/03-open-webui.md is Local AI Part 3. Only written posts are listed: add each one as you write it. The
  * build fails when this list and the series folder disagree (see
  * checkSeries).
  */
@@ -31,7 +33,11 @@ export const SERIES = {
     parts: [
       {
         topic: 'Foundations',
-        parts: ['what-is-a-homelab', 'networking-basics', 'setting-up-the-server', 'running-containers'],
+        parts: ['what-is-a-homelab', 'networking-basics', 'setting-up-the-server', 'running-containers', 'starting-at-boot'],
+      },
+      {
+        topic: 'Local AI',
+        parts: ['llama-swap', 'choosing-models', 'open-webui', 'ai-agents-container', 'running-ai-agents', 'opencode-local-models', 'orca'],
       },
     ],
   },
@@ -73,10 +79,12 @@ export function seriesColors(id: string): string {
 export interface SeriesPart {
   /** "4", or "7.1" for a sub-part */
   number: string;
-  /** File name in the series folder */
+  /** File name without the number: the part's name in [[part:…]] and its URL */
   slug: string;
   /** Collection id of the post: <series>/<slug> */
   post: string;
+  /** Its file in src/content/blog: <series>/<topic>/<number>-<slug>.md, or without the topic folder if it has none */
+  file: string;
   /** Heading of the parts it's grouped with, if any */
   topic?: string;
 }
@@ -90,7 +98,7 @@ export interface SeriesOutline {
   parts: SeriesPart[];
 }
 
-/** A series in reading order, each part numbered from its place in the list */
+/** A series in reading order, each part numbered from its place in its topic, or in the list */
 export function seriesOutline(id: string): SeriesOutline {
   // Topics don't take a number: each part in one gets its topic instead
   const entries = (SERIES[id as Series].parts as readonly (string | Split | Topic)[]).flatMap(
@@ -99,13 +107,40 @@ export function seriesOutline(id: string): SeriesOutline {
         ? entry.parts.map((item) => ({ item, topic: entry.topic }))
         : [{ item: entry }],
   );
-  const toPart = (slug: string, number: string, topic?: string): SeriesPart => ({ number, slug, post: `${id}/${slug}`, topic });
-  const items = entries.map(({ item, topic }, i): SeriesItem =>
-    typeof item === 'object'
-      ? { number: `${i + 1}`, title: item.title, topic, parts: item.parts.map((slug, j) => toPart(slug, `${i + 1}.${j + 1}`, topic)) }
-      : toPart(item, `${i + 1}`, topic),
-  );
+  const toPart = (slug: string, number: string, topic?: string): SeriesPart => {
+    // Padded to two digits, so 10 sorts after 09
+    const name = `${number.replace(/^\d+/, (n) => n.padStart(2, '0'))}-${slug}.md`;
+    return { number, slug, post: `${id}/${slug}`, topic, file: topic ? `${id}/${topicId(topic)}/${name}` : `${id}/${name}` };
+  };
+  // Each topic counts from 1; parts outside a topic count on their own
+  const counts = new Map<string | undefined, number>();
+  const items = entries.map(({ item, topic }): SeriesItem => {
+    const n = (counts.get(topic) ?? 0) + 1;
+    counts.set(topic, n);
+    return typeof item === 'object'
+      ? { number: `${n}`, title: item.title, topic, parts: item.parts.map((slug, j) => toPart(slug, `${n}.${j + 1}`, topic)) }
+      : toPart(item, `${n}`, topic);
+  });
   return { items, parts: items.flatMap((item) => ('parts' in item ? item.parts : [item])) };
+}
+
+/**
+ * A part as another post's text names it: "part 6", or "Part 6" from
+ * [[Part:…]]. Each topic numbers its parts from 1, so a part in another topic
+ * than the post's also gets its topic: "Foundations part 4"
+ */
+export function partName(word: string, part: { number: string; topic?: string }, fromTopic?: string): string {
+  return part.topic && part.topic !== fromTopic ? `${part.topic} part ${part.number}` : `${word} ${part.number}`;
+}
+
+/**
+ * A blog post's id from its file in src/content/blog. A series part's topic
+ * folder and number are left out, so homelab/local-ai/03-open-webui.md is
+ * homelab/open-webui: renumbering or regrouping parts keeps their URLs and
+ * [[part:…]] mentions
+ */
+export function postId(file: string): string {
+  return file.replace(/\.md$/, '').replace(/^([\w-]+)\/(?:[\w-]+\/)?[\d.]+-([\w-]+)$/, '$1/$2');
 }
 
 /** Where a post sits in its series */
@@ -132,27 +167,33 @@ export function postSeries(postId: string): PostSeries | undefined {
 
 /**
  * Fails the build when a series list and its folder disagree: a post in the
- * folder that isn't listed, a listed post that doesn't exist, or a file name
- * listed twice. Pass every post, drafts included. Posts aren't kept in git, so a checkout can have none of a
+ * folder that isn't listed, a listed post that doesn't exist, a file name
+ * listed twice, or a file not named for its place (see SeriesPart.file).
+ * Pass every post, drafts included. Posts aren't kept in git, so a checkout can have none of a
  * series' posts: missing ones only count when some of them are there.
  */
-export function checkSeries(posts: { id: string }[]): void {
-  const ids = new Set(posts.map((post) => post.id));
+export function checkSeries(posts: { id: string; filePath?: string }[]): void {
+  const byId = new Map(posts.map((post) => [post.id, post]));
   for (const id of Object.keys(SERIES)) {
     const { parts } = seriesOutline(id);
     const where = `the ${id} series in src/lib/series.ts`;
-    const hasPosts = parts.some((part) => ids.has(part.post));
+    const hasPosts = parts.some((part) => byId.has(part.post));
     for (const [i, part] of parts.entries()) {
+      const file = `src/content/blog/${part.file}`;
+      const post = byId.get(part.post);
       if (parts.findIndex((other) => other.slug === part.slug) !== i) {
         throw new Error(`"${part.slug}" is listed twice in ${where}`);
       }
-      if (hasPosts && !ids.has(part.post)) {
-        throw new Error(`${where} lists "${part.slug}", but src/content/blog/${part.post}.md doesn't exist: add the post, or take it out of the list`);
+      if (hasPosts && !post) {
+        throw new Error(`${where} lists "${part.slug}", but ${file} doesn't exist: add the post, or take it out of the list`);
+      }
+      if (post && post.filePath !== file) {
+        throw new Error(`${post.filePath} doesn't match its place in ${where}: rename it to ${file}`);
       }
     }
     for (const post of posts) {
       if (post.id.startsWith(`${id}/`) && !parts.some((part) => part.post === post.id)) {
-        throw new Error(`src/content/blog/${post.id}.md is in the ${id} folder but not in ${where}: add it where it belongs in the order`);
+        throw new Error(`${post.filePath} is in the ${id} folder but not in ${where}: add it where it belongs in the order`);
       }
     }
   }
@@ -178,7 +219,8 @@ export function writePartRefs(postId: string, markdown: string, link?: (part: Se
     const part = parts.find((p) => p.slug === slug);
     if (!part) return placeholder;
     const href = link?.(part);
-    return href ? `[${word} ${part.number}](${href})` : `${word} ${part.number}`;
+    const name = partName(word, part, series?.topic);
+    return href ? `[${name}](${href})` : name;
   });
 }
 
@@ -224,15 +266,17 @@ interface DatedEntry {
   data: { date: Date };
 }
 
+/** Sorts posts newest first. On the same day, the later part counts as newer */
+export function newestFirst(a: DatedEntry, b: DatedEntry): number {
+  return b.data.date.valueOf() - a.data.date.valueOf() || (postSeries(b.id)?.order ?? 0) - (postSeries(a.id)?.order ?? 0);
+}
+
 /**
  * The newest posts for a short list, newest first. Each series shows once, as
  * its newest part, so one series can't fill the list; if that leaves fewer
  * than `count` posts, more parts of the same series fill the gaps.
  */
 export function latestPostsPerSeries<T extends DatedEntry>(posts: T[], count: number): T[] {
-  // On the same day, the later part counts as newer
-  const newestFirst = (a: T, b: T) =>
-    b.data.date.valueOf() - a.data.date.valueOf() || (postSeries(b.id)?.order ?? 0) - (postSeries(a.id)?.order ?? 0);
   const sorted = [...posts].sort(newestFirst);
 
   const shownSeries = new Set<string>();

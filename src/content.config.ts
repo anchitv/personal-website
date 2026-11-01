@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import { postId } from './lib/series';
 import { isTag, sortTags } from './lib/tags';
 import { isTopic } from './lib/topics';
 
@@ -13,7 +14,8 @@ const tagSlug = z
 const tags = z.array(tagSlug).default([]).transform(sortTags);
 
 const blog = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  // A series part's id leaves out its topic folder and number (see postId)
+  loader: glob({ pattern: '**/*.md', base: './src/content/blog', generateId: ({ entry }) => postId(entry) }),
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),

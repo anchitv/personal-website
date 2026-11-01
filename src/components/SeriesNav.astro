@@ -32,6 +32,9 @@ for (const item of shownItems) {
 const index = readable.findIndex((part) => part.post === current);
 const prev = readable[index - 1];
 const next = readable[index + 1];
+// Each topic numbers its parts from 1, so a part in another topic says which
+const partOf = (part: SeriesPart) =>
+  part.topic && part.topic !== readable[index]?.topic ? `${part.topic} · Part ${part.number}` : `Part ${part.number}`;
 
 const titleOf = (part: SeriesPart) => published.get(part.post)!.data.title;
 const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
@@ -42,14 +45,14 @@ const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
     <div class="series-cards">
       {prev && (
         <a href={hrefOf(prev)} rel="prev" class="series-card">
-          <span class="caps-label">&larr; Previous &middot; Part {prev.number}</span>
+          <span class="caps-label">&larr; Previous &middot; {partOf(prev)}</span>
           <span class="series-card-title">{titleOf(prev)}</span>
           <span class="series-card-description">{published.get(prev.post)!.data.description}</span>
         </a>
       )}
       {next && (
         <a href={hrefOf(next)} rel="next" class="series-card series-card--next">
-          <span class="caps-label">Next &middot; Part {next.number} &rarr;</span>
+          <span class="caps-label">Next &middot; {partOf(next)} &rarr;</span>
           <span class="series-card-title">{titleOf(next)}</span>
           <span class="series-card-description">{published.get(next.post)!.data.description}</span>
         </a>
