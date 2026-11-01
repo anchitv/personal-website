@@ -26,7 +26,7 @@ const { Content, headings, remarkPluginFrontmatter } = await render(post);
 const { partRefErrors } = remarkPluginFrontmatter;
 if (partRefErrors) {
   throw new Error(
-    `Blog post "${post.id}" has placeholders that aren't earlier parts of its series: ${partRefErrors.join(', ')}. A post only refers back: use [[part:<file name>]] with a part listed before it in src/lib/series.ts`
+    `Blog post "${post.id}" has placeholders that aren't earlier parts of its series: ${partRefErrors.join(', ')}. A post only refers back: use [[part:<name>]] with a part listed before it in src/lib/series.ts`
   );
 }
 

@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import HeaderRule from '../../components/HeaderRule.astro';
 import PostListItem from '../../components/PostListItem.astro';
 import { tagLabel } from '../../lib/tags';
-import { postSeries } from '../../lib/series';
+import { newestFirst, postSeries } from '../../lib/series';
 
 export async function getStaticPaths() {
   const [blogEntries, noteEntries, projectEntries] = await Promise.all([
@@ -50,7 +50,7 @@ const { tag, posts, notes, projects } = Astro.props;
 const label = tagLabel(tag);
 
 // Sort posts and notes by date (reverse chronological)
-const sortedPosts = [...posts].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const sortedPosts = [...posts].sort(newestFirst);
 const sortedNotes = [...notes].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const sortedProjects = [...projects].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
