@@ -60,16 +60,14 @@ const relatedNotes = [
 ];
 const shownNotes = relatedNotes.slice(0, 4);
 // Further reading, each shown with its site: "cloudflare.com". The title's
-// last word is split off so the ↗ after it never wraps onto a line alone
-const links = note.data.links.map((link) => {
-  const lastWord = link.title.lastIndexOf(' ') + 1;
-  return {
-    ...link,
-    titleStart: link.title.slice(0, lastWord),
-    titleEnd: link.title.slice(lastWord),
-    site: new URL(link.url).hostname.replace(/^www\./, ''),
-  };
-});
+// last letter is split off so the ↗ after it never wraps onto a line alone,
+// while the rest can still wrap, even inside a long word
+const links = note.data.links.map((link) => ({
+  ...link,
+  titleStart: link.title.slice(0, -1),
+  titleEnd: link.title.slice(-1),
+  site: new URL(link.url).hostname.replace(/^www\./, ''),
+}));
 // Related notes and further reading sit beside the note on wide screens
 const hasSidebar = relatedNotes.length > 0 || links.length > 0;
 
@@ -171,8 +169,8 @@ const structuredData = {
             <ul class="note-link-list">
               {links.map(({ titleStart, titleEnd, url, about, site }) => (
                 <li>
-                  <a href={url} class="note-link" target="_blank" rel="noopener noreferrer">
-                    <span class="note-link-title">{titleStart}<span class="title-end">{titleEnd}<span class="external-icon"><ExternalLinkIcon /></span></span></span>
+                  <a href={url} class="note-link note-link--external" target="_blank" rel="noopener noreferrer">
+                    <span class="note-link-title">{titleStart}<span class="title-end">{titleEnd}<span class="external-icon"><ExternalLinkIcon /></span></span><span class="visually-hidden"> (external site)</span></span>
                     <span class="note-link-text"><span class="link-site">{site}</span><span class="link-about"> · {about}</span></span>
                   </a>
                 </li>
@@ -220,11 +218,13 @@ const structuredData = {
   /* Each entry is one link: a title with a muted line under it (the
      sentence from a post, a note's description, or a link's site and what
      it's for). The negative margin keeps the text in line with the headings
-     while the hover tint gets room around it */
+     while the hover tint gets room around it. A word too long for the line,
+     like ERR_TOO_MANY_REDIRECTS, wraps rather than overflowing */
   .note-link {
     display: flex;
     flex-direction: column;
     gap: 0.2em;
+    overflow-wrap: anywhere;
     margin-inline: calc(-1 * var(--space-sm));
     padding: var(--space-sm);
     border-radius: var(--radius-md);
@@ -268,7 +268,7 @@ const structuredData = {
   }
 
   /* The ↗ after a further reading title: the link leaves the site. It stays
-     on the line with the title's last word */
+     on the line with the title's last letter */
   .title-end {
     white-space: nowrap;
   }
@@ -328,18 +328,25 @@ const structuredData = {
       width: 100%;
     }
 
-    /* Two classes, so it outranks the stacked layout's gap after Mentioned in */
+    /* Two classes, so it outranks the stacked layout's gap after Mentioned in.
+       It never scrolls on its own: it stays in view under the header, and
+       one taller than the window scrolls with the page until its last link
+       shows, then stays there. --side-height comes from the script below */
     .note-layout--side .note-side.note-links {
       grid-column: 1;
       grid-row: 2 / span 2;
       justify-self: end;
       align-self: start;
       position: sticky;
-      top: calc(var(--header-height) + var(--space-md));
+      top: min(
+        calc(var(--header-height) + var(--space-md)),
+        calc(100vh - var(--side-height, 0px) - var(--space-md))
+      );
       width: min(15rem, 100%);
-      max-height: calc(100vh - var(--header-height) - var(--space-xl));
-      overflow-y: auto;
-      margin: 0;
+      /* Pulled up so the first heading's rule continues the rule under the
+         note's title: back over the header's gap and its rule, then the
+         heading's own height */
+      margin: calc(-1 * (var(--space-xl) + 1px + var(--text-list-heading) * var(--leading-heading) + var(--space-xs))) 0 0;
       padding: 0 0 0 var(--space-md);
     }
 
@@ -351,10 +358,19 @@ const structuredData = {
       display: none;
     }
 
+    .note-side section + section {
+      margin-top: var(--space-xl);
+    }
+
+    /* Each group is a labelled block: the heading at the size it has under
+       the note, in the text colour, with a rule beneath */
     .note-side h2 {
       margin-bottom: var(--space-xs);
-      padding: 0 var(--space-sm);
-      font-size: var(--text-label);
+      padding: 0 var(--space-sm) var(--space-xs);
+      border-bottom: 1px solid var(--color-border);
+      font-size: var(--text-list-heading);
+      line-height: var(--leading-heading);
+      color: var(--color-text);
     }
 
     .note-side .related-notes {
@@ -369,6 +385,7 @@ const structuredData = {
 
     .note-side .note-link-title {
       font-size: var(--text-ui);
+      line-height: 1.35;
     }
 
     .note-side .note-link-text {
@@ -379,9 +396,40 @@ const structuredData = {
       color: var(--color-text-muted);
     }
 
+    .note-side .external-icon {
+      color: var(--color-accent);
+    }
+
     .note-side .external-icon :global(svg) {
-      width: 0.8em;
-      height: 0.8em;
+      width: 0.75em;
+      height: 0.75em;
     }
   }
+
+  /* Further reading leaves the site, so its titles and icons take the
+     colour every external link has. Last, so it outranks the accent the
+     rules above give them in both layouts */
+  .note-link--external .note-link-title,
+  .note-link--external .external-icon {
+    color: var(--color-link-external);
+  }
+
+  .note-link--external:hover .note-link-title,
+  .note-link--external:hover .external-icon {
+    color: color-mix(in srgb, var(--color-link-external) 70%, var(--color-text-heading));
+  }
 </style>
+
+<script>
+  // The sidebar's height, for where it sticks on wide screens. It changes
+  // when the fonts load and when the window's width changes the text size
+  function measureSidebar() {
+    const side = document.querySelector<HTMLElement>('.note-side');
+    if (!side) return;
+    new ResizeObserver(() => {
+      side.style.setProperty('--side-height', `${side.offsetHeight}px`);
+    }).observe(side);
+  }
+
+  document.addEventListener('astro:page-load', measureSidebar);
+</script>

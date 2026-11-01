@@ -52,8 +52,11 @@ h6 {
   text-wrap: balance;
 }
 
+/* Titles fill their first line rather than balancing; pretty only keeps a
+   word from sitting alone on the last */
 h1 {
   font-size: var(--text-page-title);
+  text-wrap: pretty;
 }
 
 h2 {
