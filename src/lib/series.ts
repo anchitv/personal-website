@@ -33,11 +33,7 @@ export const SERIES = {
     parts: [
       {
         topic: 'Foundations',
-        parts: ['what-is-a-homelab', 'networking-basics', 'setting-up-the-server', 'running-containers', 'starting-at-boot'],
-      },
-      {
-        topic: 'Local AI',
-        parts: ['llama-swap', 'choosing-models', 'open-webui', 'ai-agents-container', 'running-ai-agents', 'opencode-local-models', 'orca'],
+        parts: ['what-is-a-homelab', 'choosing-how-to-run', 'running-containers', 'folders-and-secrets', 'starting-at-boot', 'custom-domain'],
       },
     ],
   },
