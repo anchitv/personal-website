@@ -1,5 +1,5 @@
 ---
-title: "Improving Curiosity in Reinforcement Learning"
+title: "A Simpler Curiosity Model"
 description: "Research at UNSW on a simpler curiosity model for game-playing agents."
 date: 2020-07-12
 status: archived
