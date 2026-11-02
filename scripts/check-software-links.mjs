@@ -1,7 +1,7 @@
-// Reports software in a post or note that isn't linked where CLAUDE.md asks:
-// the first time it appears on a page, and again the first time in each ##
-// or ### section. Runs as a Claude Code hook after edits under src/content
-// (.claude/settings.json), reading the edited file's path from the hook's
+// Reports software in a post, note or the about page that isn't linked where
+// CLAUDE.md asks: the first time it appears on a page, and again the first
+// time in each ## or ### section. Runs as a Claude Code hook after edits to
+// those (.claude/settings.json), reading the edited file's path from the hook's
 // JSON on stdin, and by hand: node scripts/check-software-links.mjs <file>…
 // It only reports; it never changes a file. The build fails when the list
 // below has software no page mentions (src/check-software-list.mjs)
@@ -40,8 +40,9 @@ const SOFTWARE = [
   [['Immich'], 'https://github.com/immich-app/immich'],
   [['Nextcloud'], 'https://nextcloud.com/files/'],
   [['PostgreSQL'], 'https://www.postgresql.org/about/'],
+  [['Clojure'], 'https://clojure.org/'],
 ];
-const CONTENT = /\/src\/content\/(blog|notes)\/.+\.md$/;
+const CONTENT = /\/src\/(content\/(blog|notes)\/.+\.md|pages\/about\.astro)$/;
 
 const group = new Map();
 SOFTWARE.forEach(([names], g) => names.forEach((name) => group.set(name, g)));
@@ -50,6 +51,7 @@ const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const NAMES = [...group.keys()].sort((a, b) => b.length - a.length).map(escape);
 const NAME = new RegExp(`(?<![\\w./@#-])(${NAMES.join('|')})(?![\\w-]|\\.\\w)`, 'g');
 const LINK = /\[([^\]]*)\]\(([^)\s]*)[^)]*\)/g;
+const ANCHOR = /<a\s[^>]*href="([^"]*)"/g;
 
 // The problems in a page, and the software it mentions where this check
 // looks: by name in prose, or in a link by name or URL
@@ -57,7 +59,12 @@ function scan(file) {
   const text = readFileSync(file, 'utf8');
   const frontmatter = text.match(/^---\n[\s\S]*?\n---\n/)?.[0] ?? '';
   const offset = frontmatter.split('\n').length - 1;
-  const lines = text.slice(frontmatter.length).split('\n');
+  // The about page's style and script blocks hold no prose: empty their
+  // lines, keeping line numbers
+  const lines = text
+    .slice(frontmatter.length)
+    .replace(/<(style|script)\b[\s\S]*?<\/\1>/g, (block) => block.replace(/[^\n]/g, ''))
+    .split('\n');
 
   // Sections start at h1 to h3, the levels the contents sidebar lists.
   // Prose lines exclude code blocks, raw HTML and headings
@@ -79,6 +86,10 @@ function scan(file) {
     for (const i of section) for (const m of lines[i].matchAll(LINK)) {
       if (group.has(m[1])) linked.add(group.get(m[1]));
       SOFTWARE.forEach(([, url], g) => m[2] === url && linked.add(g));
+    }
+    // Raw HTML links, by URL
+    for (const i of section) for (const m of lines[i].matchAll(ANCHOR)) {
+      SOFTWARE.forEach(([, url], g) => m[1] === url && linked.add(g));
     }
     linked.forEach((g) => used.add(g));
     for (const i of section) {

@@ -36,13 +36,16 @@ The build fails when:
   aren't here yet fail. A `#section` must be an id on its page. Links to
   other sites aren't checked (`src/check-links.mjs`).
 - **The software link list has software no page mentions.** The list in
-  `scripts/check-software-links.mjs` holds only what the posts, notes and
-  projects here name. A post brought in from outside the repo adds its
-  software back with it (`src/check-software-list.mjs`).
+  `scripts/check-software-links.mjs` holds only what the posts, notes,
+  projects and about page here name. A post brought in from outside the
+  repo adds its software back with it (`src/check-software-list.mjs`).
 
 Removed or renamed posts get a redirect in `astro.config.mjs`.
 
 ## Writing style
+
+These rules and the link rules below cover the about page
+(`src/pages/about.astro`) too.
 
 - Plain words and short sentences, in British spelling (analyse, licence).
 - **In notes, a paragraph or list item runs three lines at most.** That's
@@ -92,8 +95,8 @@ Removed or renamed posts get a redirect in `astro.config.mjs`.
   of software the site mentions; add new software there, after checking its
   URL loads.
 - **Checked on every edit:** a hook in `.claude/settings.json` runs that
-  script after any edit to a post or note and reports unlinked software
-  with the URL to use. Run it by hand with
+  script after any edit to a post, note or the about page and reports
+  unlinked software with the URL to use. Run it by hand with
   `node scripts/check-software-links.mjs <file>…`.
 - **Concepts** link to their note, like `[SSH](/notes/ssh-keys/)`, rather
   than an outside site.
@@ -103,8 +106,8 @@ Removed or renamed posts get a redirect in `astro.config.mjs`.
   "(external site)" for screen readers to links to other sites, and an
   arrow to links to another section of the page: down, or up for one
   further up. Links open in the same tab.
-- Raw HTML isn't seen by that plugin, so links in it carry the markup
-  themselves:
+- Raw HTML and the about page aren't seen by that plugin, so links in them
+  carry the markup themselves:
   `<a class="link-external" href="…"><span class="link-end">Name</span><span class="visually-hidden"> (external site)</span></a>`,
   or `<a class="link-jump link-blog" href="#id"><span class="link-end">Name</span></a>`
   in a post, adding `link-jump-up` when the section is further up. A link
