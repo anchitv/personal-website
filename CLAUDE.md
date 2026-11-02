@@ -63,8 +63,9 @@ Removed or renamed posts get a redirect in `astro.config.mjs`.
   Where it would misread, splitting into two sentences often reads better.
 - Headings in sentence case. Inside a section, Pros and Cons are `####`
   headings, styled as headings a step below `###`.
-- List items start with a bold label: **Label.** followed by sentences, or
-  **Label** – followed by a sentence (en dash) for pros, cons and reasons.
+- List items start with a bold label: **Label.** followed by sentences.
+- No long dashes (– or —). Use a full stop or comma instead, and "to" in
+  ranges: "$10 to $20".
 - A paragraph that introduces a list sits close to it by itself (CSS); no
   need to change anything in the Markdown.
 

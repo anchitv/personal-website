@@ -35,13 +35,13 @@ Install each app with the system's package manager, `apt` on [Debian](https://ww
 
 #### Pros
 
-- **Nothing extra** – No new tool to learn and nothing between the apps and the hardware.
+- **Nothing extra.** No new tool to learn and nothing between the apps and the hardware.
 
 #### Cons
 
-- **Clashes** – Apps share the system's libraries, so two apps that need different versions clash.
-- **Hard to remove** – Each app spreads its files across the system, which makes it hard to back up, move or remove.
-- **Missing packages** – Many self-hosted apps aren't packaged for your system or only in an old version.
+- **Clashes.** Apps share the system's libraries, so two apps that need different versions clash.
+- **Hard to remove.** Each app spreads its files across the system, which makes it hard to back up, move or remove.
+- **Missing packages.** Many self-hosted apps aren't packaged for your system or only in an old version.
 
 ### Virtual machines
 
@@ -49,15 +49,15 @@ A virtual machine (VM) is a whole computer simulated in software, running its ow
 
 #### Pros
 
-- **Strongest separation** – Each VM has its own kernel, so a problem in one stays there.
-- **Any system** – A VM can run Windows or [Home Assistant OS](https://www.home-assistant.io/installation/).
-- **Snapshots** – Undo a bad update by rolling the VM back.
+- **Strongest separation.** Each VM has its own kernel, so a problem in one stays there.
+- **Any system.** A VM can run Windows or [Home Assistant OS](https://www.home-assistant.io/installation/).
+- **Snapshots.** Undo a bad update by rolling the VM back.
 
 #### Cons
 
-- **Heavy** – Every VM runs a full operating system, with its own share of memory and disk.
-- **More upkeep** – Each VM is one more system to update.
-- **Hardware takes work** – Handing a VM a graphics card or a disk takes extra setup.
+- **Heavy.** Every VM runs a full operating system, with its own share of memory and disk.
+- **More upkeep.** Each VM is one more system to update.
+- **Hardware takes work.** Handing a VM a graphics card or a disk takes extra setup.
 
 ### System containers: LXC and Incus
 
@@ -65,12 +65,12 @@ A system container shares the computer's kernel, but otherwise acts like a small
 
 #### Pros
 
-- **Light** – Much lighter than a VM and starts in seconds.
+- **Light.** Much lighter than a VM and starts in seconds.
 
 #### Cons
 
-- **Still a whole system** – Each one is a Linux system to keep updated.
-- **Apps by hand** – Apps don't ship as system containers, so inside one you install them as you would directly on the system.
+- **Still a whole system.** Each one is a Linux system to keep updated.
+- **Apps by hand.** Apps don't ship as system containers, so inside one you install them as you would directly on the system.
 
 ### Docker
 
@@ -78,13 +78,13 @@ A system container shares the computer's kernel, but otherwise acts like a small
 
 #### Pros
 
-- **Biggest ecosystem** – Almost every app's docs and most guides assume Docker.
-- **Light** – Containers share the computer's kernel and start in seconds.
+- **Biggest ecosystem.** Almost every app's docs and most guides assume Docker.
+- **Light.** Containers share the computer's kernel and start in seconds.
 
 #### Cons
 
-- **Runs as root** – Containers are run by a background service, the Docker daemon, which runs as root, the all-powerful admin user. Anyone who can run `docker` commands can take over the server.
-- **Rootless is extra work** – A [rootless mode](https://docs.docker.com/engine/security/rootless/) exists, but it isn't the default and takes extra setup.
+- **Runs as root.** Containers are run by a background service, the Docker daemon, which runs as root, the all-powerful admin user. Anyone who can run `docker` commands can take over the server.
+- **Rootless is extra work.** A [rootless mode](https://docs.docker.com/engine/security/rootless/) exists, but it isn't the default and takes extra setup.
 
 ### Podman
 
@@ -92,15 +92,15 @@ A system container shares the computer's kernel, but otherwise acts like a small
 
 #### Pros
 
-- **Safer by default** – Someone who broke out of a container would only have your user's rights.
-- **Works like Docker** – Commands match Docker's, so guides written for Docker work with small changes.
+- **Safer by default.** Someone who broke out of a container would only have your user's rights.
+- **Works like Docker.** Commands match Docker's, so guides written for Docker work with small changes.
 
 #### Cons
 
-- **Low ports need setup** – Ports below 1024, like 80 and 443 for websites, need extra setup.
-- **Stops when you log out** – Containers stop when you log out, unless you set them up to stay.
-- **Compose through a helper** – Compose files go through a separate tool, [podman-compose](https://github.com/containers/podman-compose), which lacks some [Docker Compose](https://docs.docker.com/compose/) features.
-- **Fewer guides** – Most are written for Docker.
+- **Low ports need setup.** Ports below 1024, like 80 and 443 for websites, need extra setup.
+- **Stops when you log out.** Containers stop when you log out, unless you set them up to stay.
+- **Compose through a helper.** Compose files go through a separate tool, [podman-compose](https://github.com/containers/podman-compose), which lacks some [Docker Compose](https://docs.docker.com/compose/) features.
+- **Fewer guides.** Most are written for Docker.
 
 ### Kubernetes
 
@@ -108,13 +108,13 @@ A system container shares the computer's kernel, but otherwise acts like a small
 
 #### Pros
 
-- **Built for many machines** – Services keep running when a server fails.
-- **A work skill** – Worth learning if your job uses it.
+- **Built for many machines.** Services keep running when a server fails.
+- **A work skill.** Worth learning if your job uses it.
 
 #### Cons
 
-- **A lot to learn** – Far more moving parts than one computer needs.
-- **Setup by hand** – Most apps document a compose file first, so you often write the Kubernetes setup yourself.
+- **A lot to learn.** Far more moving parts than one computer needs.
+- **Setup by hand.** Most apps document a compose file first, so you often write the Kubernetes setup yourself.
 
 ### A homelab operating system
 
@@ -122,13 +122,13 @@ A system container shares the computer's kernel, but otherwise acts like a small
 
 #### Pros
 
-- **Quickest start** – Little or no typing.
-- **Disks and VMs** – Unraid and TrueNAS also manage lots of disks well and can run VMs.
+- **Quickest start.** Little or no typing.
+- **Disks and VMs.** Unraid and TrueNAS also manage lots of disks well and can run VMs.
 
 #### Cons
 
-- **Their way** – You do things the way the system wants. When something breaks, it's harder to see why.
-- **Cost** – Unraid is paid.
+- **Their way.** You do things the way the system wants. When something breaks, it's harder to see why.
+- **Cost.** Unraid is paid.
 
 These mix, too: plenty of homelabs run [Proxmox](https://www.proxmox.com/en/products/proxmox-virtual-environment/overview), with containers inside a VM.
 
