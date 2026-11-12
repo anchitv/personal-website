@@ -7,7 +7,6 @@ import GitHubIcon from '../components/GitHubIcon.astro';
 import AppleIcon from '../components/AppleIcon.astro';
 import GooglePlayIcon from '../components/GooglePlayIcon.astro';
 import ObfuscatedEmail from '../components/ObfuscatedEmail.astro';
-import { linkedNoteIds } from '../lib/noteLinks';
 import { SECTION_DESCRIPTIONS } from '../lib/sections';
 import { latestPostsPerSeries, partLabel, postSeries, seriesColors } from '../lib/series';
 
@@ -15,22 +14,14 @@ const allPosts = await getCollection('blog', ({ data }) => !data.draft);
 const latestPosts = latestPostsPerSeries(allPosts, 3);
 
 const allNotes = await getCollection('notes', ({ data }) => !data.draft);
-const notesById = new Map(allNotes.map((note) => [note.id, note]));
-// The notes the latest posts lean on, taking one from each post in turn
-const postNoteIds = latestPosts.map((post) => linkedNoteIds(post.body).filter((id) => notesById.has(id)));
-const featuredNoteIds: string[] = [];
-for (let i = 0; featuredNoteIds.length < 3 && postNoteIds.some((ids) => i < ids.length); i++) {
-  for (const ids of postNoteIds) {
-    if (featuredNoteIds.length < 3 && i < ids.length && !featuredNoteIds.includes(ids[i])) featuredNoteIds.push(ids[i]);
-  }
-}
-// Newest notes fill any slots the posts leave
-const latestNotes = [
-  ...featuredNoteIds.map((id) => notesById.get(id)!),
-  ...allNotes
-    .filter((note) => !featuredNoteIds.includes(note.id))
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
-].slice(0, 3);
+// The notes the home page shows, in this order. A note that isn't published
+// fails the build
+const HOME_NOTES = ['quantisation', 'hugging-face-models', 'compose-basics'];
+const homeNotes = HOME_NOTES.map((id) => {
+  const note = allNotes.find((n) => n.id === id);
+  if (!note) throw new Error(`The home page shows the note "${id}", but no published note has that id`);
+  return note;
+});
 
 const allProjects = await getCollection('projects', ({ data }) => !data.draft);
 const newestFirst = (a: (typeof allProjects)[number], b: (typeof allProjects)[number]) =>
@@ -158,13 +149,13 @@ const structuredData = {
         </h2>
         <p class="section-desc">{SECTION_DESCRIPTIONS.notes}</p>
         <ul class="preview-list">
-          {latestNotes.length === 0 ? (
+          {homeNotes.length === 0 ? (
             <li class="preview-item empty-preview">
               <span class="empty-dash" aria-hidden="true">&mdash;</span>
               <span class="preview-title">First note coming soon</span>
             </li>
           ) : (
-            latestNotes.map((note) => (
+            homeNotes.map((note) => (
               <li class="preview-item">
                 <a href={`/notes/${note.id}/`} class="preview-link">
                   <span class="preview-title">{note.data.title}</span>
