@@ -38,10 +38,17 @@ Docker normally runs as root, the all-powerful admin user. Rootless Podman runs 
 
 Everything carries over: `docker` becomes `podman`, and compose files work almost unchanged. A few differences show up in practice:
 
-- **Full image names.** [Podman](https://docs.podman.io/en/latest/) wants to know which registry an image comes from, so write `docker.io/library/postgres`, not `postgres`.
-- **Compose needs a helper.** On [Debian](https://www.debian.org/intro/about) and [Ubuntu](https://ubuntu.com/server), the `podman-compose` package is what lets `podman compose` read compose files.
-- **Containers stop when you log out.** They belong to your user, so they need [a little setup](#keeping-containers-running) to keep running and to come back after a reboot.
-- **No ports below 1024.** Rootless containers can't use them by default, so a service that needs 53, 80 or 443 takes extra setup.
+- **Full image names**
+  - [Podman](https://docs.podman.io/en/latest/) wants to know which registry an image comes from.
+  - Write `docker.io/library/postgres`, not `postgres`.
+- **Compose needs a helper**
+  - On [Debian](https://www.debian.org/intro/about) and [Ubuntu](https://ubuntu.com/server), the `podman-compose` package is what lets `podman compose` read compose files.
+- **Containers stop when you log out**
+  - They belong to your user.
+  - They need [a little setup](#keeping-containers-running) to keep running and to come back after a reboot.
+- **No ports below 1024**
+  - Rootless containers can't use them by default.
+  - A service that needs 53, 80 or 443 takes extra setup.
 
 ## Keeping containers running
 
@@ -70,8 +77,10 @@ From Podman 5.8, the restart service brings back containers set to `restart: alw
 
 Every user on Linux is really a number and files belong to numbers. Rootless [Podman](https://docs.podman.io/en/latest/) gives each container its own set of numbers, called a user namespace, mapped onto yours:
 
-- **Root inside the container is you** outside it.
-- **Every other user inside** maps onto a block of numbers set aside for you, listed in `/etc/subuid`.
+- **Root inside the container**
+  - It's you outside it.
+- **Every other user inside**
+  - It maps onto a block of numbers set aside for you, listed in `/etc/subuid`.
 
 Check your block:
 
@@ -85,8 +94,10 @@ A line like `you:100000:65536` means container users 1, 2, 3 and up become 10000
 
 Many images run their app as a user of their own, say 10001. Outside the container, that's user 110000. So:
 
-- **It can't write to folders you made.** They belong to you, which inside the container is root, not 10001.
-- **Files it writes look strange from outside.** `ls -l` shows them owned by `110000`.
+- **It can't write to folders you made**
+  - They belong to you, which inside the container is root, not 10001.
+- **Files it writes look strange from outside**
+  - `ls -l` shows them owned by `110000`.
 
 ### Give a folder to the container's user
 

@@ -25,14 +25,25 @@ Every device on a network has an IP address: four numbers like `192.168.1.20`. I
 
 ## Private and public
 
-- **Private addresses** only work inside your home. They start with `192.168.`, `10.` or `172.16.` to `172.31.`. Your laptop, phone and server each get one.
-- **A public address** is what the internet sees. Your router has one and every device in your house shares it when talking to the internet. To see yours, open [ifconfig.me](https://ifconfig.me).
+- **Private addresses**
+  - They only work inside your home.
+  - They start with `192.168.`, `10.` or `172.16.` to `172.31.`.
+  - Your laptop, phone and server each get one.
+- **A public address**
+  - It's what the internet sees.
+  - Your router has one. Every device in your house shares it when talking to the internet.
+  - To see yours, open [ifconfig.me](https://ifconfig.me).
 
 ## Find a device's private address
 
-- **Linux:** run `ip -4 addr` and look for the `inet` line under your network card, which has a name like `enp1s0` or `eth0`.
-- **macOS:** System Settings → Wi-Fi (or Network) → Details.
-- **Windows:** run `ipconfig` and look for "IPv4 Address".
+- **On Linux**
+  - Run `ip -4 addr`.
+  - Look for the `inet` line under your network card, which has a name like `enp1s0` or `eth0`.
+- **On macOS**
+  - Open System Settings → Wi-Fi (or Network) → Details.
+- **On Windows**
+  - Run `ipconfig`.
+  - Look for "IPv4 Address".
 
 ## Keep a server's address fixed
 
@@ -42,6 +53,13 @@ The fix is a **DHCP reservation**: you tell the router to always give one device
 
 Every router has this setting. To use it:
 
-1. **Note the router's address.** Run `ip route`. It's the address after `default via`, often `192.168.1.1`.
-2. **Open the router's settings.** Type the router's address into a browser and log in. The password is often on a sticker on the router.
-3. **Reserve the address.** Look under LAN, DHCP or Address reservation. Pick the server from the list of connected devices and reserve the address you found in [Find a device's private address](#find-a-devices-private-address).
+1. **Note the router's address**
+   - Run `ip route`.
+   - It's the address after `default via`, often `192.168.1.1`.
+2. **Open the router's settings**
+   - Type the router's address into a browser and log in.
+   - The password is often on a sticker on the router.
+3. **Reserve the address**
+   - Look under LAN, DHCP or Address reservation.
+   - Pick the server from the list of connected devices.
+   - Reserve the address you found in [Find a device's private address](#find-a-devices-private-address).

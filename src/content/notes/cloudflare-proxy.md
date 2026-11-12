@@ -20,16 +20,29 @@ draft: false
 
 A, AAAA and CNAME [records](/notes/dns-records/) in [Cloudflare](https://developers.cloudflare.com/dns/) have a switch with an orange or grey cloud.
 
-- **Proxied** (orange): visitors connect to Cloudflare and Cloudflare connects to your server. Your server's real IP address stays hidden and Cloudflare blocks a lot of junk traffic before it reaches you.
-- **DNS only** (grey): the record returns your real address and visitors connect to your server directly.
+- **Proxied (orange)**
+  - Visitors connect to Cloudflare and Cloudflare connects to your server.
+  - Your server's real IP address stays hidden.
+  - Cloudflare blocks a lot of junk traffic before it reaches you.
+- **DNS only (grey)**
+  - The record returns your real address.
+  - Visitors connect to your server directly.
 
 MX and TXT records are always DNS only. Cloudflare's [proxy status page](https://developers.cloudflare.com/dns/proxy-status/) has the details.
 
 ## Limits
 
-- **Only web traffic works.** Proxying supports a [fixed list of ports](https://developers.cloudflare.com/fundamentals/reference/network-ports/), including 80 and 443. Anything that isn't a website, like SSH or a VPN, needs DNS only. [Headscale](https://headscale.net/stable/ref/integration/reverse-proxy/), for example, doesn't work behind [Cloudflare](https://developers.cloudflare.com/dns/)'s proxy at all.
-- **Uploads are capped at 100 MB** per request on the free plan ([error 413](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/4xx-client-error/error-413/)). A photo or file service that takes large videos can hit this. Keep those records DNS only or upload from home.
-- **DKIM records must be DNS only.** Cloudflare proxies new CNAME records by default and a proxied DKIM record doesn't work.
+- **Only web traffic works**
+  - Proxying supports a [fixed list of ports](https://developers.cloudflare.com/fundamentals/reference/network-ports/), including 80 and 443.
+  - Anything that isn't a website, like SSH or a VPN, needs DNS only.
+  - [Headscale](https://headscale.net/stable/ref/integration/reverse-proxy/), for example, doesn't work behind [Cloudflare](https://developers.cloudflare.com/dns/)'s proxy at all.
+- **Uploads are capped at 100 MB**
+  - That's per request on the free plan ([error 413](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/4xx-client-error/error-413/)).
+  - A photo or file service that takes large videos can hit this.
+  - Keep those records DNS only or upload from home.
+- **DKIM records must be DNS only**
+  - Cloudflare proxies new CNAME records by default.
+  - A proxied DKIM record doesn't work.
 
 ## With a home server
 

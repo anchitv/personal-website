@@ -66,7 +66,8 @@ These rules and the link rules below cover the about page
   Where it would misread, splitting into two sentences often reads better.
 - Headings in sentence case. Inside a section, Pros and Cons are `####`
   headings, styled as headings a step below `###`.
-- List items start with a bold label: **Label.** followed by sentences.
+- List items start with a bold label: **Label.** followed by sentences. Notes
+  lay out lists differently: see the write-notes skill.
 - No long dashes (– or —). Use a full stop or comma instead, and "to" in
   ranges: "$10 to $20".
 - A paragraph that introduces a list sits close to it by itself (CSS); no

@@ -44,8 +44,8 @@ ports:
 
 This line is a port mapping. It links a port on the server to a port in the container:
 
-- **Left, `8080`.** This is the port on the server, the one you connect to.
-- **Right, `80`.** This is the port the program listens on inside the container.
+- **Left, `8080`:** The port on the server, the one you connect to
+- **Right, `80`:** The port the program listens on inside the container
 
 So anything that arrives at the server on `8080` goes to port `80` in the container.
 
@@ -68,10 +68,10 @@ ss -tlnp
 
 That lists every program listening for TCP connections, with its port. The options:
 
-- **`-t`** is TCP.
-- **`-l`** shows only programs that are listening.
-- **`-n`** shows port numbers instead of names.
-- **`-p`** shows the program.
+- **`-t`:** TCP
+- **`-l`:** Only programs that are listening
+- **`-n`:** Port numbers instead of names
+- **`-p`:** The program
 
 Before giving a new service a port, check that nothing has it:
 

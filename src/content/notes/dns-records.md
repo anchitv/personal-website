@@ -20,10 +20,16 @@ draft: false
 
 [DNS](/notes/dns/) for a domain is a list of **records**. Each one has a type, a name and a value. The name `@` means the bare domain, `example.com` itself.
 
-- **A** records point a name at an IPv4 address, like `203.0.113.7`.
-- **AAAA** records do the same for an IPv6 address.
-- **CNAME** records point a name at another name. `www` → `example.com` means "whatever `example.com` points at".
-- **MX** records say which servers receive email for the domain. Each one has a priority: senders try the lowest number first and fall back to the others.
-- **TXT** records hold text. Services use them to check that you own the domain. Email uses them for anti-spam settings like SPF and DMARC.
+- **`A` record:** Points a name at an IPv4 address
+  - Example: `203.0.113.7`.
+- **`AAAA` record:** The same, for an IPv6 address
+- **`CNAME`:** Points a name at another name
+  - Example: `www` → `example.com` means "whatever `example.com` points at".
+- **`MX` record:** Which servers receive email for the domain
+  - Each one has a priority.
+  - Senders try the lowest number first and fall back to the others.
+- **`TXT`:** Holds text
+  - Services use it to check that you own the domain.
+  - Email uses it for anti-spam settings like SPF and DMARC.
 
 Each record also has a **TTL**, how long other servers may remember the answer before asking again. The automatic setting most DNS providers offer is fine.

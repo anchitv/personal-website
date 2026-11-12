@@ -22,17 +22,25 @@ Some internet providers put many customers behind one shared public address. Thi
 
 To check, find the address the internet sees, then trace the path to it:
 
-1. **Find your public address.** Open [ifconfig.me](https://ifconfig.me) in a browser, with any VPN turned off.
-2. **Trace the path to it.** Run this, with your address in place of `<address>`:
-   - **Windows:** `tracert -d -h 5 <address>`
-   - **macOS:** `traceroute -n -m 5 <address>`
-   - **Linux:** `tracepath -n -m 5 <address>`. On [Debian](https://www.debian.org/intro/about), install it first with `sudo apt install iputils-tracepath`.
+1. **Find your public address**
+   - Open [ifconfig.me](https://ifconfig.me) in a browser, with any VPN turned off.
+2. **Trace the path to it**
+   - Put your address in place of `<address>`.
+   - On Windows: `tracert -d -h 5 <address>`
+   - On macOS: `traceroute -n -m 5 <address>`
+   - On Linux: `tracepath -n -m 5 <address>`
+   - On [Debian](https://www.debian.org/intro/about), install `tracepath` first with `sudo apt install iputils-tracepath`.
 
 Each line starts with the number of a stop on the way. Look for your public address:
 
-- **At stop 1.** Your router has it, so you're not behind CGNAT.
-- **At stop 2, after a `192.168.` address.** It's on a second box in your home, usually your provider's. You're not behind CGNAT, but forward ports on that box too.
-- **Later or not at all.** It's at your provider, so you're probably behind CGNAT. You certainly are if a stop shows an address between `100.64.0.0` and `100.127.255.255`.
+- **At stop 1**
+  - Your router has it, so you're not behind CGNAT.
+- **At stop 2, after a `192.168.` address**
+  - It's on a second box in your home, usually your provider's.
+  - You're not behind CGNAT, but forward ports on that box too.
+- **Later or not at all**
+  - It's at your provider, so you're probably behind CGNAT.
+  - You certainly are if a stop shows an address between `100.64.0.0` and `100.127.255.255`.
 
 If stop 1 only shows `*`, your router doesn't answer traces. Check its status page instead, usually at `192.168.1.1` or `192.168.0.1`. If its `WAN` or `Internet` address matches your public address, you're not behind CGNAT.
 
