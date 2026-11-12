@@ -1,6 +1,6 @@
 ---
 title: "Starting services at boot"
-date: 2026-10-31
+date: 2026-10-07
 description: "Bring every service back after a reboot with one systemd file and start, stop or add a service with one command."
 tags: ["homelab", "linux"]
 draft: false

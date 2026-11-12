@@ -1,6 +1,6 @@
 ---
 title: "DNS record types"
-date: 2026-11-01
+date: 2026-09-20
 description: "A, AAAA, CNAME, MX and TXT records, and what TTL means."
 topic: dns-email
 aliases: ["DNS record", "A record", "AAAA record", "CNAME", "MX record", "TXT record", "TTL"]

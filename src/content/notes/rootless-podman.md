@@ -1,6 +1,6 @@
 ---
 title: "Rootless Podman"
-date: 2026-10-30
+date: 2026-09-24
 description: "Why Podman runs containers as your own user, what changes if you know Docker, how to keep containers running when you're not logged in and who owns the files they write."
 topic: servers
 aliases: ["Podman", "Rootless containers", "Docker", "podman-compose", "Linger", "Restart policy", "restart: always", "unless-stopped", "User namespace", "keep-id", "userns_mode", "podman unshare", "/etc/subuid"]

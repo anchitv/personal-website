@@ -1,6 +1,6 @@
 ---
 title: "Containers"
-date: 2026-10-30
+date: 2026-09-24
 description: "What a container is and why self-hosted apps run in them."
 topic: servers
 aliases: ["Container"]

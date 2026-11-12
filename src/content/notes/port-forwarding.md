@@ -1,6 +1,6 @@
 ---
 title: "Port forwarding"
-date: 2026-11-01
+date: 2026-10-12
 description: "How to let the internet reach a server at home, the risk that comes with it and the alternative."
 topic: networking
 aliases: ["Port forwarding"]

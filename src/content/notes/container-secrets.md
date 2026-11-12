@@ -1,6 +1,6 @@
 ---
 title: "Container secrets as files"
-date: 2026-10-31
+date: 2026-09-24
 description: "Keep passwords out of compose files: put each one in its own file and let compose hand it to the container."
 topic: servers
 aliases: ["Secrets", "chmod", "openssl rand", "/run/secrets", ".gitignore"]

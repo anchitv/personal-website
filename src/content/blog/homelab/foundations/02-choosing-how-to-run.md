@@ -1,6 +1,6 @@
 ---
 title: "Choosing how to run services"
-date: 2026-10-30
+date: 2026-09-24
 description: "The ways to run services on your own computer, their pros and cons, and why this series uses Podman."
 tags: ["homelab", "linux"]
 draft: false

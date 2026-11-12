@@ -1,6 +1,6 @@
 ---
 title: "What Is a Homelab?"
-date: 2026-10-30
+date: 2026-09-20
 description: "What a homelab is, why you might want one and what you need to start."
 tags: ["homelab"]
 draft: false

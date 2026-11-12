@@ -1,6 +1,6 @@
 ---
 title: "Folders and secrets"
-date: 2026-10-31
+date: 2026-10-03
 description: "The folder layout every service in this series uses and how to keep passwords out of compose files and git."
 tags: ["homelab", "linux"]
 draft: false

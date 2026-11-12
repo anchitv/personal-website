@@ -1,6 +1,6 @@
 ---
 title: "Setting up your own domain"
-date: 2026-11-01
+date: 2026-10-12
 description: "Buy a domain and move its DNS to Cloudflare, ready to point at your services."
 tags: ["dns", "networking", "web", "homelab"]
 draft: false
