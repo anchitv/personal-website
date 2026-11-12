@@ -50,7 +50,7 @@
   --fs-xl: clamp(1.75rem, 0.63vi + 1.55rem, 2rem);
   --fs-2xl: clamp(2.125rem, 0.94vi + 1.83rem, 2.5rem);
   --fs-3xl: clamp(2.5rem, 1.46vi + 2.04rem, 3rem);
-  --fs-display: clamp(2.25rem, 3vi + 1rem, 3.25rem); /* the home hero: smaller than 3xl on phones, larger on wide screens */
+  --fs-display: clamp(1.75rem, 3.3vi - 0.1rem, 2.5rem); /* the home hero: grows with its column, so it stays on two lines from about 850px wide (see .hero-title) */
 
   /* === TEXT ROLES ===
    * What a size is for. Components use a role, not a step on the scale, so
