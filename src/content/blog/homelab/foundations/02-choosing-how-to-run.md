@@ -12,8 +12,7 @@ draft: false
 
 ### At a glance
 
-<div class="compare">
-<table aria-labelledby="at-a-glance">
+<table class="compare" aria-labelledby="at-a-glance">
 <thead>
 <tr><th scope="col">Option</th><th scope="col">Keeps apps apart</th><th scope="col">Memory and upkeep</th><th scope="col">Apps ready to go</th></tr>
 </thead>
@@ -27,7 +26,6 @@ draft: false
 <tr><th scope="row"><a class="link-jump" href="#a-homelab-operating-system"><span class="link-end">Homelab OS</span></a> <span class="compare-links"><a class="link-external" href="https://unraid.net/"><span class="link-end">Unraid</span><span class="visually-hidden"> (external site)</span></a> · <a class="link-external" href="https://www.truenas.com/truenas-community-edition/"><span class="link-end">TrueNAS</span><span class="visually-hidden"> (external site)</span></a> · <a class="link-external" href="https://casaos.zimaspace.com/"><span class="link-end">CasaOS</span><span class="visually-hidden"> (external site)</span></a></span></th><td data-label="Keeps apps apart"><span class="rating rating-mid">Fair</span></td><td data-label="Memory and upkeep"><span class="rating rating-good">Low</span></td><td data-label="Apps ready to go"><span class="rating rating-good">Most</span></td></tr>
 </tbody>
 </table>
-</div>
 
 ### Directly on the system
 

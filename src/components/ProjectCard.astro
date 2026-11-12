@@ -16,7 +16,7 @@ const { title, description, date, tags, repo, url, appStore, playStore } = proje
 const shortDate = formatDate(date, 'month-year');
 ---
 
-<div class={`project-card ${project.data.status === 'archived' ? 'is-archived' : ''}`} data-reveal>
+<div class="project-card">
   <div class="card-body">
     <h3 class="card-title">
       <a href={`/projects/${project.id}/`}>{title}</a>
@@ -34,7 +34,7 @@ const shortDate = formatDate(date, 'month-year');
       )}
       {url && (
         <a href={url} class="link-pill link-pill--sm" aria-label="Visit website" target="_blank" rel="noopener noreferrer">
-          <ExternalLinkIcon />
+          <ExternalLinkIcon size={14} />
           Website
         </a>
       )}
@@ -99,14 +99,6 @@ const shortDate = formatDate(date, 'month-year');
     background-color: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg));
     transform: translateY(-3px);
     box-shadow: var(--shadow-card-hover);
-  }
-
-  .project-card.is-archived {
-    opacity: 0.7;
-  }
-
-  .project-card.is-archived:hover {
-    opacity: 1;
   }
 
   :global(html.dark) .project-card:hover {

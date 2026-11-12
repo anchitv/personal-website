@@ -56,7 +56,7 @@ for (const entry of terms) {
     </div>
 
     {[...letters].map(([letter, entries]) => (
-      <div class="tag-section tag-section--notes" data-reveal>
+      <div class="tag-section tag-section--notes">
         <h2 id={letter === '#' ? 'symbols' : letter.toLowerCase()}>{letter}</h2>
         <ul class="post-list">
           {entries.map(({ term, note, href }) => (

@@ -14,6 +14,7 @@ import '../styles/tokens.css';
 import '../styles/typography.css';
 import '../styles/layout.css';
 import '../styles/components.css';
+import '../styles/tables.css';
 import '../styles/animations.css';
 
 // Preload the primary body/heading fonts. The ?url imports resolve to the
@@ -118,6 +119,13 @@ const ogImageURL = new URL(ogImage, Astro.site);
         }
         applyTheme();
         document.addEventListener('astro:after-swap', applyTheme);
+
+        // Tells the CSS that scripts run, so scroll-reveal content can start
+        // hidden (animations.css). A swap replaces <html>'s classes, so it's
+        // added again after each one
+        function markScripted() { document.documentElement.classList.add('js'); }
+        markScripted();
+        document.addEventListener('astro:after-swap', markScripted);
       })();
     </script>
   </head>
