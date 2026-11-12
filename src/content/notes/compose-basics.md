@@ -32,15 +32,23 @@ services:
 
 Line by line:
 
-- **`services:`** starts the list of containers. Each one is a service.
-- **`whoami:`** is this service's name inside the file.
-- **`image:`** is what to run, in three parts:
-  - **`docker.io`** is where it comes from.
-  - **`traefik/whoami`** is its name.
-  - **`latest`** is the version, called a tag. It means whatever is newest, while a number like `v1.10` pins one version.
-- **`container_name:`** is the name to use in commands like `podman logs whoami`.
-- **`restart: always`** brings the container back if it crashes and after a reboot. See [keeping containers running](/notes/rootless-podman/#keeping-containers-running).
-- **`ports:`** sends the server's port 8080 to port 80 in the container. See [ports](/notes/ports/).
+- **`services`:** The list of containers
+  - Each one is a service.
+- **`whoami`:** This service's name inside the file
+- **`image`:** What to run
+  - It has three parts.
+  - `docker.io` is where it comes from.
+  - `traefik/whoami` is its name.
+  - `latest` is the version, called a tag. It means whatever is newest.
+  - A number like `v1.10` pins one version instead.
+- **`container_name`:** The name to use in commands
+  - Example: `podman logs whoami`.
+- **`restart: always`:** Keeps the container running
+  - It comes back if it crashes and after a reboot.
+  - See [keeping containers running](/notes/rootless-podman/#keeping-containers-running).
+- **`ports`:** Sends a port on the server to the container
+  - Here the server's port 8080 goes to port 80 in the container.
+  - See [ports](/notes/ports/).
 
 Indentation matters: two spaces per level, never tabs.
 
@@ -54,12 +62,17 @@ environment:
   TZ: Etc/UTC
 ```
 
-- **`volumes:`** puts folders or files from the server inside the container, called bind mounts. They keep a service's data when the container is removed.
-  - **The left side** is the path on the server. `./` means the folder `compose.yaml` is in.
-  - **The right side** is the path inside the container.
-  - **`:ro`** at the end makes it read-only.
-  - **`:Z`** at the end is for systems that use SELinux, like Fedora.
-- **`environment:`** sets the service's settings. Each image's docs list which it reads. Passwords don't go here: see [secrets as files](/notes/container-secrets/).
+- **`volumes`:** Folders or files from the server, inside the container
+  - They're called bind mounts.
+  - They keep a service's data when the container is removed.
+  - The left side is the path on the server.
+  - `./` means the folder `compose.yaml` is in.
+  - The right side is the path inside the container.
+  - `:ro` at the end makes it read-only.
+  - `:Z` at the end is for systems that use SELinux, like Fedora.
+- **`environment`:** The service's settings
+  - Each image's docs list which it reads.
+  - Passwords don't go here: see [secrets as files](/notes/container-secrets/).
 
 ## Commands
 

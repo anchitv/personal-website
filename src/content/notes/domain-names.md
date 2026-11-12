@@ -24,8 +24,12 @@ Once you have one, you control its [DNS](/notes/dns/): you decide what each name
 
 For a home server, a domain gives you two things:
 
-- **Names instead of numbers.** `photos.example.com` instead of `192.168.1.10:2283`.
-- **HTTPS.** Browsers warn about sites without a valid HTTPS certificate and some apps refuse to connect at all. With a domain, you can get free certificates from [Let's Encrypt](https://letsencrypt.org).
+- **Names instead of numbers**
+  - Example: `photos.example.com` instead of `192.168.1.10:2283`.
+- **HTTPS**
+  - Browsers warn about sites without a valid HTTPS certificate.
+  - Some apps refuse to connect at all.
+  - With a domain, you can get free certificates from [Let's Encrypt](https://letsencrypt.org).
 
 A web server like [Caddy](https://caddyserver.com/) gets certificates for you and renews them by itself.
 

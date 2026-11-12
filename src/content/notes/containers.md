@@ -22,8 +22,13 @@ A container is a box holding one app and everything it needs: the right versions
 
 That makes them a good fit for running lots of apps on one server:
 
-- **Apps don't fight.** Two apps that need different versions of the same library each bring their own.
-- **Setup is a text file.** You describe a service once in a [compose file](/notes/compose-basics/) and can recreate it anywhere.
-- **Removing an app is clean.** Delete its container and folder and it's gone, with nothing scattered across the system.
+- **Apps don't fight**
+  - Two apps that need different versions of the same library each bring their own.
+- **Setup is a text file**
+  - You describe a service once in a [compose file](/notes/compose-basics/).
+  - You can recreate it anywhere.
+- **Removing an app is clean**
+  - Delete its container and folder and it's gone.
+  - Nothing is left scattered across the system.
 
 [Docker](https://docs.docker.com/get-started/docker-overview/) and [Podman](/notes/rootless-podman/) are the usual tools for running them.

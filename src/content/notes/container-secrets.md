@@ -37,13 +37,18 @@ chmod 444 secrets/example/db_password
 
 Line by line:
 
-- **`mkdir -p secrets/example`** makes a folder for this service's secrets. `-p` also makes `secrets/` if it isn't there yet and doesn't complain if either folder exists already.
-- **`chmod 700 secrets secrets/example`** lets only you open the two folders. The 7 gives you, the owner, read, write and enter. The two 0s give your group and everyone else nothing.
-- **`openssl rand -base64 36 | tr -d '\n' > secrets/example/db_password`** makes the password and saves it:
-  - **`openssl rand -base64 36`** prints 36 random bytes as 48 characters: letters, digits, `+` and `/`.
-  - **`| tr -d '\n'`** drops the line break at the end. Some apps would treat it as part of the password.
-  - **`>`** writes the result to the file instead of the screen.
-- **`chmod 444 secrets/example/db_password`** makes the file read-only for everyone, you included, so nothing changes it by accident.
+- **`mkdir -p secrets/example`:** A folder for this service's secrets
+  - `-p` also makes `secrets/` if it isn't there yet.
+  - It doesn't complain if either folder exists already.
+- **`chmod 700 secrets secrets/example`:** Only you can open the two folders
+  - The 7 gives you, the owner, read, write and enter.
+  - The two 0s give your group and everyone else nothing.
+- **`openssl rand -base64 36 | tr -d '\n' > secrets/example/db_password`:** Makes the password and saves it
+  - `openssl rand -base64 36` prints 36 random bytes as 48 characters: letters, digits, `+` and `/`.
+  - `| tr -d '\n'` drops the line break at the end. Some apps would treat it as part of the password.
+  - `>` writes the result to the file instead of the screen.
+- **`chmod 444 secrets/example/db_password`:** Read-only for everyone
+  - That includes you, so nothing changes it by accident.
 
 Why is the file `444`, readable by everyone? [PostgreSQL](https://www.postgresql.org/about/) runs as its own user inside the container, which is a different user on the server, so a file only you can read is off limits to it.
 
@@ -73,9 +78,12 @@ secrets:
 
 From the bottom up:
 
-- **The `secrets` block** names the file. Its path starts with `../` because `secrets/` sits beside the service's folder, not inside it.
-- **The service** lists the secrets it gets. Each one shows up inside the container as a file at `/run/secrets/<name>`.
-- **The app** reads it from there. Many images support this through settings that end in `_FILE`, like `POSTGRES_PASSWORD_FILE` above.
+- **The `secrets` block:** Names the file
+  - Its path starts with `../` because `secrets/` sits beside the service's folder, not inside it.
+- **The service:** Lists the secrets it gets
+  - Each one shows up inside the container as a file at `/run/secrets/<name>`.
+- **The app:** Reads them from there
+  - Many images support this through settings that end in `_FILE`, like `POSTGRES_PASSWORD_FILE` above.
 
 Check each image's docs for how it reads secrets.
 
