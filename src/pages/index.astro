@@ -62,11 +62,11 @@ const structuredData = {
 };
 ---
 
-<BaseLayout title="Anchit Verma" description="Personal website of Anchit Verma -- writing, notes, and projects." structuredData={structuredData}>
+<BaseLayout title="Anchit Verma" description="Personal website of Anchit Verma: writing, notes and projects." structuredData={structuredData}>
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-text">
-        <h1 class="hero-title reveal" style="--delay: 0ms">Writing about software, ideas and the things I'm building.</h1>
+        <h1 class="hero-title reveal" style="--delay: 0ms">I write Clojure for work and run my own servers at home. This is where I write it all up.</h1>
         <div class="hero-links reveal" style="--delay: 120ms">
           <a href="/about/" class="hero-about">More about me &rarr;</a>
           <span class="hero-icons">
@@ -93,7 +93,6 @@ const structuredData = {
            its 100px and 160px bounds, and 180px on ultrawide screens -->
       <div class="hero-avatar reveal" style="--delay: 160ms" aria-hidden="true">
         <Avatar
-          class="hero-portrait"
           size={180}
           sizes="(min-width: 2000px) 180px, (min-width: 1334px) 160px, (min-width: 834px) 12vw, 100px"
           widths={[100, 160, 180, 200, 320, 360]}
@@ -291,9 +290,9 @@ const structuredData = {
 
   .hero-title {
     font-family: var(--font-body);
-    font-size: clamp(2.25rem, 3vi + 1rem, 3.25rem);
+    font-size: var(--fs-display);
     font-weight: 500;
-    line-height: 1.15;
+    line-height: var(--leading-tight);
     letter-spacing: -0.01em;
     color: var(--color-text-heading);
     margin: 0;
@@ -345,16 +344,6 @@ const structuredData = {
     height: clamp(100px, 12vw, 160px);
   }
 
-  .hero-portrait {
-    transition: transform var(--duration-400) ease;
-  }
-
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .hero-avatar:hover .hero-portrait {
-      transform: rotate(-3deg) scale(1.03);
-    }
-  }
-
   /* === HOME CONTENT === */
   .home-content {
     max-width: var(--content-width);
@@ -385,10 +374,12 @@ const structuredData = {
     box-shadow: var(--shadow-panel);
   }
 
-  /* Blog — warm amber */
-  .home-section:nth-child(1) { --section-accent: var(--color-blog); }
+  /* Blog — warm amber. Blog and notes take their -strong colours: the accent
+     colours the hovered titles and the "view all" pill's text, small text the
+     base colours are too light for */
+  .home-section:nth-child(1) { --section-accent: var(--color-blog-strong); }
   /* Notes — sage green */
-  .home-section:nth-child(2) { --section-accent: var(--color-notes); }
+  .home-section:nth-child(2) { --section-accent: var(--color-notes-strong); }
   /* Projects — slate blue */
   .home-section:nth-child(3) { --section-accent: var(--color-projects); }
 
@@ -586,7 +577,6 @@ const structuredData = {
   .empty-preview .preview-title {
     color: var(--color-text-muted);
     font-weight: 400;
-    font-style: italic;
   }
 
   /* === MOTION === */
@@ -608,24 +598,25 @@ const structuredData = {
 
   /* As each card scrolls into view it rises, its accent line draws across
      the top, its icon pops in, then the entries and footer follow in turn */
-  @media (prefers-reduced-motion: no-preference) {
+  /* Only on screen and when scripts run (html.js), as in animations.css, so
+     the cards show as they are with JavaScript off and in print */
+  @media screen and (prefers-reduced-motion: no-preference) {
     .home-section[data-reveal] {
-      transform: translateY(16px);
-      transition: opacity 0.5s ease-out, transform 0.7s var(--ease-out-expo);
+      transition: opacity var(--duration-500) ease-out, transform var(--duration-700) var(--ease-out-expo);
       transition-delay: var(--delay, 0ms);
     }
 
-    .home-section[data-reveal].is-visible {
-      transform: none;
+    :global(html.js) .home-section[data-reveal]:not(.is-visible) {
+      transform: translateY(16px);
     }
 
     /* The accent line covers the top border, corners and all; the border
        underneath stays grey until the line arrives */
-    .home-section {
+    :global(html.js) .home-section {
       border-top-color: var(--color-border);
     }
 
-    .home-section::before {
+    :global(html.js) .home-section::before {
       content: '';
       position: absolute;
       inset: -3px -1px auto;
@@ -635,8 +626,8 @@ const structuredData = {
       border-top-color: var(--section-accent);
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
       clip-path: inset(0 100% 0 0);
-      transition: clip-path 0.8s var(--ease-out-expo);
-      transition-delay: calc(var(--delay, 0ms) + 150ms);
+      transition: clip-path var(--duration-800) var(--ease-out-expo);
+      transition-delay: calc(var(--delay, 0ms) + var(--duration-150));
       pointer-events: none;
     }
 
@@ -645,8 +636,8 @@ const structuredData = {
     }
 
     .home-section.is-visible .section-icon {
-      animation: icon-pop 0.6s var(--ease-out-expo) both;
-      animation-delay: calc(var(--delay, 0ms) + 200ms);
+      animation: icon-pop var(--duration-600) var(--ease-out-expo) both;
+      animation-delay: calc(var(--delay, 0ms) + var(--duration-200));
     }
 
     .preview-item:nth-child(2) { --i: 1; }
@@ -655,13 +646,13 @@ const structuredData = {
 
     .home-section.is-visible .preview-item,
     .home-section.is-visible .section-footer {
-      animation: entry-in 0.5s var(--ease-out-expo) both;
-      animation-delay: calc(var(--delay, 0ms) + 250ms + var(--i, 0) * 80ms);
+      animation: entry-in var(--duration-500) var(--ease-out-expo) both;
+      animation-delay: calc(var(--delay, 0ms) + var(--duration-250) + var(--i, 0) * 80ms);
     }
   }
 
   /* On hover a bar grows down the entry's left edge and its text steps
-     aside, the heading's icon moves in character, and the arrow nudges on */
+     aside, and the arrow nudges on */
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     .preview-item {
       position: relative;
@@ -693,20 +684,6 @@ const structuredData = {
     .preview-item:hover .preview-links {
       translate: 4px 0;
     }
-
-    .section-icon {
-      transition: transform var(--duration-400) var(--ease-out-expo);
-    }
-
-    .section-title a:hover .section-icon,
-    .section-title a:focus-visible .section-icon {
-      transform: var(--icon-move);
-    }
-
-    /* The pen lifts to write, the note tilts, the wrench turns */
-    .home-section:nth-child(1) { --icon-move: rotate(-14deg) translate(-1px, -2px); }
-    .home-section:nth-child(2) { --icon-move: rotate(-8deg) translateY(-2px); }
-    .home-section:nth-child(3) { --icon-move: rotate(-45deg); }
 
     .view-all .arrow {
       transition: translate var(--duration-200) ease;

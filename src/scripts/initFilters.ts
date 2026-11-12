@@ -60,8 +60,10 @@ export function initFilters(config: FilterConfig) {
   const topicRows = Array.from(document.querySelectorAll<HTMLElement>('[data-filter-topics]'));
   const topicButtonsOf = (series: string) =>
     Array.from(topicRows.find((row) => row.dataset.filterTopics === series)?.querySelectorAll<HTMLElement>('.filter-tag') ?? []);
-  const clearBtn = document.querySelector('[data-filter-clear]');
+  // In the panel, and in the message shown when nothing matches
+  const clearBtns = Array.from(document.querySelectorAll('[data-filter-clear]'));
   const countEl = document.querySelector('[data-filter-count]');
+  const emptyEl = document.querySelector<HTMLElement>('[data-filter-empty]');
   const paginationEl = document.querySelector('[data-pagination]');
 
   let activeTags: string[] = [];
@@ -71,7 +73,6 @@ export function initFilters(config: FilterConfig) {
   const startsDescending = () => sortSelect?.selectedOptions[0]?.dataset.startDescending !== undefined;
   let descending = startsDescending();
   let currentPage = 1;
-  let isFirstRender = true;
 
   // Keeps ?series= and ?topic= in the URL in step with the Series filter, so
   // the series and topic links above post titles open the listing filtered.
@@ -208,20 +209,18 @@ export function initFilters(config: FilterConfig) {
 
     if (sortSelect) arrange(visibleArr);
 
-    if (!isFirstRender) {
-      visibleArr.forEach((item, i) => {
-        item.classList.remove('reveal');
-        (item as HTMLElement).style.setProperty('--delay', `${15 * i}ms`);
-        void (item as HTMLElement).offsetWidth;
-        item.classList.add('reveal');
-      });
-    }
-
-    isFirstRender = false;
-
     if (countEl) {
-      countEl.textContent = `${filtered.length} of ${items.length} ${itemLabel}`;
+      // The shown count sits in a box as wide as the total's digits, so the
+      // line doesn't shift as you type (see .filter-count-shown)
+      const shown = document.createElement('span');
+      shown.className = 'filter-count-shown';
+      shown.style.setProperty('--digits', String(String(items.length).length));
+      shown.textContent = String(filtered.length);
+      countEl.replaceChildren(shown, ` of ${items.length} ${itemLabel}`);
     }
+
+    // Says so when nothing matches, rather than leaving the list blank
+    if (emptyEl) emptyEl.hidden = filtered.length > 0;
 
     // Tints the mobile toggle while the filters folded behind it (not the
     // always-visible search) hide items, e.g. after arriving via ?series=
@@ -326,7 +325,7 @@ export function initFilters(config: FilterConfig) {
     });
   });
 
-  clearBtn?.addEventListener('click', () => {
+  clearBtns.forEach((clearBtn) => clearBtn.addEventListener('click', () => {
     if (searchInput) searchInput.value = '';
     if (yearSelect) yearSelect.value = '';
     activeTags = [];
@@ -335,7 +334,7 @@ export function initFilters(config: FilterConfig) {
     if (onClear) onClear();
     currentPage = 1;
     render();
-  });
+  }));
 
   paginationEl?.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-page]');
@@ -345,7 +344,8 @@ export function initFilters(config: FilterConfig) {
     else if (val === 'next') currentPage++;
     else currentPage = Number(val);
     render();
-    document.querySelector('.header-rule')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelector('.header-rule')?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
   });
 
   const params = new URLSearchParams(location.search);

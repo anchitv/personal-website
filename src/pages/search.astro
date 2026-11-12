@@ -28,11 +28,11 @@ import HeaderRule from '../components/HeaderRule.astro';
 
     <div id="search-empty" class="empty-state" style="display:none;">
       <span class="empty-dash" aria-hidden="true">&mdash;</span>
-      <p>No results found.</p>
+      <p id="search-empty-message">No results found.</p>
     </div>
 
     <div id="search-initial" class="empty-state reveal" style="--delay: 100ms">
-      <p>Start typing to search across all content.</p>
+      <p>Searches titles, descriptions, tags, series names and note aliases.</p>
     </div>
   </section>
 </BaseLayout>
@@ -70,21 +70,28 @@ import HeaderRule from '../components/HeaderRule.astro';
   };
 
   let entries: SearchEntry[] = [];
+  let loadState: 'loading' | 'ready' | 'failed' = 'loading';
   let _searchCleanup: (() => void) | null = null;
+
+  // Shows the empty box with a message, in place of any results
+  function showMessage(text: string) {
+    document.getElementById('search-results')!.innerHTML = '';
+    document.getElementById('search-initial')!.style.display = 'none';
+    document.getElementById('search-empty-message')!.textContent = text;
+    document.getElementById('search-empty')!.style.display = '';
+  }
 
   function renderResults(filtered: SearchEntry[]) {
     const resultsEl = document.getElementById('search-results')!;
     const emptyEl = document.getElementById('search-empty')!;
     const initialEl = document.getElementById('search-initial')!;
 
-    initialEl.style.display = 'none';
-
     if (filtered.length === 0) {
-      resultsEl.innerHTML = '';
-      emptyEl.style.display = '';
+      showMessage('No results found.');
       return;
     }
 
+    initialEl.style.display = 'none';
     emptyEl.style.display = 'none';
 
     // Group by type
@@ -101,7 +108,6 @@ import HeaderRule from '../components/HeaderRule.astro';
 
       const section = document.createElement('div');
       section.className = `tag-section tag-section--${typeToSection[type]}`;
-      section.setAttribute('data-reveal', '');
 
       const h2 = document.createElement('h2');
       h2.textContent = typeLabels[type];
@@ -110,11 +116,9 @@ import HeaderRule from '../components/HeaderRule.astro';
       const ul = document.createElement('ul');
       ul.className = 'post-list';
 
-      items.forEach((item, i) => {
+      items.forEach((item) => {
         const li = document.createElement('li');
         li.className = 'post-list-item';
-        li.setAttribute('data-reveal', '');
-        li.style.setProperty('--delay', `${100 * i}ms`);
 
         // The same markup as SeriesCrumbs.astro
         if (item.series) {
@@ -169,16 +173,6 @@ import HeaderRule from '../components/HeaderRule.astro';
       section.appendChild(ul);
       resultsEl.appendChild(section);
     }
-
-    // Re-trigger reveal for new elements (rAF lets the browser paint the
-    // initial state before we add the class, so the CSS transition fires)
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      requestAnimationFrame(() => {
-        resultsEl.querySelectorAll('[data-reveal]').forEach((el) => {
-          el.classList.add('is-visible');
-        });
-      });
-    }
   }
 
   function search(query: string) {
@@ -188,6 +182,9 @@ import HeaderRule from '../components/HeaderRule.astro';
       document.getElementById('search-initial')!.style.display = '';
       return;
     }
+
+    if (loadState === 'loading') return showMessage('Loading search…');
+    if (loadState === 'failed') return showMessage('Search couldn’t load. Check your connection and reload the page.');
 
     const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
     const filtered = entries.filter((entry) => {
@@ -217,13 +214,8 @@ import HeaderRule from '../components/HeaderRule.astro';
     // Searching is the page's only job, so the cursor starts in the box
     input.focus();
 
-    try {
-      const res = await fetch('/search.json');
-      entries = await res.json();
-    } catch {
-      // search will gracefully show no results
-    }
-
+    // Listening from the start, so typing while the index loads shows
+    // "Loading search…" rather than being lost
     const onInput = () => search(input.value);
     input.addEventListener('input', onInput);
 
@@ -231,8 +223,19 @@ import HeaderRule from '../components/HeaderRule.astro';
       input.removeEventListener('input', onInput);
     };
 
-    // Handle pre-filled query (e.g., from URL)
-    if (input.value) search(input.value);
+    loadState = 'loading';
+    try {
+      const res = await fetch('/search.json');
+      if (!res.ok) throw new Error(`search.json: HTTP ${res.status}`);
+      entries = await res.json();
+      loadState = 'ready';
+    } catch {
+      loadState = 'failed';
+    }
+
+    // Runs whatever was typed while loading, or a pre-filled query (e.g. from
+    // the URL), unless the reader has already left the page
+    if (input.isConnected) search(input.value);
   }
 
   init();
@@ -271,7 +274,7 @@ import HeaderRule from '../components/HeaderRule.astro';
     font-size: var(--text-field-lg);
     color: var(--color-text);
     background: var(--color-bg-alt);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border-control);
     border-radius: var(--radius-lg);
     transition: border-color var(--duration-200) ease, box-shadow var(--duration-200) ease;
   }
@@ -283,7 +286,6 @@ import HeaderRule from '../components/HeaderRule.astro';
 
   #search-input::placeholder {
     color: var(--color-text-muted);
-    opacity: 0.7;
   }
 
   .search-kbd {
@@ -296,7 +298,7 @@ import HeaderRule from '../components/HeaderRule.astro';
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     padding: 0.1em 0.45em;
-    line-height: 1.4;
+    line-height: var(--leading-snug);
     pointer-events: none;
   }
 

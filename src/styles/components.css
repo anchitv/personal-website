@@ -204,15 +204,17 @@
   margin: 0 auto;
 }
 
-/* === ACCENT COLOR CLASSES === */
+/* === ACCENT COLOR CLASSES ===
+   Blog and notes take their -strong colours: the accent colours links and
+   hovered titles, small text the base colours are too light for */
 .accent-blog {
-  --color-accent: var(--color-blog);
-  --color-accent-hover: var(--color-blog-hover);
+  --color-accent: var(--color-blog-strong);
+  --color-accent-hover: var(--color-blog-strong-hover);
 }
 
 .accent-notes {
-  --color-accent: var(--color-notes);
-  --color-accent-hover: var(--color-notes-hover);
+  --color-accent: var(--color-notes-strong);
+  --color-accent-hover: var(--color-notes-strong-hover);
 }
 
 .accent-projects {
@@ -231,6 +233,7 @@
 }
 
 .page-intro {
+  max-width: 65ch;
   color: var(--color-text-muted);
   margin-bottom: var(--space-md);
 }
@@ -374,7 +377,7 @@ html:not(.dark) .link-pill svg {
   font-size: var(--text-control);
   color: var(--color-text);
   background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-control);
   border-radius: var(--radius-md);
   transition: border-color var(--duration-150) ease;
 }
@@ -413,15 +416,17 @@ html:not(.dark) .link-pill svg {
   user-select: none;
 }
 
+/* Active in the page accent, like the panel's other active controls. Series
+   chips set the accent to their series' colour (seriesColors) */
 .filter-tag:hover {
   color: var(--color-text);
-  border-color: color-mix(in srgb, var(--color-tag) 50%, var(--color-border));
+  border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-border));
 }
 
 .filter-tag.is-active {
-  background: var(--color-tag);
+  background: var(--color-accent);
   color: var(--color-bg);
-  border-color: var(--color-tag);
+  border-color: var(--color-accent);
 }
 
 .filter-select {
@@ -431,7 +436,7 @@ html:not(.dark) .link-pill svg {
   font-size: var(--text-control);
   color: var(--color-text);
   background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-control);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: border-color var(--duration-150) ease;
@@ -579,6 +584,15 @@ html:not(.dark) .link-pill svg {
   padding-top: var(--space-xs);
 }
 
+/* The count of shown items, which changes as you type. DM Sans has no
+   tabular figures, so a box as wide as the total's digits (0 is the widest,
+   and 1ch wide) keeps the rest of the line still */
+.filter-count-shown {
+  display: inline-block;
+  min-width: calc(var(--digits) * 1ch);
+  text-align: right;
+}
+
 /* === LISTING LAYOUT: MOBILE (below 768px) === */
 @media (max-width: 767px) {
   .listing-layout {
@@ -722,7 +736,6 @@ html:not(.dark) .link-pill svg {
 /* === SHARED EMPTY STATE === */
 .empty-state {
   color: var(--color-text-muted);
-  font-style: italic;
   padding: var(--space-lg);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-lg);
@@ -733,6 +746,10 @@ html:not(.dark) .link-pill svg {
   gap: 0.3em;
 }
 
+.empty-state[hidden] {
+  display: none;
+}
+
 .empty-state p {
   margin: 0;
 }
@@ -741,7 +758,6 @@ html:not(.dark) .link-pill svg {
   font-size: var(--fs-xl);
   color: var(--color-border);
   line-height: 1;
-  font-style: normal;
 }
 
 /* === SHARED POST LIST === */
@@ -844,6 +860,7 @@ html:not(.dark) .link-pill svg {
 }
 
 .post-excerpt {
+  max-width: 65ch;
   color: var(--color-text-muted);
   font-size: var(--text-description);
   margin: var(--space-xs) 0 0;
@@ -915,7 +932,7 @@ html:not(.dark) .link-pill svg {
 .post-list--lg .post-when:has(.post-read-time) {
   align-self: flex-start;
   justify-content: center;
-  height: calc(var(--fs-md) * var(--leading-body));
+  height: calc(var(--text-title) * var(--leading-body));
   line-height: 1.25;
 }
 
@@ -923,11 +940,12 @@ html:not(.dark) .link-pill svg {
 /* === TAG/TYPE SECTIONS (tag pages + search results) === */
 .tag-section {
   margin-top: var(--space-lg);
-  --color-accent: var(--color-notes);
+  --color-accent: var(--color-notes-strong);
 }
 
-.tag-section--blog { --color-accent: var(--color-blog); }
-.tag-section--notes { --color-accent: var(--color-notes); }
+/* -strong, as in the accent classes: hovered titles are small text */
+.tag-section--blog { --color-accent: var(--color-blog-strong); }
+.tag-section--notes { --color-accent: var(--color-notes-strong); }
 .tag-section--projects { --color-accent: var(--color-projects); }
 
 .tag-section h2 {
@@ -966,183 +984,4 @@ html:not(.dark) .link-pill svg {
   }
 }
 
-/* === COMPARISON TABLE (posts) ===
-   Options rated on a few qualities, written as HTML in a post: a table in
-   <div class="compare">, each option a row header linking to its section,
-   with its install links under it (.compare-links), and each rating a
-   badge. Each cell's data-label names its column for phones, where every
-   row stacks into a block. Its links carry the classes and spans
-   src/rehype-link-kinds.mjs gives Markdown links, which it can't reach in
-   raw HTML.
-
-   Every column rates on the same three levels, in the same colours:
-   .rating-good is the column's best, .rating-mid in between and .rating-bad
-   its worst. Each column names its own levels, like Low, Medium and High */
-.compare {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow-x: auto;
-  margin-bottom: var(--space-md);
-}
-
-.compare table {
-  margin-bottom: 0;
-}
-
-.compare th,
-.compare td {
-  padding: 0.6em 0.7em;
-  border-bottom: 0;
-  vertical-align: middle;
-}
-
-/* Headers at the table text size, on a stone band */
-.compare thead th {
-  font-size: 1em;
-  background: var(--color-bg-alt);
-  border-bottom: 1px solid var(--color-border);
-  vertical-align: bottom;
-}
-
-/* The ratings and their headers centred; the option names stay left */
-.compare thead th + th,
-.compare td {
-  text-align: center;
-}
-
-/* Option names a step below the headers */
-.compare tbody th {
-  font-size: 0.9em;
-}
-
-/* Stripes lighter than the header band, and a tint to follow a row across */
-.compare tbody tr:nth-child(even) {
-  background: color-mix(in srgb, var(--color-bg-alt) 60%, var(--color-bg));
-}
-
-.compare tbody tr:hover {
-  background: color-mix(in srgb, var(--color-accent) 8%, var(--color-bg));
-}
-
-/* Option names link to their sections. No underline: they keep the heading
-   colour, which stays readable on the stripes, and their down arrow
-   (.link-jump) takes the accent to mark them as links */
-.compare tbody th > a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.compare tbody th > a .link-end::after {
-  background-color: var(--color-accent);
-}
-
-.compare tbody th > a:hover {
-  color: var(--color-blog-strong);
-  text-decoration: underline;
-}
-
-.compare tbody th > a:hover .link-end::after {
-  background-color: currentColor;
-}
-
-/* Install links go to other sites, so they take the external link colour
-   (.link-external), 6.3:1 on the stripes */
-.compare-links {
-  display: block;
-  margin-top: 0.1em;
-  font-size: var(--text-ui);
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
-/* Green for the best, neutral stone in between and red for the worst, so
-   the middle is the one with no colour and the levels stay apart for
-   colour-blind readers too. One width, so each column of badges lines up */
-.rating {
-  display: inline-block;
-  min-width: 4.75em;
-  padding: 0.1em 0.55em;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-heading);
-  font-size: var(--text-meta);
-  font-weight: 600;
-  line-height: 1.4;
-  text-align: center;
-}
-
-.rating-good {
-  background: var(--color-status-active-bg);
-  color: var(--color-status-active-text);
-}
-
-/* 5.4:1 in light, 5.9:1 in dark */
-.rating-mid {
-  background: color-mix(in srgb, var(--color-text-muted) 14%, var(--color-bg));
-  color: var(--color-text-muted);
-}
-
-.rating-bad {
-  background: color-mix(in srgb, var(--color-rating-bad) 12%, var(--color-bg));
-  color: var(--color-rating-bad);
-}
-
-/* The table is as wide as the text. Long headers break into two even lines
-   to fit; every other cell stays on one. The ratings share the width evenly */
-@media (min-width: 768px) {
-  .compare thead th {
-    text-wrap: balance;
-  }
-
-  .compare thead th + th {
-    width: 23%;
-  }
-
-  .compare tbody th,
-  .compare td {
-    white-space: nowrap;
-  }
-}
-
-/* Phones: each row a block, the name first, then a line per rating labelled
-   with its column. The header row stays for screen readers only */
-@media (max-width: 767px) {
-  .compare thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-
-  .compare tbody,
-  .compare tr {
-    display: block;
-  }
-
-  .compare tr {
-    padding: var(--space-sm);
-  }
-
-  .compare tbody th,
-  .compare td {
-    padding: 0.2em 0;
-  }
-
-  .compare tbody th {
-    display: block;
-    margin-bottom: var(--space-xs);
-  }
-
-  .compare td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .compare td[data-label]::before {
-    content: attr(data-label);
-    font-family: var(--font-heading);
-    font-size: var(--text-meta);
-    color: var(--color-text-muted);
-  }
-}
+/* Comparison and striped tables are in tables.css */

@@ -102,10 +102,12 @@ These rules and the link rules below cover the about page
   than an outside site.
 - Don't mark links by hand. `src/rehype-link-kinds.mjs` marks where each
   link goes, which sets its colour: posts gold, notes green, projects blue,
-  other pages copper and other sites indigo. It adds the external icon and
-  "(external site)" for screen readers to links to other sites, and an
-  arrow to links to another section of the page: down, or up for one
-  further up. Links open in the same tab.
+  other pages copper and other sites indigo. In a page's content, links to
+  other sites keep the text colour: only their underline and icon are
+  indigo. In a table they have no underline. The plugin adds the external
+  icon and "(external site)" for screen readers to links to other sites,
+  and an arrow to links to another section of the page: down, or up for
+  one further up. Links open in the same tab.
 - Raw HTML and the about page aren't seen by that plugin, so links in them
   carry the markup themselves:
   `<a class="link-external" href="…"><span class="link-end">Name</span><span class="visually-hidden"> (external site)</span></a>`,
@@ -114,15 +116,24 @@ These rules and the link rules below cover the about page
   to a post, note, project or other page carries
   `link-blog`, `link-notes`, `link-projects` or `link-page`.
 
-## Comparison tables
+## Tables
 
-For options rated side by side, use the comparison table in
-`src/styles/components.css` (its comment has the full markup), as in
-Foundations Part 2's "At a glance":
+Every table's style is in `src/styles/tables.css`.
+`src/rehype-table-wrap.mjs` puts each table in a scrolling box with its
+label, so don't write a wrapper `<div>`. A table's class picks its look:
 
-- Raw HTML: `<div class="compare"><table>…`, option names as
-  `<th scope="row">` linking to their sections, install links in
-  `<span class="compare-links">` under the name.
+- **No class.** Plain, with a line under each row. For small reference
+  tables, in Markdown or HTML.
+- **`stripes`.** A bordered box with a header band and striped rows. Row
+  groups start with `<th scope="rowgroup" rowspan>`.
+- **`compare`.** Options rated side by side, as in Foundations Part 2's
+  "At a glance".
+
+A comparison table:
+
+- Raw HTML: `<table class="compare" aria-labelledby="<section id>">`,
+  option names as `<th scope="row">` linking to their sections, install
+  links in `<span class="compare-links">` under the name.
 - Every column has three levels, best to worst: `rating-good`,
   `rating-mid`, `rating-bad`. Each column names its own (Low, Medium,
   High). A word always keeps its colour.

@@ -56,11 +56,9 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
         <div class="project-list" data-list>
           {activeProjects.length > 0 && (
             <div class="project-grid" data-section="active">
-              {activeProjects.map((project, i) => (
+              {activeProjects.map((project) => (
                 <div
                   class="project-item"
-                  data-reveal
-                  style={`--delay: ${15 * i}ms`}
                   data-tags={(project.data.tags || []).join(',')}
                   data-title={project.data.title}
                   data-description={project.data.description || ''}
@@ -77,11 +75,9 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
             <div class="idea-section" data-idea-section>
               <h2 class="caps-label">Ideas</h2>
               <div class="project-grid" data-section="idea">
-                {ideaProjects.map((project, i) => (
+                {ideaProjects.map((project) => (
                   <div
                     class="project-item"
-                    data-reveal
-                    style={`--delay: ${15 * i}ms`}
                     data-tags={(project.data.tags || []).join(',')}
                     data-title={project.data.title}
                     data-description={project.data.description || ''}
@@ -99,11 +95,9 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
             <div class="archived-section" data-archived-section>
               <h2 class="caps-label">Past projects</h2>
               <div class="project-grid" data-section="archived">
-                {archivedProjects.map((project, i) => (
+                {archivedProjects.map((project) => (
                   <div
                     class="project-item"
-                    data-reveal
-                    style={`--delay: ${15 * i}ms`}
                     data-tags={(project.data.tags || []).join(',')}
                     data-title={project.data.title}
                     data-description={project.data.description || ''}
@@ -116,6 +110,14 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {(activeProjects.length > 0 || ideaProjects.length > 0 || archivedProjects.length > 0) && (
+        <div class="empty-state" data-filter-empty hidden>
+          <span class="empty-dash" aria-hidden="true">&mdash;</span>
+          <p>No projects match these filters.</p>
+          <button type="button" class="filter-clear" data-filter-clear>Clear filters</button>
         </div>
       )}
 
@@ -157,9 +159,6 @@ const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags || []))].sort
         let hasActive = false, hasIdea = false, hasArchived = false;
         for (const item of visible) {
           const el = item as HTMLElement;
-          el.classList.add('is-visible');
-          const card = el.querySelector('[data-reveal]');
-          if (card) card.classList.add('is-visible');
           if (el.dataset.status === 'active') hasActive = true;
           if (el.dataset.status === 'idea') hasIdea = true;
           if (el.dataset.status === 'archived') hasArchived = true;

@@ -29,10 +29,11 @@
     opacity: 1;
   }
 
-  /* Touch screens can't hover, so keep the link faintly visible */
+  /* Touch screens can't hover, so keep the link faintly visible: the
+     faintest that still reaches 4.5:1 in both themes */
   @media (hover: none) {
     .heading-link {
-      opacity: 0.5;
+      opacity: 0.85;
     }
   }
 

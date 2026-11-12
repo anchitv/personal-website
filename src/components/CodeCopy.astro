@@ -159,16 +159,20 @@
     const button = (event.target as Element).closest<HTMLButtonElement>('.code-copy');
     const code = button?.closest('.code-block')?.querySelector('pre');
     if (!button || !code) return;
+    const status = document.querySelector('.code-copy-status');
     try {
       await navigator.clipboard.writeText(code.textContent ?? '');
     } catch {
-      return; // No clipboard access; the code can still be selected by hand
+      // No clipboard access: select the code instead, so it can be copied by
+      // hand, and say so
+      getSelection()?.selectAllChildren(code);
+      if (status) status.textContent = 'Couldn’t copy, so the code is selected instead';
+      return;
     }
 
     clearTimeout(resetTimer);
     document.querySelector('.code-copy[data-copied]')?.removeAttribute('data-copied');
     button.dataset.copied = '';
-    const status = document.querySelector('.code-copy-status');
     if (status) status.textContent = 'Code copied';
     resetTimer = setTimeout(() => {
       button.removeAttribute('data-copied');

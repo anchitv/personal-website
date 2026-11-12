@@ -92,6 +92,11 @@ pre {
   margin-bottom: var(--space-md);
 }
 
+/* Fewer lone words on a paragraph's last line */
+p {
+  text-wrap: pretty;
+}
+
 /* A paragraph that introduces a list sits closer to it than the list sits
    to what follows, as headings do with their sections */
 p:has(+ ul, + ol) {
@@ -141,39 +146,7 @@ pre code {
   font-size: 1em;
 }
 
-/* Tables */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: var(--space-md);
-  font-size: 0.9em;
-}
-
-th,
-td {
-  padding: var(--space-xs) var(--space-sm);
-  border-bottom: 1px solid var(--color-border);
-  text-align: left;
-  vertical-align: top;
-}
-
-th:first-child,
-td:first-child {
-  padding-left: 0;
-}
-
-th {
-  font-family: var(--font-heading);
-  font-size: var(--text-meta);
-  font-weight: 600;
-  color: var(--color-text-heading);
-}
-
-/* Long hostnames past the first column wrap, so a table never widens the
-   page on phones; the first column keeps each row's name whole */
-td + td code {
-  overflow-wrap: anywhere;
-}
+/* Tables are in tables.css */
 
 /* Links */
 a {
@@ -191,7 +164,9 @@ a:hover {
    src/rehype-link-kinds.mjs: another site gets an external icon, a section
    further down the page a down arrow and one further up an up arrow. Links
    to other pages get no icon. The icon hangs off the last word, so the two
-   never wrap apart */
+   never wrap apart. It sits on the baseline and stops below the capitals:
+   the external icon's drawing reaches 0.5em, above the body font's
+   x-height (0.42em) and under its capitals (0.57em) */
 .link-end {
   white-space: nowrap;
 }
@@ -200,8 +175,8 @@ a:hover {
 .link-jump .link-end::after {
   content: '';
   display: inline-block;
-  width: 0.75em;
-  height: 0.75em;
+  width: 0.6em;
+  height: 0.6em;
   margin-left: 0.2em;
   vertical-align: -0.05em;
   background-color: currentColor;
@@ -254,6 +229,20 @@ a:hover {
   color: color-mix(in srgb, var(--link-color) 70%, var(--color-text-heading));
 }
 
+/* In a page's content, a link to another site keeps the colour of the text
+   around it, so the words read first. Its underline and icon are indigo:
+   the underline shows where it starts and ends. Hover brings back the
+   colour, through the rule above. Sidebars sit outside .prose and keep the
+   indigo text */
+:where(.prose) .link-external {
+  color: inherit;
+  text-decoration-color: var(--link-color);
+}
+
+:where(.prose) .link-external .link-end::after {
+  background-color: var(--link-color);
+}
+
 /* Read by screen readers, not shown: "(external site)" after a link */
 .visually-hidden {
   position: absolute;
@@ -272,9 +261,12 @@ a:hover {
   font-size: var(--text-prose);
 }
 
-/* Headings inside articles, a step smaller than the page-level h2 and h3 */
+/* Headings inside articles, a step smaller than the page-level h2 and h3.
+   A section starts twice a paragraph gap below the text before it, so the
+   sections read as groups */
 .prose h2 {
   font-size: var(--text-heading);
+  margin-top: var(--space-xl);
 }
 
 .prose h3 {

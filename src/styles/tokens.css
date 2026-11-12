@@ -31,6 +31,11 @@
   --duration-250: 0.25s;
   --duration-300: 0.3s;
   --duration-400: 0.4s;
+  /* Longer steps, only for the home cards' entrance (index.astro) */
+  --duration-500: 0.5s;
+  --duration-600: 0.6s;
+  --duration-700: 0.7s;
+  --duration-800: 0.8s;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* === TYPE SCALE (fluid, Major Third ~1.25) ===
@@ -45,6 +50,7 @@
   --fs-xl: clamp(1.75rem, 0.63vi + 1.55rem, 2rem);
   --fs-2xl: clamp(2.125rem, 0.94vi + 1.83rem, 2.5rem);
   --fs-3xl: clamp(2.5rem, 1.46vi + 2.04rem, 3rem);
+  --fs-display: clamp(2.25rem, 3vi + 1rem, 3.25rem); /* the home hero: smaller than 3xl on phones, larger on wide screens */
 
   /* === TEXT ROLES ===
    * What a size is for. Components use a role, not a step on the scale, so
@@ -79,13 +85,15 @@
   --text-ui: var(--fs-sm);                /* small interface text: filter chips and counts, pagination, footer, contents and part lists */
   --text-field-phone: 1rem;               /* form fields on phones: under 16px, iOS Safari zooms in on focus */
   --text-field-lg: 1.125rem;              /* a page's main field: the search page */
-  --text-meta: var(--fs-sm);              /* dates, read times, meta lines, table headers */
+  --text-meta: var(--fs-sm);              /* dates, read times, meta lines */
   --text-tag: var(--fs-xs);               /* tag pills, status badges */
-  --text-label: var(--fs-xs);             /* small caps labels (see .caps-label), tag counts, hints, code language labels */
+  --text-label: var(--fs-xs);             /* small caps labels (see .caps-label), table column headers, tag counts, hints, code language labels */
 
   /* === LINE HEIGHT === */
   --leading-body: 1.65;
   --leading-heading: 1.2;
+  --leading-tight: 1.15; /* display titles: the home hero, the principles title */
+  --leading-snug: 1.35;  /* compact lists and labels: contents, note sidebars, key hints */
 
   /* === SPACING (rhythm-based, derived from line-height) === */
   --space-unit: calc(var(--fs-base) * var(--leading-body));
@@ -111,6 +119,8 @@
   --color-accent: #8b6040;
   --color-accent-hover: #6e4c32;
   --color-border: #d5d1c8;
+  /* The edge of a form field, its only outline: ≥3:1 on --color-bg and --color-bg-alt */
+  --color-border-control: #857f74;
   --color-code-bg: #eeedea;
 
   /* === CONTENT-TYPE ACCENT COLORS === */
@@ -144,14 +154,17 @@
   --series-edge: 60%;
 
 
-  /* Darkened variants for body-size text on --color-bg (≥4.5:1); used for
-     active nav links and links in text, where the base accents fall short */
+  /* Darkened variants for body-size text on --color-bg (≥4.5:1), where the
+     base accents fall short: active nav links, links in text, and the accent
+     on blog and notes pages and home cards, whose hovered titles are small text */
   --color-blog-strong: #855a15;
+  --color-blog-strong-hover: #6b4810;
   --color-notes-strong: #25703b;
+  --color-notes-strong-hover: #1d5c30;
   --color-projects-strong: #2a6298;
 
   /* Links in text by where they go (typography.css). Another site
-     (.link-external) is 6.7:1 on the page and 6.3:1 on table stripes.
+     (.link-external) is 6.7:1 on the page and 6.1:1 on table stripes.
      Another page outside the blog, notes and projects (.link-page) takes
      the site's copper, fixed here where no section's accent can change it */
   --color-link-external: #4a4bb8;
@@ -165,6 +178,15 @@
   --color-status-idea-text: #a04000;
   /* A comparison table's worst rating (.rating-bad): 5.7:1 on its tint */
   --color-rating-bad: #a12a2a;
+  /* A step past --color-bg-alt, so a band of it shows on the page. Light
+     #e9e7e1, dark #1d1a17 */
+  --color-stripe: color-mix(in srgb, var(--color-border) 45%, var(--color-bg));
+  /* A table's header band and its striped rows, shared by .compare and
+     .stripes. In light mode the band takes the darker step, in dark mode
+     the rows do. On the rows, light #f0efe9: text 12.4:1, links 5.3:1,
+     muted 6.0:1. Dark #1d1a17: text 12.8:1, links 7.8:1, muted 6.4:1 */
+  --color-table-head: var(--color-stripe);
+  --color-table-stripe: var(--color-bg-alt);
 
   /* === MISC === */
   --color-text-on-accent: #fff;
@@ -208,7 +230,10 @@ html.dark {
   --color-accent: #c49a78;
   --color-accent-hover: #d4b496;
   --color-border: #2e2923;
+  --color-border-control: #6e675d;
   --color-code-bg: #1a1816;
+  --color-table-head: var(--color-bg-alt);
+  --color-table-stripe: var(--color-stripe);
 
   /* === CONTENT-TYPE ACCENT COLORS === */
   --color-blog: #d4a84b;
@@ -239,8 +264,13 @@ html.dark {
 
   /* Dark-mode accents already pass at body size */
   --color-blog-strong: var(--color-blog);
+  --color-blog-strong-hover: var(--color-blog-hover);
   --color-notes-strong: var(--color-notes);
+  --color-notes-strong-hover: var(--color-notes-hover);
   --color-projects-strong: var(--color-projects);
+
+  /* White on the light accents is 2.55:1; the page colour is 7.57:1 */
+  --color-text-on-accent: var(--color-bg);
 
   --color-link-external: #a5a8f0;
 

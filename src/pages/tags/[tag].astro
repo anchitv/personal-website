@@ -63,10 +63,10 @@ const sortedProjects = [...projects].sort((a, b) => b.data.date.valueOf() - a.da
     </div>
 
     {sortedPosts.length > 0 && (
-      <div class="tag-section tag-section--blog" data-reveal>
+      <div class="tag-section tag-section--blog">
         <h2>Blog</h2>
         <ul class="post-list">
-          {sortedPosts.map((post, i) => (
+          {sortedPosts.map((post) => (
             <PostListItem
               href={`/blog/${post.id}/`}
               title={post.data.title}
@@ -74,8 +74,6 @@ const sortedProjects = [...projects].sort((a, b) => b.data.date.valueOf() - a.da
               date={post.data.date}
               dateStyle="short"
               description={post.data.description}
-              data-reveal
-              style={`--delay: ${15 * i}ms`}
             />
           ))}
         </ul>
@@ -83,17 +81,15 @@ const sortedProjects = [...projects].sort((a, b) => b.data.date.valueOf() - a.da
     )}
 
     {sortedNotes.length > 0 && (
-      <div class="tag-section tag-section--notes" data-reveal>
+      <div class="tag-section tag-section--notes">
         <h2>Notes</h2>
         <ul class="post-list">
-          {sortedNotes.map((note, i) => (
+          {sortedNotes.map((note) => (
             <PostListItem
               href={`/notes/${note.id}/`}
               title={note.data.title}
               date={note.data.date}
               dateStyle="short"
-              data-reveal
-              style={`--delay: ${15 * i}ms`}
             />
           ))}
         </ul>
@@ -101,18 +97,16 @@ const sortedProjects = [...projects].sort((a, b) => b.data.date.valueOf() - a.da
     )}
 
     {sortedProjects.length > 0 && (
-      <div class="tag-section tag-section--projects" data-reveal>
+      <div class="tag-section tag-section--projects">
         <h2>Projects</h2>
         <ul class="post-list">
-          {sortedProjects.map((project, i) => (
+          {sortedProjects.map((project) => (
             <PostListItem
               href={`/projects/${project.id}/`}
               title={project.data.title}
               date={project.data.date}
               dateStyle="short"
               description={project.data.description}
-              data-reveal
-              style={`--delay: ${15 * i}ms`}
             />
           ))}
         </ul>

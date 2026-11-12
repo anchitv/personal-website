@@ -1,0 +1,323 @@
+/* === TABLES ===
+   Every table on the site, in one place. src/rehype-table-wrap.mjs puts each
+   table in a post or note in a .table-wrap box, so posts never write one.
+
+   Two looks, from the same base:
+   - Plain, a table with no class: no box and a line under each row. For
+     small reference tables, like the common ports in notes/ports.
+   - Boxed, <table class="stripes">: a bordered box, headers on a band and
+     every other row striped, from the first. A line splits its row groups,
+     like each memory size's rows in the Current picks table of
+     notes/choosing-models.
+   <table class="compare"> is boxed too, for options rated on a few
+   qualities. See COMPARISON TABLE below.
+
+   On phones a table scrolls sideways inside its box, with its first column
+   pinned, so the page never scrolls sideways. A comparison table stacks each
+   row into a block instead.
+
+   Header band and stripe colours are --color-table-head and
+   --color-table-stripe in tokens.css */
+
+/* === BASE (every table) === */
+
+/* Separate borders, so each cell carries its own lines and a pinned column
+   keeps them while the rest scrolls under it */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: var(--space-md);
+  font-size: 0.9em;
+}
+
+th,
+td {
+  text-align: left;
+  vertical-align: top;
+}
+
+/* Row headers, down the first column, are the table's text in bold.
+   Column headers, along the top, are small capitals labels, like the
+   .caps-label headings over lists */
+th {
+  font-weight: 600;
+  color: var(--color-text-heading);
+}
+
+thead th {
+  font-family: var(--font-heading);
+  font-size: var(--text-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Long hostnames past the first column wrap, so a table never widens the
+   page on phones; the first column keeps each row's name whole */
+td + td code {
+  overflow-wrap: anywhere;
+}
+
+/* A part of a name that must not break at its hyphen, like 26B-A4B */
+table .nowrap {
+  white-space: nowrap;
+}
+
+/* In a table a link fills its cell, which already shows where it ends, and
+   underlines in every cell would only add noise. Hover still shows one */
+:where(.prose) :is(td, th) .link-external {
+  text-decoration-line: none;
+}
+
+:where(.prose) :is(td, th) .link-external:hover {
+  text-decoration-line: underline;
+}
+
+/* The box round every table. A boxed table's border and corners go on it,
+   so they stay put while the table scrolls inside */
+.table-wrap {
+  overflow-x: auto;
+  margin-bottom: var(--space-md);
+}
+
+.table-wrap > table {
+  margin-bottom: 0;
+}
+
+/* On phones the first column stays put while the rest scrolls under it,
+   with a line at its edge. In a table with row groups that's the group
+   headers. No specificity, so a header band or stripe colours it */
+@media (max-width: 767px) {
+  :where(table:not(.compare))
+    :where(thead th:first-child, th[scope="rowgroup"], tbody:not(:has(> tr > th[scope="rowgroup"])) > tr > :first-child) {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--color-bg);
+    box-shadow: inset -1px 0 0 var(--color-border);
+  }
+}
+
+/* === PLAIN (a table with no class) === */
+
+table:not(.stripes, .compare) :is(th, td) {
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+table:not(.stripes, .compare) :is(th, td):first-child {
+  padding-left: 0;
+}
+
+/* In a row group whose header spans its rows, the later rows start beside
+   that header, so their first cell keeps its padding */
+table:not(.stripes, .compare) tbody:has(> tr > th[rowspan]) > tr + tr > td:first-child {
+  padding-left: var(--space-sm);
+}
+
+/* === BOXED (.stripes and .compare) === */
+
+.table-wrap:has(> :is(.stripes, .compare)) {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+:is(.stripes, .compare) :is(th, td) {
+  padding: 0.6em 0.7em;
+  vertical-align: middle;
+}
+
+/* Headers on a band */
+:is(.stripes, .compare) thead th {
+  background: var(--color-table-head);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* A line between row groups */
+:is(.stripes, .compare) tbody + tbody > tr:first-child > * {
+  border-top: 1px solid var(--color-border);
+}
+
+/* Every other row striped, from the first. The stripe goes on the cells,
+   leaving out a header that spans its group's rows: it stays plain. A
+   comparison table has no such headers, so its stripe goes on the row too,
+   which on phones is a padded block. Contrast on it is with
+   --color-table-stripe */
+:is(.stripes, .compare) tbody tr:nth-child(odd) > :not([rowspan]),
+.compare tbody tr:nth-child(odd) {
+  background: var(--color-table-stripe);
+}
+
+/* Code on a see-through box, so it shows on the stripe and off it */
+:is(.stripes, .compare) code {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+/* === ROW GROUPS (in a boxed table) ===
+   A <tbody> whose first row starts with <th scope="rowgroup" rowspan>, like
+   each memory size in Current picks, with a row header on each row, like
+   Winner and Runner-up. The row headers never break at a hyphen and step
+   back in muted grey. A group's first row is its pick: its cells in bold
+   and its header in the heading colour. On the stripe that header is
+   14.48:1 in light, 14.81:1 in dark */
+.stripes tbody:has(> tr > th[scope="rowgroup"]) th[scope="row"] {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.stripes tbody:has(> tr > th[scope="rowgroup"]) > tr:first-child > td {
+  font-weight: 600;
+}
+
+.stripes tbody:has(> tr > th[scope="rowgroup"]) > tr:first-child > th[scope="row"] {
+  color: var(--color-text-heading);
+}
+
+/* === COMPARISON TABLE (.compare) ===
+   Options rated on a few qualities, written as HTML: each option a row
+   header linking to its section, with its install links under it
+   (.compare-links), and each rating a badge. Each cell's data-label names
+   its column for phones, where every row stacks into a block. Its links
+   carry the classes and spans src/rehype-link-kinds.mjs gives Markdown
+   links, which it can't reach in raw HTML.
+
+   Every column rates on the same three levels, in the same colours:
+   .rating-good is the column's best, .rating-mid in between and .rating-bad
+   its worst. Each column names its own levels, like Low, Medium and High */
+
+.compare thead th {
+  vertical-align: bottom;
+}
+
+/* The ratings and their headers centred; the option names stay left */
+.compare thead th + th,
+.compare td {
+  text-align: center;
+}
+
+/* Option names link to their sections. No underline: they keep the heading
+   colour, which stays readable on the stripes, and their down arrow
+   (.link-jump) takes the accent to mark them as links */
+.compare tbody th > a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.compare tbody th > a .link-end::after {
+  background-color: var(--color-accent);
+}
+
+.compare tbody th > a:hover {
+  color: var(--color-blog-strong);
+  text-decoration: underline;
+}
+
+.compare tbody th > a:hover .link-end::after {
+  background-color: currentColor;
+}
+
+/* Install links go to other sites, so like every such link in content they
+   take the text colour around them, muted here (6.0:1 on the stripes), with
+   an indigo icon. They keep the heading font, since at this size the
+   row header's text font reads too small */
+.compare-links {
+  display: block;
+  margin-top: 0.1em;
+  font-family: var(--font-heading);
+  font-size: var(--text-ui);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* Green for the best, neutral stone in between and red for the worst, so
+   the middle is the one with no colour and the levels stay apart for
+   colour-blind readers too. One width, so each column of badges lines up */
+.rating {
+  display: inline-block;
+  min-width: 4.75em;
+  padding: 0.1em 0.55em;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: var(--text-meta);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.rating-good {
+  background: var(--color-status-active-bg);
+  color: var(--color-status-active-text);
+}
+
+/* 5.4:1 in light, 5.9:1 in dark */
+.rating-mid {
+  background: color-mix(in srgb, var(--color-text-muted) 14%, var(--color-bg));
+  color: var(--color-text-muted);
+}
+
+.rating-bad {
+  background: color-mix(in srgb, var(--color-rating-bad) 12%, var(--color-bg));
+  color: var(--color-rating-bad);
+}
+
+/* The table is as wide as the text. Long headers break into two even lines
+   to fit; every other cell stays on one. The ratings share the width evenly */
+@media (min-width: 768px) {
+  .compare thead th {
+    text-wrap: balance;
+  }
+
+  .compare thead th + th {
+    width: 23%;
+  }
+
+  .compare tbody th,
+  .compare td {
+    white-space: nowrap;
+  }
+}
+
+/* Phones: each row a block, the name first, then a line per rating labelled
+   with its column. The header row stays for screen readers only */
+@media (max-width: 767px) {
+  .compare thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .compare tbody,
+  .compare tr {
+    display: block;
+  }
+
+  .compare tr {
+    padding: var(--space-sm);
+  }
+
+  .compare tbody th,
+  .compare td {
+    padding: 0.2em 0;
+  }
+
+  .compare tbody th {
+    display: block;
+    margin-bottom: var(--space-xs);
+  }
+
+  .compare td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .compare td[data-label]::before {
+    content: attr(data-label);
+    font-family: var(--font-heading);
+    font-size: var(--text-meta);
+    color: var(--color-text-muted);
+  }
+}

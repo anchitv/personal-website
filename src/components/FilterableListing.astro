@@ -166,6 +166,14 @@ const sorts = topics
       </ul>
     )}
 
+    {entries.length > 0 && (
+      <div class="empty-state" data-filter-empty hidden>
+        <span class="empty-dash" aria-hidden="true">&mdash;</span>
+        <p>No {itemLabel} match these filters.</p>
+        <button type="button" class="filter-clear" data-filter-clear>Clear filters</button>
+      </div>
+    )}
+
     <nav class="pagination" data-pagination aria-label="Pagination"></nav>
   </section>
 </div>
