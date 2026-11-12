@@ -4,6 +4,7 @@
  * lists topics A–Z by it. A frontmatter topic missing from this list fails the build.
  */
 export const TOPICS = {
+  'ai': 'AI',
   'networking': 'Networking',
   'dns-email': 'DNS, domains and email',
   'servers': 'Servers and containers',
