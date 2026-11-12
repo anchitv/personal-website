@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { seriesColors, seriesName, seriesOutline, type SeriesItem, type SeriesPart } from '../lib/series';
+import { seriesColors, seriesName, seriesOutline, topicDescription, type SeriesItem, type SeriesPart } from '../lib/series';
 
 interface Props {
   /** Series slug */
@@ -30,11 +30,16 @@ for (const item of shownItems) {
   else groups.push({ topic: item.topic, items: [item] });
 }
 const index = readable.findIndex((part) => part.post === current);
-const prev = readable[index - 1];
-const next = readable[index + 1];
-// Each topic numbers its parts from 1, so a part in another topic says which
-const partOf = (part: SeriesPart) =>
-  part.topic && part.topic !== readable[index]?.topic ? `${part.topic} · Part ${part.number}` : `Part ${part.number}`;
+// The cards stay inside the topic: its first part has no previous card and its last no next card
+const here = readable[index];
+const before = readable[index - 1];
+const after = readable[index + 1];
+const prev = before?.topic === here?.topic ? before : undefined;
+const next = after?.topic === here?.topic ? after : undefined;
+// The last part of a topic points to the next topic instead, starting at its first published part
+const nextTopic = here && after?.topic && after.topic !== here.topic ? after : undefined;
+const nextTopicParts = nextTopic ? readable.filter((part) => part.topic === nextTopic.topic).length : 0;
+const partOf = (part: SeriesPart) => `Part ${part.number}`;
 
 const titleOf = (part: SeriesPart) => published.get(part.post)!.data.title;
 const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
@@ -44,7 +49,7 @@ const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
   {(prev || next) && (
     <div class="series-cards">
       {prev && (
-        <a href={hrefOf(prev)} rel="prev" class="series-card">
+        <a href={hrefOf(prev)} rel="prev" class="series-card series-card--prev">
           <span class="caps-label">&larr; Previous &middot; {partOf(prev)}</span>
           <span class="series-card-title">{titleOf(prev)}</span>
           <span class="series-card-description">{published.get(prev.post)!.data.description}</span>
@@ -58,6 +63,17 @@ const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
         </a>
       )}
     </div>
+  )}
+
+  {nextTopic && (
+    <a href={hrefOf(nextTopic)} rel="next" class="next-topic">
+      <span class="caps-label">Up next in {seriesName(id)}</span>
+      <span class="next-topic-title">{nextTopic.topic}</span>
+      <span class="next-topic-description">{topicDescription(id, nextTopic.topic!)}</span>
+      <span class="next-topic-start">
+        {nextTopicParts} {nextTopicParts === 1 ? 'part' : 'parts'} &middot; Start with {partOf(nextTopic)}: {titleOf(nextTopic)} &rarr;
+      </span>
+    </a>
   )}
 
   <!-- Every published part, so readers can jump anywhere in the series -->
@@ -113,7 +129,8 @@ const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
     gap: var(--space-sm);
   }
 
-  .series-card {
+  .series-card,
+  .next-topic {
     display: flex;
     flex-direction: column;
     gap: 0.25em;
@@ -125,10 +142,17 @@ const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
     transition: border-color var(--duration-200) ease, background-color var(--duration-200) ease, transform var(--duration-200) ease;
   }
 
-  .series-card:hover {
+  .series-card:hover,
+  .next-topic:hover {
     border-color: var(--color-accent);
     background-color: color-mix(in srgb, var(--color-series-surface) var(--series-tint-hover), var(--color-bg));
     transform: translateY(-2px);
+  }
+
+  /* Next is where most readers go, so it keeps the tint; Previous is just
+     an outline until hovered */
+  .series-card--prev:not(:hover) {
+    background-color: transparent;
   }
 
   /* Next stays on the right even when there is no previous part */
@@ -143,11 +167,38 @@ const hrefOf = (part: SeriesPart) => `/blog/${part.post}/`;
     font-weight: 600;
     color: var(--color-text-heading);
     line-height: var(--leading-heading);
+    text-wrap: balance;
   }
 
-  .series-card-description {
+  .series-card-description,
+  .next-topic-description {
     font-size: var(--text-description);
     color: var(--color-text-muted);
+  }
+
+  /* === NEXT TOPIC: the whole width, under the previous card === */
+  .next-topic {
+    padding: var(--space-sm) var(--space-lg);
+  }
+
+  .series-cards + .next-topic {
+    margin-top: var(--space-sm);
+  }
+
+  .next-topic-title {
+    font-family: var(--font-heading);
+    font-size: var(--fs-lg);
+    font-weight: 600;
+    color: var(--color-text-heading);
+    line-height: var(--leading-heading);
+    text-wrap: balance;
+  }
+
+  .next-topic-start {
+    margin-top: var(--space-xs);
+    font-family: var(--font-heading);
+    font-size: var(--text-ui);
+    font-weight: 600;
   }
 
   /* === ALL PARTS === */

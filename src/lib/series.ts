@@ -11,15 +11,18 @@ export type SeriesColor = (typeof SERIES_COLORS)[number];
 
 /** A post split into sub-parts, which share its number: Part 7.1, 7.2 */
 type Split = { readonly title: string; readonly parts: readonly string[] };
-/** Consecutive parts under a heading, e.g. Foundations for parts 1 to 4. Each topic numbers its parts from 1 */
-type Topic = { readonly topic: string; readonly parts: readonly (string | Split)[] };
+/**
+ * Consecutive parts under a heading, e.g. Foundations for parts 1 to 4. Each topic numbers its parts from 1.
+ * `description` is one sentence about the topic, shown where the topic before it ends
+ */
+type Topic = { readonly topic: string; readonly description: string; readonly parts: readonly (string | Split)[] };
 
 /**
  * Every blog series. The key is the slug: it's the folder its posts live in
  * (src/content/blog/<slug>/) and the /blog/?series=<slug> filter. `name` is
  * shown to readers and `color` is one of SERIES_COLORS. `parts` lists the
  * posts in reading order by file name, without the number, and each part's
- * number is its place in the list. Wrap consecutive parts in { topic, parts } to give them
+ * number is its place in the list. Wrap consecutive parts in { topic, description, parts } to give them
  * a heading; a topic's parts are numbered from 1. A post's file sits in its
  * topic's folder and starts with its number, so files sort in reading order:
  * homelab/local-ai/03-open-webui.md is Local AI Part 3. Only written posts are listed: add each one as you write it. The
@@ -33,6 +36,7 @@ export const SERIES = {
     parts: [
       {
         topic: 'Foundations',
+        description: 'What a homelab is and the setup every later topic builds on: Podman, a folder per service, starting at boot and your own domain.',
         parts: ['what-is-a-homelab', 'choosing-how-to-run', 'running-containers', 'folders-and-secrets', 'starting-at-boot', 'custom-domain'],
       },
     ],
@@ -224,6 +228,13 @@ export function writePartRefs(postId: string, markdown: string, link?: (part: Se
 export function postTitle(post: { id: string; data: { title: string } }): string {
   const series = postSeries(post.id);
   return series ? `Part ${series.number}: ${post.data.title}` : post.data.title;
+}
+
+/** A topic's one-sentence description from SERIES */
+export function topicDescription(id: string, topic: string): string | undefined {
+  const entries = SERIES[id as Series].parts as readonly (string | Split | Topic)[];
+  const entry = entries.find((entry): entry is Topic => typeof entry === 'object' && 'topic' in entry && entry.topic === topic);
+  return entry?.description;
 }
 
 /** A topic in URLs, e.g. "foundations" in /blog/?series=homelab&topic=foundations */
