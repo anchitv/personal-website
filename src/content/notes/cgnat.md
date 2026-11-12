@@ -1,6 +1,6 @@
 ---
 title: "CGNAT"
-date: 2026-11-01
+date: 2026-10-12
 description: "Why port forwarding fails behind CGNAT, how to tell if you're behind it and what to do."
 topic: networking
 aliases: ["CGNAT", "Carrier-grade NAT", "Shared public address"]

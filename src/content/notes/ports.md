@@ -1,6 +1,6 @@
 ---
 title: "Ports"
-date: 2026-10-31
+date: 2026-09-24
 description: "What a port is, the ones worth knowing and how compose files map them."
 topic: networking
 aliases: ["Port", "Listen", "Port mapping", "ss"]

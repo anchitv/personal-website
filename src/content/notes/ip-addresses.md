@@ -1,6 +1,6 @@
 ---
 title: "IP addresses"
-date: 2026-10-31
+date: 2026-09-20
 description: "What an IP address is, private versus public, how to find yours and how to keep a server's fixed."
 topic: networking
 aliases: ["IP address", "IPv4", "Private address", "Public address", "ipconfig", "DHCP", "DHCP reservation", "Static IP address"]

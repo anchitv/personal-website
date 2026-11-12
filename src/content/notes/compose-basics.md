@@ -1,6 +1,6 @@
 ---
 title: "Compose file basics"
-date: 2026-10-31
+date: 2026-09-24
 description: "What each line of a compose file means and the commands you'll use most."
 topic: servers
 aliases: ["Compose file", "compose.yaml", "Docker Compose", "podman compose", "Image", "Bind mount", "Volumes"]

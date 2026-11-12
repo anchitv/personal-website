@@ -1,6 +1,6 @@
 ---
 title: "Domain names"
-date: 2026-10-30
+date: 2026-09-20
 description: "What a domain name is, what it costs and what it gives a home server."
 topic: dns-email
 aliases: ["Domain name", "Registrar", "Subdomain", "HTTPS certificate", "Let's Encrypt"]

@@ -1,6 +1,6 @@
 ---
 title: "Cloudflare: proxied or DNS only"
-date: 2026-11-01
+date: 2026-10-12
 description: "What Cloudflare's orange cloud does, what it can't carry and how to use it with a home server."
 topic: dns-email
 aliases: ["Cloudflare's proxy", "Orange cloud", "Grey cloud", "Full (strict)", "Error 413"]

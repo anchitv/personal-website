@@ -1,6 +1,6 @@
 ---
 title: "DNS"
-date: 2026-11-01
+date: 2026-09-20
 description: "How the Domain Name System turns names into IP addresses."
 topic: dns-email
 aliases: ["DNS", "Domain Name System", "DNS server"]

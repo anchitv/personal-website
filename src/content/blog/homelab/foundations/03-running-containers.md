@@ -1,6 +1,6 @@
 ---
 title: "Setting up Podman"
-date: 2026-10-31
+date: 2026-09-28
 description: "Install Podman on Debian or Arch, see why every service gets a compose file and how that carries over to Docker."
 tags: ["homelab", "linux"]
 draft: false
