@@ -287,7 +287,9 @@ const structuredData = {
     letter-spacing: -0.01em;
     color: var(--color-text-heading);
     margin: 0;
-    max-width: 28ch;
+    /* Room for the sentence to split evenly over two lines, about 31ch each;
+       --fs-display shrinks it with the column so it keeps fitting */
+    max-width: 34ch;
     text-wrap: balance;
   }
 
