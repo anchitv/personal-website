@@ -74,8 +74,11 @@ table .nowrap {
 }
 
 /* The box round every table. A boxed table's border and corners go on it,
-   so they stay put while the table scrolls inside */
+   so they stay put while the table scrolls inside. It's positioned so the
+   hidden "(external site)" after a link scrolls inside it too, rather than
+   widening the page on phones */
 .table-wrap {
+  position: relative;
   overflow-x: auto;
   margin-bottom: var(--space-md);
 }
